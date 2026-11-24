@@ -1,0 +1,46 @@
+name: tests
+
+on:
+  push:
+  pull_request:
+
+permissions:
+  contents: read
+
+jobs:
+  worker:
+    runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: worker
+    steps:
+      - uses: actions/checkout@v5
+      - uses: actions/setup-node@v5
+        with:
+          node-version: 22
+          cache: npm
+          cache-dependency-path: worker/package-lock.json
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npx wrangler d1 migrations apply checkpointltc --local
+      - name: Start the worker locally
+        run: |
+          node -e "const c=JSON.parse(require('fs').readFileSync('wrangler.jsonc','utf8'));delete c.ai;delete c.media;require('fs').writeFileSync('wrangler.ci.json',JSON.stringify(c))"
+          npx wrangler dev -c wrangler.ci.json --port 8787 --var requireVerification:false --var pluginAssetId: --var environmentName:local --var REVIEW_PASSWORD:testpass > dev.log 2>&1 &
+          for i in $(seq 1 90); do curl -sf http://127.0.0.1:8787/v1/meta && break; sleep 1; done
+          curl -sf http://127.0.0.1:8787/v1/meta || (cat dev.log; exit 1)
+      - run: npm run test:permissions
+      - run: sleep 61 && npx wrangler d1 execute checkpointltc --local --command "DELETE FROM comments; DELETE FROM notifications; DELETE FROM preferences; DELETE FROM seen; DELETE FROM presence; DELETE FROM submissions; DELETE FROM uploads; DELETE FROM strikes; DELETE FROM game_reports; DELETE FROM game_keys; DELETE FROM export_tokens; DELETE FROM activity; DELETE FROM sessions; DELETE FROM bans; DELETE FROM visits; DELETE FROM assignments; DELETE FROM members; DELETE FROM items; DELETE FROM lists; DELETE FROM users;"
+      - run: npm run test:features
+      - if: failure()
+        run: tail -100 dev.log
+
+  plugin:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v5
+      - uses: CompeyDev/setup-rokit@v0.1.2
+      - run: stylua --check plugin/src
+      - run: selene generate-roblox-std
+      - run: selene plugin/src
+      - run: rojo build plugin -o CheckpointLTC.rbxmx

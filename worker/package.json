@@ -1,0 +1,19 @@
+{
+  "name": "checkpointltc-worker",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler d1 migrations apply checkpointltc --remote && wrangler deploy",
+    "typecheck": "wrangler types && tsc --noEmit",
+    "db:migrate:local": "wrangler d1 migrations apply checkpointltc --local",
+    "db:migrate:remote": "wrangler d1 migrations apply checkpointltc --remote",
+    "test:permissions": "node scripts/permission-test.mjs",
+    "test:features": "node scripts/feature-test.mjs",
+    "ban": "node scripts/ban.mjs"
+  },
+  "devDependencies": {
+    "typescript": "^5.9.0",
+    "wrangler": "^4.166.0"
+  }
+}

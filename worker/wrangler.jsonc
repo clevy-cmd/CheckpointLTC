@@ -1,0 +1,42 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "checkpointltc",
+  "main": "src/index.ts",
+  "rules": [{ "type": "Data", "globs": ["**/*.png"], "fallthrough": true }],
+  "compatibility_date": "2026-11-01",
+  "assets": { "directory": "./public", "binding": "ASSETS", "not_found_handling": "none", "run_worker_first": ["/media/*"] },
+  "routes": [{ "pattern": "checkpointltc.ltclevtec.com", "custom_domain": true }],
+  "workers_dev": true,
+  "preview_urls": false,
+  "observability": { "enabled": true },
+  "d1_databases": [
+    {
+      "binding": "DB",
+      "database_name": "checkpointltc",
+      "database_id": "9f2bdc53-9dc3-4d12-80ef-18c24119c2e6",
+      "migrations_dir": "migrations"
+    }
+  ],
+  "ratelimits": [
+    { "name": "apiLimiter", "namespace_id": "41001", "simple": { "limit": 120, "period": 60 } },
+    { "name": "authLimiter", "namespace_id": "41002", "simple": { "limit": 20, "period": 60 } },
+    { "name": "pollLimiter", "namespace_id": "41004", "simple": { "limit": 60, "period": 60 } },
+    { "name": "ipLimiter", "namespace_id": "41003", "simple": { "limit": 300, "period": 60 } },
+    { "name": "gameLimiter", "namespace_id": "41005", "simple": { "limit": 60, "period": 60 } }
+  ],
+  "r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "checkpointltc-uploads" }],
+  "ai": { "binding": "AI" },
+  "media": { "binding": "MEDIA" },
+  "triggers": { "crons": ["17 * * * *"] },
+  "vars": {
+    "latestPluginVersion": "1.0.0",
+    "minPluginVersion": "1.0.0",
+    "requireVerification": "true",
+    "publicOrigin": "https://checkpointltc.ltclevtec.com",
+    "ROBLOX_CLIENT_ID": "1932536210596794355",
+    "pluginAssetId": "104522423965573",
+    "environmentName": "production",
+    "moderationThresholds": "{\"sexual\":0.4,\"minors\":0.15,\"violence\":0.7,\"gore\":0.6,\"hate\":0.5,\"selfharm\":0.5,\"illegal\":0.5}",
+    "discordTags": "{\"bug\":{\"fromPlugin\":\"1574584076915052645\",\"held\":\"1574584385041072170\"},\"feedback\":{\"fromPlugin\":\"1574585526432960622\",\"held\":\"1574585439543627807\"}}"
+  }
+}

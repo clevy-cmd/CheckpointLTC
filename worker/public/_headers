@@ -1,0 +1,18 @@
+/media/*
+  Cache-Control: public, max-age=86400
+  X-Content-Type-Options: nosniff
+  Strict-Transport-Security: max-age=63072000; includeSubDomains
+
+/guide.pdf
+  Cache-Control: no-cache
+  Content-Disposition: inline; filename="CheckpointLTC Guide.pdf"
+  X-Content-Type-Options: nosniff
+  Strict-Transport-Security: max-age=63072000; includeSubDomains
+  Content-Security-Policy: frame-ancestors 'none'
+
+/site/*
+  Cache-Control: no-cache
+  X-Content-Type-Options: nosniff
+  Strict-Transport-Security: max-age=63072000; includeSubDomains
+  Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'sha256-1iBbV+hgkHnTrR3FDJAw/2+P2baEUIuvgpuu/Hjv7Q4='; img-src 'self'; font-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
+  X-Frame-Options: DENY

@@ -1,0 +1,908 @@
+<!doctype html>
+<html lang="en">
+<head>
+<style>html{background:#060c18;color-scheme:dark}</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CheckpointLTC guide · Every button, menu and setting</title>
+<meta name="description" content="The complete CheckpointLTC guide for Roblox Studio. Every button, menu, setting and limit in version 1.0.0, with real screenshots and a worked TODO example. Read it here or download the PDF.">
+<link rel="canonical" href="https://checkpointltc.ltclevtec.com/guide">
+<meta name="theme-color" content="#060c18">
+<meta property="og:type" content="article">
+<meta property="og:site_name" content="CheckpointLTC">
+<meta property="og:title" content="The complete CheckpointLTC guide">
+<meta property="og:description" content="Every button, menu, setting and limit in CheckpointLTC 1.0.0, with real screenshots and a worked example. Read it in your browser or download the 50 page PDF.">
+<meta property="og:url" content="https://checkpointltc.ltclevtec.com/guide">
+<meta property="og:image" content="https://checkpointltc.ltclevtec.com/site/og-guide.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The complete CheckpointLTC guide">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="The complete CheckpointLTC guide">
+<meta name="twitter:description" content="Every button, menu, setting and limit in CheckpointLTC 1.0.0.">
+<meta name="twitter:image" content="https://checkpointltc.ltclevtec.com/site/og-guide.jpg">
+<link rel="icon" type="image/png" href="/site/icon.png">
+<link rel="preload" href="/site/fonts/bricolage.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/site/site.css?v=7">
+<script src="/site/guide.js?v=7" defer></script>
+</head>
+<body class="guide-page">
+<div class="grid" aria-hidden="true"></div>
+
+<header class="top">
+  <a class="brand" href="/"><img src="/site/icon.png" alt="" width="28" height="28"><span>CheckpointLTC</span></a>
+  <nav>
+    <a href="/#demo">Try it</a>
+    <a href="/#features">Features</a>
+    <a class="keep on" href="/guide" aria-current="page">Guide</a>
+    <a href="/#discord">Discord</a>
+    <a class="get" href="https://create.roblox.com/store/asset/104522423965573" target="_blank" rel="noopener">Get the plugin</a>
+    <details class="menu"><summary aria-label="Menu"><i></i><i></i><i></i></summary><div class="menu-panel"><a href="/#demo">Try it</a><a href="/#features">Features</a><a class="on" href="/guide" aria-current="page">Guide</a><a href="/#discord">Discord</a></div></details>
+  </nav>
+</header>
+
+<main>
+  <section class="doc guide">
+    <div class="guide-hero">
+      <div>
+        <p class="kicker">Plugin version 1.0.0 · November 2026</p>
+        <h1>The complete <span class="scribble">guide.<svg viewBox="0 0 400 24" preserveAspectRatio="none" aria-hidden="true"><path d="M3 14 C 70 6, 140 19, 210 12 S 330 7, 397 12"></path></svg></span></h1>
+        <p class="lede">Every button, menu, setting and limit in CheckpointLTC, with real screenshots from Studio and a worked example you can follow along with in your own place.</p>
+        <div class="actions">
+          <a class="button primary" href="/guide.pdf" download="CheckpointLTC Guide.pdf">Download the PDF</a>
+          <a class="button" href="/guide.pdf" target="_blank" rel="noopener">Open it in a new tab</a>
+        </div>
+        <p class="fine">50 pages · Same content as this page · Free to save and share</p>
+      </div>
+      <figure class="shot hero-shot"><img src="/site/shots/list.webp" alt="The CheckpointLTC list view with the Game launch checklist" width="925" height="694" fetchpriority="high"></figure>
+    </div>
+
+    <div class="short">
+      <h2>Quick start</h2>
+      <ol class="steps-mini">
+        <li>Get CheckpointLTC from its <a href="https://create.roblox.com/store/asset/104522423965573" target="_blank" rel="noopener">Creator Store page</a>.</li>
+        <li>In Studio, open the <b>Plugins</b> tab and press <b>CheckpointLTC</b>.</li>
+        <li>Press <b>Log in with Roblox</b> and follow the link.</li>
+        <li>Press <b>New list</b>, then <b>Template: Game launch checklist</b>. You now have a real list with 12 tasks to play with.</li>
+      </ol>
+    </div>
+
+    <div class="doc-grid guide-grid">
+      <nav class="toc" aria-label="Guide contents">
+        <button class="toc-toggle" type="button" aria-expanded="false" aria-controls="toc-list">Contents</button>
+        <div class="toc-list" id="toc-list">
+          <p>Contents</p>
+          <a class="part" href="#part-1">1 · Getting started</a>
+          <a href="#install">Install and open the window</a>
+          <a href="#login">Log in with Roblox</a>
+          <a href="#tour">A tour of the window</a>
+          <a href="#syncing">How syncing works</a>
+          <a class="part" href="#part-2">2 · Lists and tasks</a>
+          <a href="#make-a-list">Make a list</a>
+          <a href="#list-view">The list view</a>
+          <a href="#task-row">Reading a task row</a>
+          <a href="#add-edit">Add and edit tasks</a>
+          <a href="#drawer">The task drawer</a>
+          <a href="#due-dates">Due dates</a>
+          <a href="#comments">Notes, comments and mentions</a>
+          <a href="#task-menu">The task menu</a>
+          <a href="#undo">Delete and undo</a>
+          <a href="#board">Board view and sorting</a>
+          <a href="#list-menu">The list menu</a>
+          <a href="#command-bar">The command bar</a>
+          <a href="#shortcuts">Keyboard shortcuts</a>
+          <a class="part" href="#part-3">3 · Built for Studio</a>
+          <a href="#studio-links">Studio links</a>
+          <a href="#sprintboost">Worked example: SprintBoost</a>
+          <a href="#todo-comment">Add a TODO comment</a>
+          <a href="#todo-scan">Scan and add</a>
+          <a href="#todo-result">The result</a>
+          <a href="#jump-back">Jump back to the line</a>
+          <a href="#pin">Pin to a game and Team Create</a>
+          <a href="#reports">Player reports</a>
+          <a href="#reports-code">Player reports: the code</a>
+          <a href="#reports-inbox">Player reports: the inbox</a>
+          <a class="part" href="#part-4">4 · Teams and tidying up</a>
+          <a href="#people">People and sharing</a>
+          <a href="#roles">Who can do what</a>
+          <a href="#my-tasks">My tasks, search and notifications</a>
+          <a href="#trash">Trash</a>
+          <a href="#activity">Activity log</a>
+          <a href="#export">Export</a>
+          <a href="#import">Writing a file to import</a>
+          <a class="part" href="#part-5">5 · Settings and reference</a>
+          <a href="#preferences">Preferences</a>
+          <a href="#help">Help, tour and What's new</a>
+          <a href="#limits">Plan and limits</a>
+          <a href="#support">Support</a>
+          <a href="#devices">Devices and logging out</a>
+          <a href="#messages">What every message means</a>
+          <a href="#privacy">Privacy and getting help</a>
+        </div>
+      </nav>
+
+      <article class="doc-body guide-body">
+
+        <header class="part-head" id="part-1"><span class="num">01</span><h2>Getting started</h2><p>Install the plugin, log in with Roblox, and learn what every part of the window does.</p></header>
+
+        <section class="topic" id="install">
+          <h3>Install and open the window</h3>
+          <p>Get CheckpointLTC from its <a href="https://create.roblox.com/store/asset/104522423965573" target="_blank" rel="noopener">Creator Store page</a>. Once it's installed, a <b>CheckpointLTC</b> button shows up in the <b>LTCLevTec</b> section of the Plugins tab.</p>
+          <figure class="fig fig-s"><img src="/site/shots/toolbar.webp" alt="The CheckpointLTC toolbar button" loading="lazy" decoding="async" width="300" height="110"><figcaption>Hover the button and Studio shows "Shared to do lists for your team".</figcaption></figure>
+          <figure class="fig"><img src="/site/shots/studio-context.webp" alt="CheckpointLTC open over the 3D view" loading="lazy" decoding="async" width="1600" height="866"><figcaption>The window floats over the 3D view, next to your Explorer.</figcaption></figure>
+          <ul class="ticks">
+            <li><b>Open and close</b> with the toolbar button, the ✕ in the title bar, or a shortcut you bind yourself.</li>
+            <li><b>Move it</b> by dragging the title bar. <b>Resize it</b> from the grip in the bottom right corner. The smallest size is 360 by 440 pixels.</li>
+            <li><b>It remembers</b> where you left it, so it opens in the same spot next time.</li>
+            <li><b>A badge on the toolbar icon</b> means something changed while the window was closed: a teammate edited your list, someone mentioned you, or one of your tasks is due within the hour. Opening the window clears it.</li>
+          </ul>
+        </section>
+
+        <section class="topic" id="login">
+          <h3>Log in with Roblox</h3>
+          <p>Plugins can't open a browser, so logging in happens on Roblox's own website. You never type your password into CheckpointLTC.</p>
+          <ol class="steps-mini">
+            <li><b>Press Log in with Roblox.</b> The window shows a short code and the button changes to <b>Show the login link</b>.</li>
+            <li><b>Press Show the login link</b> and copy the link into your browser. It works for 10 minutes.</li>
+            <li><b>Check the code</b> on the page matches the one in Studio, then press <b>Continue with Roblox</b>. That's Roblox's own permission screen.</li>
+            <li><b>Wait a few seconds.</b> The plugin checks every 3 seconds and finishes on its own. Press <b>Cancel</b> any time to stop.</li>
+          </ol>
+          <h4>What Roblox shares</h4>
+          <ul class="ticks">
+            <li><b>Your UserId.</b> That's how lists know who owns them and who they're shared with. No username, email or password is stored.</li>
+            <li><b>Whether you own the plugin,</b> when it's a paid version. Roblox answers yes or no at login and about once a day after.</li>
+            <li><b>The account must match.</b> Log in with the same Roblox account you're signed in to Studio with.</li>
+          </ul>
+          <h4>Other screens you might see</h4>
+          <div class="table-wrap"><table class="keys">
+            <tr><td>Sign in to Roblox Studio first.</td><td>Studio isn't signed in to a Roblox account. Sign in at the top right of Studio, then try again.</td></tr>
+            <tr><td>This Roblox account doesn't own CheckpointLTC yet</td><td>Paid versions only. Get it on the Creator Store with the same account, then log in again.</td></tr>
+            <tr><td>Your sign in expired</td><td>Your key was signed out from another device or replaced. Log in with Roblox again.</td></tr>
+          </table></div>
+          <aside class="tip"><b>Your key stays on your computer.</b> After login the plugin saves a private key in Studio's plugin settings, never inside your place. The server only keeps a scrambled copy of it.</aside>
+        </section>
+
+        <section class="topic" id="tour">
+          <h3>A tour of the window</h3>
+          <figure class="fig"><img src="/site/shots/list.webp" alt="The whole CheckpointLTC window" loading="lazy" decoding="async" width="925" height="694"></figure>
+          <div class="cols">
+            <div>
+              <h4>Title bar, left to right</h4>
+              <div class="table-wrap"><table class="keys narrow">
+                <tr><td>☰</td><td>Shows the list sidebar. Only appears when the window is narrower than 560 pixels.</td></tr>
+                <tr><td>Search</td><td>Opens the command bar. Same as <kbd>/</kbd>.</td></tr>
+                <tr><td>Bell</td><td>Your last 10 notifications, with a count of unread ones.</td></tr>
+                <tr><td>Refresh</td><td>Checks for changes right now.</td></tr>
+                <tr><td>Gear</td><td>Settings, help, plan, support and devices.</td></tr>
+                <tr><td>✕</td><td>Closes the window.</td></tr>
+              </table></div>
+            </div>
+            <div>
+              <h4>Sidebar sections</h4>
+              <div class="table-wrap"><table class="keys narrow">
+                <tr><td>Workspace</td><td>My tasks, Search and Trash.</td></tr>
+                <tr><td>This game</td><td>Lists pinned to the place you have open.</td></tr>
+                <tr><td>My lists</td><td>Lists you own.</td></tr>
+                <tr><td>Assigned to me</td><td>Lists someone assigned to you.</td></tr>
+                <tr><td>Opened by code</td><td>Lists you opened with a share code.</td></tr>
+                <tr><td>Archived</td><td>Your archived lists, at the bottom.</td></tr>
+              </table></div>
+            </div>
+          </div>
+          <p>Each list row shows its name, a done count like <kbd>2/12</kbd>, and a blue badge counting changes other people made since you last opened it. Everything else, like Duplicate, Archive and Delete, lives in that list's ••• menu.</p>
+          <p>At the bottom of the sidebar, <b>Download Guide</b> gives you the link to this guide, and the small text under it is your plugin version, like <kbd>v1.0.0</kbd>. When a newer version is out it turns yellow and says so. Update from Manage Plugins.</p>
+        </section>
+
+        <section class="topic" id="syncing">
+          <h3>How syncing works</h3>
+          <p>Lists live on the CheckpointLTC server, not inside your place. They follow you to every place and every computer you log in on.</p>
+          <ul class="ticks">
+            <li><b>Your changes show right away.</b> The plugin updates the screen first and saves in the background. A task that's still saving looks slightly faded.</li>
+            <li><b>If a save fails,</b> the change rolls back and a red toast explains why.</li>
+            <li><b>Other people's changes</b> come in on the refresh timer: every 30 seconds by default, or 10 seconds, 1 minute or 2 minutes in Settings.</li>
+            <li><b>It slows down when you do.</b> After 3 minutes with no clicks in Studio, refreshes happen 4 times less often. With the window closed, 8 times less often. Opening the window refreshes straight away.</li>
+            <li><b>Two people, one task.</b> If someone saved the same task text or notes before you, you get "Someone else changed this task first. I loaded their version." Nothing is silently overwritten.</li>
+            <li><b>It remembers your last list</b> and opens it the next time you log in.</li>
+          </ul>
+          <h4>Toasts</h4>
+          <p>Small messages at the bottom of the window are called toasts. Blue means info, green means done, yellow is a warning and red is an error. Some carry a button, like <b>Undo</b> after a delete. They close by themselves after 5 seconds.</p>
+          <figure class="fig"><img src="/site/shots/list-created.webp" alt="A toast saying List created" loading="lazy" decoding="async" width="925" height="94"></figure>
+        </section>
+
+        <header class="part-head" id="part-2"><span class="num">02</span><h2>Lists and tasks</h2><p>Make lists, fill them with tasks, and learn every field, view, menu and shortcut.</p></header>
+
+        <section class="topic" id="make-a-list">
+          <h3>Make a list</h3>
+          <figure class="fig"><img src="/site/shots/menu-new.webp" alt="The New list menu" loading="lazy" decoding="async" width="925" height="694"></figure>
+          <div class="table-wrap"><table class="keys">
+            <tr><td>Blank list</td><td>Asks for a name, up to 60 characters, and makes an empty list you own.</td></tr>
+            <tr><td>Template: Game launch checklist</td><td>12 tasks in 4 sections: Gameplay, Polish, Tech and Launch.</td></tr>
+            <tr><td>Template: Bug triage</td><td>6 tasks in 3 sections: New, Fixing and Verify.</td></tr>
+            <tr><td>Import from a JSON or Markdown file</td><td>Opens a file picker for a <kbd>.json</kbd>, <kbd>.md</kbd> or <kbd>.txt</kbd> file up to 256 KB. See <a href="#import">Writing a file to import</a>.</td></tr>
+            <tr><td>Open a list with a share code</td><td>Type the 8 letter code someone gave you, like <kbd>ABCD 2345</kbd>. Spaces don't matter. You can view the list.</td></tr>
+          </table></div>
+          <p>You can own up to 50 lists. The command bar has a <b>New list</b> action too.</p>
+        </section>
+
+        <section class="topic" id="list-view">
+          <h3>The list view</h3>
+          <div class="cols">
+            <div>
+              <h4>Header</h4>
+              <div class="table-wrap"><table class="keys narrow">
+                <tr><td>Title</td><td>The list name.</td></tr>
+                <tr><td>Subtitle</td><td>Your role, then done out of total, plus "assigned to you" or "archived" when they apply.</td></tr>
+                <tr><td>Bar</td><td>Fills up as tasks get done.</td></tr>
+                <tr><td>Undo</td><td>Takes back your last change on this list.</td></tr>
+                <tr><td>Board</td><td>Switches between list and board view.</td></tr>
+                <tr><td>People</td><td>Who can see and change the list.</td></tr>
+                <tr><td>•••</td><td>The list menu.</td></tr>
+              </table></div>
+            </div>
+            <div>
+              <h4>Below the header</h4>
+              <div class="table-wrap"><table class="keys narrow">
+                <tr><td>Chips</td><td>All, Scripting, UI, VFX, Bug. Pick one to only show tasks with that label. Pick it again to clear.</td></tr>
+                <tr><td>Hide done</td><td>Hides checked tasks. Saved to your settings.</td></tr>
+                <tr><td>Sections</td><td>Headers like <kbd>GAMEPLAY 3</kbd> group tasks and count them.</td></tr>
+                <tr><td>Bottom</td><td>The new task box and the ＋ button.</td></tr>
+              </table></div>
+            </div>
+          </div>
+          <p>Viewers see "You can view this list. Ask the owner for edit rights." where the new task box would be. Archived lists show a yellow bar with an <b>Unarchive</b> button for the owner.</p>
+        </section>
+
+        <section class="topic" id="task-row">
+          <h3>Reading a task row</h3>
+          <figure class="fig"><img src="/site/shots/filter.webp" alt="The Scripting filter on" loading="lazy" decoding="async" width="925" height="694"><figcaption>The Scripting chip is on, so only Scripting tasks show.</figcaption></figure>
+          <div class="table-wrap"><table class="keys">
+            <tr><td>⠿ drag handle</td><td>Hold and drag to reorder. Only shows if you can edit.</td></tr>
+            <tr><td>☐ box</td><td>Check it off or uncheck it. Editors can, and so can the person the task is assigned to.</td></tr>
+            <tr><td>Text</td><td>Up to two lines. Use Show full text in the task menu to see all of it.</td></tr>
+            <tr><td>Label chip</td><td>Scripting is blue, UI is purple, VFX is orange, Bug is red.</td></tr>
+            <tr><td>Priority</td><td><kbd>!!! High</kbd>, <kbd>!! Medium</kbd> or <kbd>! Low</kbd>. Nothing shows for None.</td></tr>
+            <tr><td>Due text</td><td>Red when overdue, yellow for today and tomorrow, grey after that.</td></tr>
+            <tr><td>💬 1</td><td>How many comments the task has.</td></tr>
+            <tr><td>🔗</td><td>The task is linked to something in Studio.</td></tr>
+            <tr><td>● Name</td><td>A teammate has this task open right now.</td></tr>
+            <tr><td>Avatar</td><td>The person the task is assigned to.</td></tr>
+            <tr><td>•••</td><td>The task menu.</td></tr>
+          </table></div>
+        </section>
+
+        <section class="topic" id="add-edit">
+          <h3>Add and edit tasks</h3>
+          <figure class="fig"><img src="/site/shots/composer.webp" alt="The growing task box with a long task" loading="lazy" decoding="async" width="925" height="694"><figcaption>A long task. The box grows upward so the line you're typing stays in view.</figcaption></figure>
+          <div class="cols">
+            <div>
+              <h4>Adding</h4>
+              <ul class="ticks">
+                <li><b>Type and press Enter.</b> The task goes to the bottom and the box stays ready for the next one.</li>
+                <li><b>Filters carry over.</b> With the UI chip on, new tasks get the UI label.</li>
+                <li><b>The ＋ button</b> adds a task linked to whatever you have selected in the Explorer.</li>
+                <li><b>Up to 240 characters</b> per task and 500 tasks per list.</li>
+              </ul>
+            </div>
+            <div>
+              <h4>Editing</h4>
+              <ul class="ticks">
+                <li><b>Double click the text</b> to edit it right in the row. Enter saves.</li>
+                <li><b>Single click</b> opens the task drawer with every field.</li>
+                <li><b>The box grows to 6 lines,</b> then scrolls. A counter like <kbd>228 / 240</kbd> shows past 80 percent.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="topic" id="drawer">
+          <h3>The task drawer</h3>
+          <p>Click a task and its details slide in from the right. Every change saves on its own. Press <kbd>Esc</kbd> or ✕ to close it.</p>
+          <figure class="fig"><img src="/site/shots/drawer.webp" alt="The task drawer" loading="lazy" decoding="async" width="925" height="694"></figure>
+          <div class="table-wrap"><table class="keys">
+            <tr><td>Text box</td><td>Edit the task. Saves when you click away.</td></tr>
+            <tr><td>Mark done</td><td>Turns into "Done ✓" once checked. Next to it: who changed the task last and when.</td></tr>
+            <tr><td>Priority</td><td>None, Low, Medium or High.</td></tr>
+            <tr><td>Label</td><td>None, Scripting, UI, VFX or Bug.</td></tr>
+            <tr><td>Due date</td><td>None, Today, Tomorrow, Next week or Pick.</td></tr>
+            <tr><td>Section</td><td>No section, any section already on the list, or New section (up to 40 characters).</td></tr>
+            <tr><td>Assigned to</td><td>Nobody, the owner, or anyone on the list. The task shows up in their My tasks.</td></tr>
+            <tr><td>Studio link</td><td>Link my selection, or Go to and Unlink once it's linked.</td></tr>
+            <tr><td>Notes</td><td>Up to 2000 characters, several lines.</td></tr>
+            <tr><td>Comments</td><td>Everyone's comments, newest at the bottom, with a box to write your own.</td></tr>
+            <tr><td>Delete task</td><td>Moves it to the trash for 30 days.</td></tr>
+          </table></div>
+        </section>
+
+        <section class="topic" id="due-dates">
+          <h3>Due dates</h3>
+          <p>Quick picks set the due time to 11:59 PM on that day, in your local time. <b>Next week</b> means 7 days from today. <b>Pick</b> asks you to type a date. Any of these work for Christmas Eve 2026:</p>
+          <div class="table-wrap"><table class="keys even">
+            <tr><th>You type</th><th>Format</th></tr>
+            <tr><td><kbd>2026 12 24</kbd></td><td>Year, month, day with spaces</td></tr>
+            <tr><td><kbd>20261224</kbd></td><td>Eight digits, no spaces</td></tr>
+            <tr><td><kbd>12/24/2026</kbd></td><td>Month, day, year with slashes</td></tr>
+          </table></div>
+          <h4>What the due text says</h4>
+          <div class="table-wrap"><table class="keys even">
+            <tr><th>When</th><th>Shows</th><th>Color</th></tr>
+            <tr><td>Already passed</td><td>Due today, 1 day overdue, 3 days overdue</td><td class="no">Red</td></tr>
+            <tr><td>Later today or tomorrow</td><td>Due today, Due tomorrow</td><td class="warn">Yellow</td></tr>
+            <tr><td>Within 7 days</td><td>Due Friday</td><td>Grey</td></tr>
+            <tr><td>Further out</td><td>Due Dec 1</td><td>Grey</td></tr>
+          </table></div>
+        </section>
+
+        <section class="topic" id="comments">
+          <h3>Notes, comments and mentions</h3>
+          <p>Notes are one shared block of text on a task. Comments are a conversation, each one signed with who wrote it and when.</p>
+          <div class="cols">
+            <div>
+              <h4>Comments</h4>
+              <ul class="ticks">
+                <li><b>Who can comment:</b> owners, admins, editors, and the person the task is assigned to.</li>
+                <li><b>Enter sends.</b> Up to 1000 characters each and 200 per task.</li>
+                <li><b>Delete</b> with the × on a comment. Yours always, and owners and admins can delete anyone's.</li>
+              </ul>
+            </div>
+            <div>
+              <h4>Mentions</h4>
+              <ul class="ticks">
+                <li><b>Type @ and a Roblox username,</b> like <kbd>@Builderman</kbd>.</li>
+                <li><b>They must be on the list.</b> Mentioning yourself does nothing.</li>
+                <li><b>They get a notification</b> under the bell, with the start of your comment.</li>
+              </ul>
+            </div>
+          </div>
+          <pre class="code plain"><code><span class="l" data-n="1">Done on PC, still need to check it on a phone. @Builderman can you test on iPad?</span></code></pre>
+          <p>Builderman gets "<i>your name</i> mentioned you on Full playtest with a fresh account" in their bell, and a toast if they have mention notifications on.</p>
+        </section>
+
+        <section class="topic" id="task-menu">
+          <h3>The task menu</h3>
+          <p>Press ••• on the right of any task. What you see depends on your role.</p>
+          <figure class="fig"><img src="/site/shots/menu-task.webp" alt="The task menu" loading="lazy" decoding="async" width="1150" height="720"></figure>
+          <div class="table-wrap"><table class="keys">
+            <tr><td>Open details</td><td>Opens the drawer.</td></tr>
+            <tr><td>Mark done or Mark not done</td><td>Editors, and the person it's assigned to.</td></tr>
+            <tr><td>Go to SprintBoost line 1</td><td>Only on linked tasks. Jumps to the linked part or script.</td></tr>
+            <tr><td>Show full text or Collapse text</td><td>Shows every line of a long task, or back to two.</td></tr>
+            <tr><td>Edit text</td><td>Opens the drawer to edit. Editors only, like everything below.</td></tr>
+            <tr><td>Priority: High to None</td><td>Sets priority without opening the drawer.</td></tr>
+            <tr><td>Assign to me</td><td>Puts the task in your My tasks.</td></tr>
+            <tr><td>Link to my selection</td><td>Links it to what you have selected in the Explorer.</td></tr>
+            <tr><td>Delete task</td><td>Moves it to the trash.</td></tr>
+          </table></div>
+        </section>
+
+        <section class="topic" id="undo">
+          <h3>Delete and undo</h3>
+          <div class="cols">
+            <figure class="fig"><img src="/site/shots/confirm-task.webp" alt="The delete task confirmation" loading="lazy" decoding="async" width="809" height="237"><figcaption>It asks first by default. Turn that off in Settings, Preferences.</figcaption></figure>
+            <figure class="fig"><img src="/site/shots/toast.webp" alt="The Undo toast" loading="lazy" decoding="async" width="925" height="94"><figcaption>Right after a delete, the toast has an Undo button for 5 seconds.</figcaption></figure>
+          </div>
+          <p>The undo button in the list header takes back <b>your own</b> last change on that list, one at a time, going back up to 30 days. It never undoes other people's work.</p>
+          <div class="table-wrap"><table class="keys even">
+            <tr><th>You did</th><th>Undo does</th></tr>
+            <tr><td>Added a task</td><td>The task goes to the trash</td></tr>
+            <tr><td>Deleted a task</td><td>The task comes back</td></tr>
+            <tr><td>Edited a task</td><td>Text, priority, due date, label, section, notes, assignee and link go back</td></tr>
+            <tr><td>Checked or unchecked</td><td>Flips it back</td></tr>
+            <tr><td>Moved a task</td><td>Goes back to where it was</td></tr>
+            <tr><td>Renamed the list</td><td>The old name comes back</td></tr>
+          </table></div>
+        </section>
+
+        <section class="topic" id="board">
+          <h3>Board view and sorting</h3>
+          <figure class="fig"><img src="/site/shots/board.webp" alt="Board view" loading="lazy" decoding="async" width="925" height="694"></figure>
+          <div class="cols">
+            <div>
+              <h4>Board view</h4>
+              <ul class="ticks">
+                <li><b>Lists with sections</b> get one column per section. Two fit on screen, scroll sideways for more.</li>
+                <li><b>Lists without sections</b> get To do and Done. Dragging across checks or unchecks.</li>
+                <li><b>Drag between columns</b> to move a task to that section.</li>
+              </ul>
+            </div>
+            <div>
+              <h4>Sorting</h4>
+              <div class="table-wrap"><table class="keys narrow">
+                <tr><td>My order</td><td>Your drag order, grouped by section.</td></tr>
+                <tr><td>Priority</td><td>High first.</td></tr>
+                <tr><td>Due</td><td>Soonest first, no date last.</td></tr>
+                <tr><td>Recent</td><td>Last changed first.</td></tr>
+              </table></div>
+              <p class="note">Section headers only show in My order.</p>
+            </div>
+          </div>
+        </section>
+
+        <section class="topic" id="list-menu">
+          <h3>The list menu</h3>
+          <p>Press ••• in the list header. This is the owner's menu, shown over board view.</p>
+          <figure class="fig"><img src="/site/shots/menu-list.webp" alt="The list menu" loading="lazy" decoding="async" width="1150" height="694"></figure>
+          <div class="table-wrap"><table class="keys matrix">
+            <tr><th>Item</th><th>Owner</th><th>Admin</th><th>Editor</th><th>Viewer</th></tr>
+            <tr><td>Rename list</td><td class="ok">yes</td><td class="ok">yes</td><td class="no">no</td><td class="no">no</td></tr>
+            <tr><td>Pin to or Unpin from this game</td><td class="ok">yes</td><td class="ok">yes</td><td class="no">no</td><td class="no">no</td></tr>
+            <tr><td>Duplicate list</td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes</td></tr>
+            <tr><td>Export as Markdown or JSON</td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes</td></tr>
+            <tr><td>Activity log, reports inbox, TODO scan</td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes</td><td class="no">no</td></tr>
+            <tr><td>Archive or Unarchive, Delete list</td><td class="ok">yes</td><td class="no">no</td><td class="no">no</td><td class="no">no</td></tr>
+            <tr><td>Leave this list</td><td class="no">no</td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes</td></tr>
+          </table></div>
+          <p>Duplicate makes a copy you own. Archive freezes a list so nobody can change it until you unarchive it, and moves it to the Archived section. Lists you opened by code also get <b>Remove from my sidebar</b>.</p>
+        </section>
+
+        <section class="topic" id="command-bar">
+          <h3>The command bar</h3>
+          <p>Press <kbd>/</kbd> with your mouse over the window, or the search button. Type a few letters and press Enter.</p>
+          <figure class="fig"><img src="/site/shots/command2.webp" alt="The command bar" loading="lazy" decoding="async" width="925" height="694"><figcaption>Typing "play" finds an action and two tasks.</figcaption></figure>
+          <ul class="ticks">
+            <li><b>Finds lists, tasks on the open list, and actions.</b> Letters don't need to be next to each other, so <kbd>tdo</kbd> still finds "Scan scripts for TODO comments".</li>
+            <li><b>Arrow keys</b> move the highlight, <kbd>Enter</kbd> runs it, <kbd>Esc</kbd> closes. Up to 8 results show.</li>
+            <li><b>Actions:</b> New list, My tasks, Search all lists, Add a task from my selection, Scan scripts for TODO comments, Undo my last change, Trash, Settings, Report a bug, Plan and limits, Replay the tour, Switch view, Compact mode and Refresh.</li>
+          </ul>
+          <aside class="tip"><b>Why the mouse has to be over the window.</b> <kbd>/</kbd> is used all over Studio, so CheckpointLTC only grabs it when you're pointing at its window and not typing in a text box.</aside>
+        </section>
+
+        <section class="topic" id="shortcuts">
+          <h3>Keyboard shortcuts</h3>
+          <p>CheckpointLTC adds six actions to Studio. They have no keys until you give them some, so they never clash with your setup.</p>
+          <figure class="fig"><img src="/site/shots/shortcuts.webp" alt="Studio's Customize Shortcuts window filtered to CheckpointLTC" loading="lazy" decoding="async" width="700" height="370"></figure>
+          <ol class="steps-mini">
+            <li>In Studio, open <b>File</b>, then <b>Customize Shortcuts</b>.</li>
+            <li>Type <kbd>CheckpointLTC</kbd> in Search Actions.</li>
+            <li>Double click the Shortcut cell next to an action and press the keys you want.</li>
+            <li>Press <b>OK</b>.</li>
+          </ol>
+          <div class="table-wrap"><table class="keys">
+            <tr><td>CheckpointLTC: Open or close</td><td>Show or hide the window from anywhere</td></tr>
+            <tr><td>CheckpointLTC: Command bar</td><td>Opens the window and the command bar</td></tr>
+            <tr><td>CheckpointLTC: Add task from selection</td><td>Adds a task linked to what's selected</td></tr>
+            <tr><td>CheckpointLTC: New task</td><td>Jumps to the new task box</td></tr>
+            <tr><td>CheckpointLTC: Refresh</td><td>Checks for changes now</td></tr>
+            <tr><td>CheckpointLTC: Undo my last change</td><td>Undo on the open list</td></tr>
+          </table></div>
+        </section>
+
+        <header class="part-head" id="part-3"><span class="num">03</span><h2>Built for Studio</h2><p>Link tasks to parts and script lines, turn TODO comments into tasks, pin lists to a place, see your team, and collect bug reports from players.</p></header>
+
+        <section class="topic" id="studio-links">
+          <h3>Studio links</h3>
+          <p>A link connects a task to a part, model, folder or script in your place. Clicking it later selects that thing, and for scripts opens the editor at the right line.</p>
+          <h4>Three ways to make one</h4>
+          <ol class="steps-mini">
+            <li><b>From the drawer.</b> Select something in the Explorer, open a task, press <b>Link my selection</b>.</li>
+            <li><b>From the task menu.</b> Select something, then ••• and <b>Link to my selection</b>.</li>
+            <li><b>Make a new linked task.</b> Select something and press ＋ next to the new task box. You get a task like <kbd>Work on SprintBoost</kbd>, and scripts get the Scripting label.</li>
+          </ol>
+          <p>A link made from a selected script points at line 1. Links made by the TODO scanner point at the exact line of the comment.</p>
+          <h4>How the link finds its way back</h4>
+          <p>When you link something, CheckpointLTC puts a small hidden marker on it: an attribute and a tag. That's why links keep working after you rename or move things.</p>
+          <div class="table-wrap"><table class="keys even">
+            <tr><th>What gets added</th><th>Example value</th></tr>
+            <tr><td>Attribute <code>CheckpointLTCId</code></td><td><code>3eda6e331403487889d068266f5aec31</code></td></tr>
+            <tr><td>CollectionService tag</td><td><code>CheckpointLTCLink</code></td></tr>
+          </table></div>
+          <p>If the marker is gone, for example the object was deleted and remade, it falls back to the saved path like <code>StarterPlayer.StarterPlayerScripts.SprintBoost</code>.</p>
+          <div class="table-wrap"><table class="keys">
+            <tr><th>Message</th><th>Meaning</th></tr>
+            <tr><td>That link points to a different place.</td><td>The task was linked in another place. Open that place to use it.</td></tr>
+            <tr><td>I couldn't find … in this place.</td><td>It was deleted, or renamed and its marker removed.</td></tr>
+            <tr><td>Select a part, model or script in the Explorer first.</td><td>Nothing was selected when you pressed link.</td></tr>
+          </table></div>
+        </section>
+
+        <section class="topic" id="sprintboost">
+          <p class="kicker">Worked example · Step 1 of 4</p>
+          <h3>The SprintBoost script</h3>
+          <p>Follow along in any place. In the Explorer, add a <b>LocalScript</b> to <code>StarterPlayer</code> › <code>StarterPlayerScripts</code>, name it <b>SprintBoost</b>, and paste this in. Holding Left Shift makes you run faster.</p>
+          <figure class="code-card flat">
+            <div class="code-tab"><span>SprintBoost</span><span>LocalScript</span></div>
+            <pre class="code luau"><code><span class="l" data-n="1"><span class="k">local</span> Players = game:GetService(<span class="s">"Players"</span>)</span><span class="l" data-n="2"><span class="k">local</span> UserInputService = game:GetService(<span class="s">"UserInputService"</span>)</span><span class="l" data-n="3"> </span><span class="l" data-n="4"><span class="k">local</span> player = Players.LocalPlayer</span><span class="l" data-n="5"><span class="k">local</span> walkSpeed = <span class="n">16</span></span><span class="l" data-n="6"><span class="k">local</span> sprintSpeed = <span class="n">28</span></span><span class="l" data-n="7"> </span><span class="l" data-n="8"><span class="k">local</span> <span class="k">function</span> getHumanoid()</span><span class="l" data-n="9">	<span class="k">local</span> character = player.Character</span><span class="l" data-n="10">	<span class="k">return</span> character <span class="k">and</span> character:FindFirstChildOfClass(<span class="s">"Humanoid"</span>)</span><span class="l" data-n="11"><span class="k">end</span></span><span class="l" data-n="12"> </span><span class="l" data-n="13">UserInputService.InputBegan:Connect(<span class="k">function</span>(input, processed)</span><span class="l" data-n="14">	<span class="k">if</span> processed <span class="k">or</span> input.KeyCode ~= Enum.KeyCode.LeftShift <span class="k">then</span></span><span class="l" data-n="15">		<span class="k">return</span></span><span class="l" data-n="16">	<span class="k">end</span></span><span class="l" data-n="17">	<span class="k">local</span> humanoid = getHumanoid()</span><span class="l" data-n="18">	<span class="k">if</span> humanoid <span class="k">then</span></span><span class="l" data-n="19">		humanoid.WalkSpeed = sprintSpeed</span><span class="l" data-n="20">	<span class="k">end</span></span><span class="l" data-n="21"><span class="k">end</span>)</span><span class="l" data-n="22"> </span><span class="l" data-n="23">UserInputService.InputEnded:Connect(<span class="k">function</span>(input)</span><span class="l" data-n="24">	<span class="k">if</span> input.KeyCode ~= Enum.KeyCode.LeftShift <span class="k">then</span></span><span class="l" data-n="25">		<span class="k">return</span></span><span class="l" data-n="26">	<span class="k">end</span></span><span class="l" data-n="27">	<span class="k">local</span> humanoid = getHumanoid()</span><span class="l" data-n="28">	<span class="k">if</span> humanoid <span class="k">then</span></span><span class="l" data-n="29">		humanoid.WalkSpeed = walkSpeed</span><span class="l" data-n="30">	<span class="k">end</span></span><span class="l" data-n="31"><span class="k">end</span>)</span></code></pre>
+          </figure>
+          <div class="table-wrap"><table class="keys">
+            <tr><th>Lines</th><th>What they do</th></tr>
+            <tr><td>1 to 2</td><td>Get the two services the script needs. <code>Players</code> knows who you are, <code>UserInputService</code> hears key presses.</td></tr>
+            <tr><td>4</td><td>The player running this script. It's a LocalScript, so this is always you.</td></tr>
+            <tr><td>5 to 6</td><td>Normal speed is Roblox's default of 16. Sprinting is 28. Change these to taste.</td></tr>
+            <tr><td>8 to 11</td><td>A small helper that finds your Humanoid. It returns nothing if your character hasn't spawned yet, so the script never errors.</td></tr>
+            <tr><td>13</td><td>Runs every time a key goes down.</td></tr>
+            <tr><td>14 to 16</td><td>Ignore the key if it isn't Left Shift, or if Roblox already used it, like typing in chat.</td></tr>
+            <tr><td>17 to 20</td><td>Find the Humanoid and set its speed to the sprint speed.</td></tr>
+            <tr><td>23</td><td>Runs every time a key comes back up.</td></tr>
+            <tr><td>24 to 31</td><td>Same check for Left Shift, then put the speed back to normal.</td></tr>
+          </table></div>
+          <aside class="tip"><b>Notice the problem?</b> Press Play, hold Left Shift, and you can sprint forever. That's a perfect job for a TODO comment. You won't fix it now, you'll write it down where it belongs, right in the script.</aside>
+        </section>
+
+        <section class="topic" id="todo-comment">
+          <p class="kicker">Worked example · Step 2 of 4</p>
+          <h3>Add a TODO comment</h3>
+          <p>Put this new line 13 right above the sprint code. Everything else moves down one line.</p>
+          <pre class="code luau"><code><span class="l" data-n="12"> </span><span class="l hl" data-n="13"><span class="c">-- <b class="t">TODO:</b> add a stamina bar so players can't sprint forever</span></span><span class="l" data-n="14">UserInputService.InputBegan:Connect(<span class="k">function</span>(input, processed)</span></code></pre>
+          <figure class="fig fig-m"><img src="/site/shots/script.webp" alt="SprintBoost in Studio's script editor with the TODO on line 13" loading="lazy" decoding="async" width="680" height="560"><figcaption>SprintBoost in Studio's script editor. The TODO is on line 13.</figcaption></figure>
+          <h4>The rules the scanner follows</h4>
+          <div class="table-wrap"><table class="keys even rules">
+            <tr><th>Line in your script</th><th>Found?</th></tr>
+            <tr><td><code>-- TODO: add a stamina bar</code></td><td class="ok">Yes</td></tr>
+            <tr><td><code>--TODO: add a stamina bar</code></td><td class="ok">Yes, spaces are optional</td></tr>
+            <tr><td><code>-- TODO : add a stamina bar</code></td><td class="ok">Yes</td></tr>
+            <tr><td><code>humanoid.WalkSpeed = 28 -- TODO: tune this</code></td><td class="ok">Yes, at the end of a line works</td></tr>
+            <tr><td><code>-- todo: add a stamina bar</code></td><td class="no">No, TODO must be capitals</td></tr>
+            <tr><td><code>-- TODO add a stamina bar</code></td><td class="no">No, the colon is required</td></tr>
+            <tr><td><code>--[[ TODO: add a stamina bar ]]</code></td><td class="no">No, use a normal <code>--</code> comment</td></tr>
+            <tr><td><code>-- TODO:</code> with nothing after</td><td class="no">No, it needs text</td></tr>
+          </table></div>
+        </section>
+
+        <section class="topic" id="todo-scan">
+          <p class="kicker">Worked example · Step 3 of 4</p>
+          <h3>Scan and add</h3>
+          <p>Open a list, press ••• and pick <b>Scan scripts for TODO comments</b>. You can run it from the command bar too.</p>
+          <figure class="fig"><img src="/site/shots/todo.webp" alt="The TODO comments page" loading="lazy" decoding="async" width="925" height="694"></figure>
+          <ul class="ticks">
+            <li><b>Each card</b> shows the comment and where it lives, like <kbd>SprintBoost line 13</kbd>. Press <b>Open</b> to jump there first.</li>
+            <li><b>Tap a card</b> to untick it. Everything starts ticked.</li>
+            <li><b>Remind me</b> sets a due date on every task you add: No reminder, Tomorrow, In 3 days or Next week.</li>
+            <li><b>Add the ticked ones as tasks</b> adds them and takes you back to the list.</li>
+          </ul>
+          <p class="note">It looks at every Script, LocalScript and ModuleScript in Workspace, ReplicatedStorage, ReplicatedFirst, ServerScriptService, ServerStorage, StarterGui, StarterPack, StarterPlayer, Lighting, SoundService and Teams. Up to 200 TODOs per scan, each up to 200 characters. Unsaved changes in the editor count.</p>
+        </section>
+
+        <section class="topic" id="todo-result">
+          <p class="kicker">Worked example · Step 4 of 4</p>
+          <h3>The result</h3>
+          <div class="twoshot">
+            <figure class="fig"><img src="/site/shots/todo-list.webp" alt="The new task at the bottom of the list in a TODO section" loading="lazy" decoding="async" width="646" height="694"></figure>
+            <figure class="fig"><img src="/site/shots/todo-drawer.webp" alt="The drawer for the new TODO task" loading="lazy" decoding="async" width="925" height="694"></figure>
+          </div>
+          <p>Every task from a scan gets the same treatment automatically:</p>
+          <div class="table-wrap"><table class="keys even">
+            <tr><td>Text</td><td>The comment, without <code>-- TODO:</code></td></tr>
+            <tr><td>Section</td><td>TODO</td></tr>
+            <tr><td>Label</td><td>Scripting</td></tr>
+            <tr><td>Due date</td><td>From Remind me. In 3 days from a Wednesday is Saturday.</td></tr>
+            <tr><td>Studio link</td><td>The script and the exact line, here <kbd>SprintBoost line 13</kbd></td></tr>
+          </table></div>
+        </section>
+
+        <section class="topic" id="jump-back">
+          <p class="kicker">Worked example · Done</p>
+          <h3>Jump back to the line</h3>
+          <p>Press <b>Go to SprintBoost line 13</b> in the drawer or the task menu. Studio opens the script with the cursor on line 13 and selects SprintBoost in the Explorer.</p>
+          <div class="twoshot wide-left">
+            <figure class="fig"><img src="/site/shots/jump-editor.webp" alt="The editor opened on line 13" loading="lazy" decoding="async" width="680" height="300"><figcaption>The script opens with line 13 highlighted.</figcaption></figure>
+            <figure class="fig"><img src="/site/shots/jump-explorer.webp" alt="SprintBoost selected in the Explorer" loading="lazy" decoding="async" width="355" height="400"><figcaption>SprintBoost is selected in the Explorer.</figcaption></figure>
+          </div>
+          <aside class="tip"><b>When you build the stamina bar,</b> delete the comment and check the task off. A scan adds every TODO it finds each time, even ones already on your list, so untick the ones you already have before pressing Add.</aside>
+        </section>
+
+        <section class="topic" id="pin">
+          <h3>Pin to a game and Team Create</h3>
+          <h4>Pin to this game</h4>
+          <p>Owners and admins can pin a list to the place that's open. From then on it sits under <b>This game</b> at the top of the sidebar whenever anyone with access opens that place.</p>
+          <ul class="ticks">
+            <li><b>Pin or unpin</b> from the list menu.</li>
+            <li><b>Published places only.</b> An unsaved place or a local file has no place id, so the option doesn't show.</li>
+            <li><b>One place per list.</b> Pinning in a new place moves the pin there.</li>
+          </ul>
+          <h4>See who's around</h4>
+          <ul class="ticks">
+            <li><b>Avatars in the list header</b> show who else has this list open. Faded ones are in your Team Create session but not on the list right now.</li>
+            <li><b>● Name on a task</b> means that person has the task's drawer open.</li>
+            <li><b>It updates every minute,</b> and someone drops off two minutes after they close the list or Studio.</li>
+          </ul>
+          <aside class="tip"><b>Good habit for teams:</b> pin your main list to the game, give everyone edit rights, and turn on Changes to my lists in Settings. Then the toolbar icon tells you when someone moved something, even with the window closed.</aside>
+        </section>
+
+        <section class="topic" id="reports">
+          <h3>Player reports from your game</h3>
+          <p>Let players send bug reports and feedback from inside your live game. They land in the list's <b>In game reports</b> inbox, where you approve them into tasks.</p>
+          <ol class="steps-mini">
+            <li>Open the list, then ••• and <b>In game reports inbox</b>.</li>
+            <li>Press <b>Make a game key</b> and name it, for example <kbd>My obby</kbd>. Owners and admins only, up to 5 keys per list.</li>
+            <li>The key is shown <b>once</b>. Press <b>Insert</b>, or <b>Copy</b> to keep it somewhere safe.</li>
+            <li>Insert adds a <b>CheckpointLTC</b> folder to ServerScriptService with two scripts, <b>CheckpointLTCReports</b> and <b>StartReports</b>, with the key already filled in. Studio asks once if CheckpointLTC can add scripts. Press Allow, then Insert again.</li>
+            <li>In Game Settings, Security, turn on <b>Allow HTTP Requests</b> and publish.</li>
+            <li>Call the <code>CheckpointLTCReport</code> RemoteFunction from your own report button.</li>
+          </ol>
+          <h4>Safe by default</h4>
+          <ul class="ticks">
+            <li><b>Filtered by Roblox</b> on your server before it's sent. The server refuses anything that wasn't filtered.</li>
+            <li><b>Up to 500 characters.</b> One report per player per minute, 120 per game per hour.</li>
+            <li><b>The key stays on the server,</b> in ServerScriptService where players can't see it. Revoke a key any time.</li>
+          </ul>
+        </section>
+
+        <section class="topic" id="reports-code">
+          <h3>Player reports: the code</h3>
+          <p>Put a ScreenGui in StarterGui with a TextBox named <b>ReportBox</b> and a TextButton named <b>SendButton</b>, then add this LocalScript to the ScreenGui.</p>
+          <figure class="code-card flat">
+            <div class="code-tab"><span>ReportButton</span><span>LocalScript</span></div>
+            <pre class="code luau"><code><span class="l" data-n="1"><span class="k">local</span> ReplicatedStorage = game:GetService(<span class="s">"ReplicatedStorage"</span>)</span><span class="l" data-n="2"> </span><span class="l" data-n="3"><span class="k">local</span> gui = script.Parent</span><span class="l" data-n="4"><span class="k">local</span> box = gui:WaitForChild(<span class="s">"ReportBox"</span>)</span><span class="l" data-n="5"><span class="k">local</span> button = gui:WaitForChild(<span class="s">"SendButton"</span>)</span><span class="l" data-n="6"><span class="k">local</span> report = ReplicatedStorage:WaitForChild(<span class="s">"CheckpointLTCReport"</span>)</span><span class="l" data-n="7"> </span><span class="l" data-n="8">button.Activated:Connect(<span class="k">function</span>()</span><span class="l" data-n="9">	<span class="k">local</span> ok, message = report:InvokeServer(<span class="s">"bug"</span>, box.Text)</span><span class="l" data-n="10">	button.Text = message</span><span class="l" data-n="11">	<span class="k">if</span> ok <span class="k">then</span></span><span class="l" data-n="12">		box.Text = <span class="s">""</span></span><span class="l" data-n="13">	<span class="k">end</span></span><span class="l" data-n="14"><span class="k">end</span>)</span></code></pre>
+          </figure>
+          <p>Line 9 sends either <code>"bug"</code> or <code>"feedback"</code> plus the text. You always get two things back: whether it worked, and a message ready to show the player.</p>
+          <div class="table-wrap"><table class="keys">
+            <tr><th>Message back</th><th>Why</th></tr>
+            <tr><td>Thanks, it was sent to the developers.</td><td>It worked.</td></tr>
+            <tr><td>Type something first.</td><td>The box was empty.</td></tr>
+            <tr><td>Wait a minute before sending another one.</td><td>Same player, under a minute ago.</td></tr>
+            <tr><td>Could not check that text. Try again.</td><td>Roblox's text filter didn't answer.</td></tr>
+            <tr><td>Could not send it right now.</td><td>HTTP is off, the key was revoked, or the game hit 120 this hour.</td></tr>
+          </table></div>
+        </section>
+
+        <section class="topic" id="reports-inbox">
+          <h3>Player reports: the inbox</h3>
+          <div class="twoshot wide-left">
+            <figure class="fig"><img src="/site/shots/inject.webp" alt="Studio asking to allow CheckpointLTC to add scripts" loading="lazy" decoding="async" width="481" height="331"><figcaption>The first time you press Insert, Studio asks. Press Allow.</figcaption></figure>
+            <figure class="fig"><img src="/site/shots/module-explorer.webp" alt="The inserted CheckpointLTC folder" loading="lazy" decoding="async" width="355" height="82"><figcaption>What Insert adds to ServerScriptService.</figcaption></figure>
+          </div>
+          <figure class="fig"><img src="/site/shots/inbox.webp" alt="The In game reports inbox" loading="lazy" decoding="async" width="925" height="694"><figcaption>A bug from a real playtest and one piece of feedback, with the game key below.</figcaption></figure>
+          <ul class="ticks">
+            <li><b>Each report</b> shows the text, Bug or Feedback, the player's name and when.</li>
+            <li><b>Approve</b> turns it into a task in an <b>Inbox</b> section, labelled Bug for bug reports, with a note saying who reported it.</li>
+            <li><b>Dismiss</b> clears it without making a task.</li>
+            <li><b>Testing in Studio works too.</b> Reports from an unpublished place or a playtest come through the same way.</li>
+          </ul>
+        </section>
+
+        <header class="part-head" id="part-4"><span class="num">04</span><h2>Teams and tidying up</h2><p>Share lists, pick roles, keep track of your own work, and clean up safely.</p></header>
+
+        <section class="topic" id="people">
+          <h3>People and sharing</h3>
+          <figure class="fig"><img src="/site/shots/people.webp" alt="The People page" loading="lazy" decoding="async" width="925" height="694"></figure>
+          <ul class="ticks">
+            <li><b>Share code.</b> Anyone with the 8 letter code can open the list and view it. Codes skip letters that look alike, like 0 and O, or 1, I and L.</li>
+            <li><b>New code</b> stops the old one working and removes everyone who joined with it, right away. People added by name keep access.</li>
+            <li><b>Add a person</b> by Roblox username or UserId. They join as your default role, editor unless you changed it in Settings. Owners also get <b>Add an admin</b>.</li>
+            <li><b>Assign the list</b> puts it under that person's Assigned to me, view only. That's different from assigning a single task.</li>
+            <li><b>Role and Remove</b> appear on each person, so you can change someone later. Admins can't change other admins.</li>
+          </ul>
+        </section>
+
+        <section class="topic" id="roles">
+          <h3>Who can do what</h3>
+          <p>The server enforces every one of these. The plugin can't get around them.</p>
+          <div class="table-wrap"><table class="keys matrix roles-table">
+            <tr><th>Action</th><th>Owner</th><th>Admin</th><th>Editor</th><th>Viewer</th><th>Assigned</th></tr>
+            <tr><td>See the list and its tasks</td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes</td></tr>
+            <tr><td>Add, edit, move and delete tasks</td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes</td><td class="no">no</td><td class="no">no</td></tr>
+            <tr><td>Check off a task given to you</td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes</td></tr>
+            <tr><td>Comment</td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes</td><td>own tasks</td><td>own tasks</td></tr>
+            <tr><td>See people and the share code</td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes</td><td class="no">no</td><td class="no">no</td></tr>
+            <tr><td>Add and remove people, new code</td><td class="ok">yes</td><td class="ok">yes</td><td class="no">no</td><td class="no">no</td><td class="no">no</td></tr>
+            <tr><td>Rename, pin, game keys</td><td class="ok">yes</td><td class="ok">yes</td><td class="no">no</td><td class="no">no</td><td class="no">no</td></tr>
+            <tr><td>Add admins, archive, delete</td><td class="ok">yes</td><td class="no">no</td><td class="no">no</td><td class="no">no</td><td class="no">no</td></tr>
+            <tr><td>Leave the list</td><td class="no">no</td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes</td></tr>
+          </table></div>
+          <p>"Own tasks" means a task assigned to you. A list you can't see acts like it doesn't exist, so nobody can go looking for list ids. <b>Leave this list</b> in the list menu removes your access, and the owner can add you back.</p>
+        </section>
+
+        <section class="topic" id="my-tasks">
+          <h3>My tasks, search and notifications</h3>
+          <div class="twoshot">
+            <figure class="fig"><img src="/site/shots/mytasks.webp" alt="My tasks" loading="lazy" decoding="async" width="925" height="694"><figcaption>My tasks</figcaption></figure>
+            <figure class="fig"><img src="/site/shots/search.webp" alt="Search" loading="lazy" decoding="async" width="925" height="694"><figcaption>Search finds the player report approved earlier.</figcaption></figure>
+          </div>
+          <div class="cols">
+            <div>
+              <h4>My tasks</h4>
+              <ul class="ticks">
+                <li><b>Every task assigned to you,</b> across every list, up to 300.</li>
+                <li><b>Not done first,</b> then soonest due, then highest priority.</li>
+                <li><b>Click one</b> to open its list with the drawer showing.</li>
+              </ul>
+              <h4>Search</h4>
+              <ul class="ticks">
+                <li><b>At least 2 letters.</b> Looks in task text and notes on every list you can see. Up to 100 results.</li>
+              </ul>
+            </div>
+            <div>
+              <h4>Notifications</h4>
+              <ul class="ticks">
+                <li><b>The bell</b> lists your last 10. Opening it marks them read.</li>
+                <li><b>You get one when</b> someone gives you a task, mentions you, or adds you to a list.</li>
+                <li><b>Reminders:</b> a yellow toast when one of your tasks is due within the hour.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="topic" id="trash">
+          <h3>Trash</h3>
+          <figure class="fig"><img src="/site/shots/trash.webp" alt="The trash" loading="lazy" decoding="async" width="925" height="694"></figure>
+          <ul class="ticks">
+            <li><b>30 days.</b> Deleted lists and tasks wait here, then they're erased for good.</li>
+            <li><b>Restore</b> on any row brings one back.</li>
+            <li><b>Tap rows</b> to tick them, or <b>Select all</b>, then Restore or Delete the ticked ones in one go.</li>
+            <li><b>Empty trash</b> erases everything you're allowed to erase. It asks first.</li>
+            <li><b>Deleting a list</b> moves it and all its tasks here, and everyone you shared it with loses access straight away.</li>
+          </ul>
+          <figure class="fig fig-m"><img src="/site/shots/confirm-list.webp" alt="The delete list confirmation" loading="lazy" decoding="async" width="809" height="237"></figure>
+        </section>
+
+        <section class="topic" id="activity">
+          <h3>Activity log</h3>
+          <p>List menu, <b>Activity log</b>. Every change, who made it and when, newest first. Owners see all of it, editors see the latest 50. It keeps up to 500 events for 90 days.</p>
+          <figure class="fig"><img src="/site/shots/activity.webp" alt="The activity log" loading="lazy" decoding="async" width="925" height="694"></figure>
+          <p class="note">It records lists being made, imported, renamed, archived and pinned, new share codes, tasks being added, edited, moved, checked off, deleted, restored and commented on, people being added, removed or given a new role, list assignments, approved player reports and undos.</p>
+        </section>
+
+        <section class="topic" id="export">
+          <h3>Export</h3>
+          <figure class="fig"><img src="/site/shots/export.webp" alt="The Export ready dialog with a download link" loading="lazy" decoding="async" width="925" height="694"></figure>
+          <p>List menu, <b>Export as Markdown</b> or <b>Export as JSON</b>. Copy the link into a browser to download. It works for 10 minutes. Due dates come out in your own time with your UTC offset at the end, so <kbd>23:59 UTC-05:00</kbd> is 11:59 PM Eastern. Here's the Markdown export of the example list:</p>
+          <pre class="code plain"><code><span class="l" data-n="1"># Game launch checklist</span><span class="l" data-n="2"> </span><span class="l" data-n="3">## Gameplay</span><span class="l" data-n="4"> </span><span class="l" data-n="5">- [ ] Full playtest with a fresh account [Scripting] !3 due 2026-11-26 23:59 UTC-05:00</span><span class="l" data-n="6">  &gt; Use a fresh alt so no saved data carries over.</span><span class="l" data-n="7">- [ ] Check every badge and game pass [Scripting] !2 due 2026-12-02 23:59 UTC-05:00</span><span class="l" data-n="8">- [x] Balance pass on rewards</span><span class="l" data-n="9"> </span><span class="l" data-n="10">## Polish</span><span class="l" data-n="11"> </span><span class="l" data-n="12">- [ ] Thumbnail and icon [UI] !2</span><span class="l" data-n="13">- [x] Game description and tags</span><span class="l" data-n="14">- [ ] Mobile controls check [Bug] !3 due 2026-11-25 23:59 UTC-05:00</span></code></pre>
+        </section>
+
+        <section class="topic" id="import">
+          <h3>Writing a file to import</h3>
+          <p>New list, <b>Import from a JSON or Markdown file</b>. Import an export, or write a Markdown file by hand. Up to 256 KB and 500 tasks.</p>
+          <div class="table-wrap"><table class="keys">
+            <tr><th>Write this</th><th>You get</th></tr>
+            <tr><td><code># Shop rework</code></td><td>The list name. Only the first one counts.</td></tr>
+            <tr><td><code>## Buttons</code></td><td>A section for the tasks below it. <code>###</code> works too.</td></tr>
+            <tr><td><code>- [ ] Add hover state</code></td><td>A task. <code>*</code> works instead of <code>-</code>, and the box is optional.</td></tr>
+            <tr><td><code>- [x] Prices line up</code></td><td>A task that's already done.</td></tr>
+            <tr><td><code>[UI]</code> anywhere in the line</td><td>The label: <code>[Scripting]</code>, <code>[UI]</code>, <code>[VFX]</code> or <code>[Bug]</code>.</td></tr>
+            <tr><td><code>!3</code></td><td>Priority. <code>!1</code> Low, <code>!2</code> Medium, <code>!3</code> High.</td></tr>
+            <tr><td><code>due 2026-12-24 23:59 UTC-05:00</code></td><td>A due date. Time and offset are optional. With no time it's 11:59 PM, with no offset it's UTC.</td></tr>
+            <tr><td><code>&gt; note text</code>, indented</td><td>A note on the task above. Several lines stack up.</td></tr>
+          </table></div>
+          <h4>Example file, shop.md</h4>
+          <pre class="code plain"><code><span class="l" data-n="1"># Shop rework</span><span class="l" data-n="2"> </span><span class="l" data-n="3">## Buttons</span><span class="l" data-n="4">- [ ] Hover state on every button [UI] !2</span><span class="l" data-n="5">- [x] Prices line up on mobile [UI]</span><span class="l" data-n="6"> </span><span class="l" data-n="7">## Purchases</span><span class="l" data-n="8">- [ ] Buy confirm pops up in the middle [Bug] !3</span><span class="l" data-n="9">  &gt; It shows in the bottom corner on phones.</span></code></pre>
+          <p>Exports and imports keep due dates, so a list survives a round trip with nothing lost except comments, Studio links and who tasks are assigned to.</p>
+        </section>
+
+        <header class="part-head" id="part-5"><span class="num">05</span><h2>Settings and reference</h2><p>Every setting, every limit, and what every message means.</p></header>
+
+        <section class="topic" id="preferences">
+          <h3>Preferences</h3>
+          <p>Gear in the title bar. Every setting saves to your account, so it follows you to every computer.</p>
+          <div class="twoshot">
+            <figure class="fig"><img src="/site/shots/set-prefs.webp" alt="Preferences, top half" loading="lazy" decoding="async" width="925" height="694"></figure>
+            <figure class="fig"><img src="/site/shots/set-prefs2.webp" alt="Preferences, bottom half" loading="lazy" decoding="async" width="925" height="694"></figure>
+          </div>
+          <div class="table-wrap"><table class="keys">
+            <tr><th>Setting</th><th>Choices, default in bold</th></tr>
+            <tr><td>Refresh</td><td>10s, <b>30s</b>, 1 min, 2 min</td></tr>
+            <tr><td>Sort tasks</td><td><b>My order</b>, Priority, Due, Recent</td></tr>
+            <tr><td>View</td><td><b>List</b>, Board</td></tr>
+            <tr><td>New people are</td><td><b>Editors</b>, Viewers. The role Add a person gives.</td></tr>
+            <tr><td>Compact mode</td><td><b>Off</b>. Rows shrink to one line unless a label or due date is set.</td></tr>
+            <tr><td>Hide done tasks</td><td><b>Off</b>. Same as the Hide done chip.</td></tr>
+            <tr><td>Confirm before deleting a task</td><td><b>On</b></td></tr>
+            <tr><td>Text: Sizing</td><td><b>Fixed</b>, or Grows with window</td></tr>
+            <tr><td>Titles, Body text, Small text</td><td>S, <b>M</b>, L, XL, each one on its own</td></tr>
+            <tr><td>Notify me about</td><td>Tasks given to me, Mentions in comments, Changes to my lists. All <b>on</b>.</td></tr>
+            <tr><td>Accent color</td><td><b>LTCLevTec</b>, Blue, Red, Green, Purple, Orange</td></tr>
+          </table></div>
+        </section>
+
+        <section class="topic" id="help">
+          <h3>Help, tour and What's new</h3>
+          <figure class="fig"><img src="/site/shots/set-help.webp" alt="The Help tab" loading="lazy" decoding="async" width="925" height="694"></figure>
+          <div class="table-wrap"><table class="keys">
+            <tr><td>Show hint text under buttons</td><td>The small grey notes, like "Moves it to the trash for 30 days". On.</td></tr>
+            <tr><td>Show tooltips on hover</td><td>Every icon button names itself and its shortcut. On.</td></tr>
+            <tr><td>Show What's new after updates</td><td>A short walkthrough the first time you open a new version. On.</td></tr>
+          </table></div>
+          <div class="twoshot">
+            <figure class="fig"><img src="/site/shots/tour1.webp" alt="The first step of the tour" loading="lazy" decoding="async" width="925" height="694"><figcaption>The 4 step tour runs on your first login.</figcaption></figure>
+            <figure class="fig"><img src="/site/shots/whatsnew1.webp" alt="The first step of What's new" loading="lazy" decoding="async" width="925" height="694"><figcaption>The 5 step What's new for 1.0.0.</figcaption></figure>
+          </div>
+        </section>
+
+        <section class="topic" id="limits">
+          <h3>Plan and limits</h3>
+          <figure class="fig"><img src="/site/shots/set-plan.webp" alt="The Plan tab with limit meters" loading="lazy" decoding="async" width="925" height="694"></figure>
+          <p>Meters show how close you are to each limit and turn yellow at 80 percent, so nothing catches you by surprise. The bug report and feedback lines count down to when you can send the next one.</p>
+          <div class="table-wrap"><table class="keys limits">
+            <tr><th>Limit</th><th>Max</th><th>Limit</th><th>Max</th></tr>
+            <tr><td>Lists you own</td><td>50</td><td>Tasks per list</td><td>500</td></tr>
+            <tr><td>Editors per list</td><td>50</td><td>People assigned per list</td><td>50</td></tr>
+            <tr><td>List name</td><td>60 characters</td><td>Task text</td><td>240 characters</td></tr>
+            <tr><td>Notes</td><td>2000 characters</td><td>Comment</td><td>1000 characters</td></tr>
+            <tr><td>Comments per task</td><td>200</td><td>Section name</td><td>40 characters</td></tr>
+            <tr><td>Trash</td><td>30 days</td><td>Signed in devices</td><td>10</td></tr>
+            <tr><td>Game keys per list</td><td>5</td><td>Player report</td><td>500 characters</td></tr>
+          </table></div>
+        </section>
+
+        <section class="topic" id="support">
+          <h3>Support</h3>
+          <figure class="fig"><img src="/site/shots/set-support.webp" alt="The Support tab" loading="lazy" decoding="async" width="925" height="694"></figure>
+          <div class="cols">
+            <div>
+              <h4>Report a bug</h4>
+              <ul class="ticks">
+                <li><b>Title,</b> up to 100 characters, and <b>what happened,</b> up to 2000.</li>
+                <li><b>Steps to reproduce.</b></li>
+                <li><b>Plugin version and Studio info</b> are included by default.</li>
+                <li><b>One per hour.</b></li>
+              </ul>
+            </div>
+            <div>
+              <h4>Send feedback and attach a file</h4>
+              <ul class="ticks">
+                <li><b>Title, your idea,</b> and an optional category: UI, Feature or Other. One per hour.</li>
+                <li><b>Tick I understand</b> once, and it's remembered for your account.</li>
+                <li><b>One file</b> up to 10 MB: png, jpg, mp4, mov or txt.</li>
+              </ul>
+            </div>
+          </div>
+          <aside class="tip warn"><b>Keep it clean.</b> Every file is checked automatically before anyone sees it. Inappropriate uploads mean a strike and a permanent upload ban. Severe violations mean a ban from CheckpointLTC, and illegal content is reported to the authorities.</aside>
+        </section>
+
+        <section class="topic" id="devices">
+          <h3>Devices and logging out</h3>
+          <figure class="fig"><img src="/site/shots/set-devices.webp" alt="The Devices tab" loading="lazy" decoding="async" width="925" height="694"></figure>
+          <ul class="ticks">
+            <li><b>Every computer you're logged in on</b> is listed with when it was last used. The one you're on says "this one".</li>
+            <li><b>Sign out</b> on any row logs that computer out.</li>
+            <li><b>Up to 10 devices.</b> Logging in on an eleventh signs out the oldest.</li>
+            <li><b>Log out on this computer</b> sits at the bottom of every Settings tab. Your lists stay on the server.</li>
+            <li><b>Lost a computer?</b> Sign it out here, or remove CheckpointLTC from your Roblox account's connected apps.</li>
+          </ul>
+        </section>
+
+        <section class="topic" id="messages">
+          <h3>What every message means</h3>
+          <div class="table-wrap"><table class="keys">
+            <tr><th>Message</th><th>What to do</th></tr>
+            <tr><td>Someone else changed this task first. I loaded their version.</td><td>Read their change, then make yours again.</td></tr>
+            <tr><td>Your sign in expired.</td><td>Log in with Roblox again.</td></tr>
+            <tr><td>Tasks can be up to 240 characters.</td><td>Shorten it, and move the detail into notes.</td></tr>
+            <tr><td>I couldn't read that date.</td><td>Use <kbd>2026 12 24</kbd>, <kbd>20261224</kbd> or <kbd>12/24/2026</kbd>.</td></tr>
+            <tr><td>Open a list first.</td><td>Undo and Add from selection need an open list.</td></tr>
+            <tr><td>There is nothing of yours to undo on this list.</td><td>Undo only covers your own changes.</td></tr>
+            <tr><td>That link points to a different place.</td><td>Open the place the task was linked in.</td></tr>
+            <tr><td>Studio would not let me add the scripts.</td><td>Manage Plugins, allow script injection for CheckpointLTC.</td></tr>
+            <tr><td>That game key does not look right.</td><td>Game keys start with <kbd>ltcg_</kbd>. Make a new one.</td></tr>
+            <tr><td>This export link expired.</td><td>Export again. Links last 10 minutes.</td></tr>
+            <tr><td>Only png, jpg, mp4, mov, txt files can be attached.</td><td>Convert the file, or attach a screenshot.</td></tr>
+            <tr><td>You can send one bug report per hour.</td><td>Wait for the countdown.</td></tr>
+            <tr><td>This list is archived.</td><td>The owner can press Unarchive.</td></tr>
+          </table></div>
+        </section>
+
+        <section class="topic" id="privacy">
+          <h3>Privacy and getting help</h3>
+          <h4>What CheckpointLTC knows about you</h4>
+          <ul class="ticks">
+            <li><b>Your Roblox UserId,</b> so lists know who owns them.</li>
+            <li><b>Whether you own the plugin,</b> for paid versions.</li>
+            <li><b>Your lists and what's in them.</b></li>
+          </ul>
+          <p>No email, no password, and nothing from your places. Studio links store a path and a marker id, not your scripts. The full details are in the <a href="/privacy">privacy policy</a>.</p>
+          <h4>Only install the official copy</h4>
+          <p>Get CheckpointLTC from its <a href="https://create.roblox.com/store/asset/104522423965573" target="_blank" rel="noopener">Creator Store page</a> or the link in my Discord. Reuploaded plugins on the Toolbox sometimes have backdoors added. The official one only talks to the CheckpointLTC server and Roblox.</p>
+          <h4>Keep a copy of this guide</h4>
+          <figure class="fig fig-m"><img src="/site/shots/guide-prompt.webp" alt="The Download Guide dialog in the plugin" loading="lazy" decoding="async" width="925" height="694"></figure>
+          <p>Press <b>Download Guide</b> at the bottom of the sidebar any time for the link to the latest version, or <a href="/guide.pdf" download="CheckpointLTC Guide.pdf">download the PDF</a> right now.</p>
+        </section>
+
+      </article>
+    </div>
+
+    <div class="doc-end">
+      <h2>Still stuck?</h2>
+      <p class="sub">Ask me directly in my Discord, that's the fastest way to reach me. You can also try a working copy of the plugin right in your browser.</p>
+      <div class="actions">
+        <a class="button discord" href="https://discord.gg/5njkCsBdNd" target="_blank" rel="noopener">Ask in Discord</a>
+        <a class="button" href="/#demo">Try the live demo</a>
+        <a class="button" href="/guide.pdf" download="CheckpointLTC Guide.pdf">Download the PDF</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <span>Made by LTCLevTec LLC</span>
+  <span><a href="/">Home</a> · <a href="/guide">Guide</a> · <a href="https://discord.gg/5njkCsBdNd" target="_blank" rel="noopener">Discord</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></span>
+</footer>
+</body>
+</html>

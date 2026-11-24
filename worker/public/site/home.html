@@ -1,0 +1,347 @@
+<!doctype html>
+<html lang="en">
+<head>
+<style>html{background:#060c18;color-scheme:dark}</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>CheckpointLTC · Shared to do lists inside Roblox Studio</title>
+<meta name="description" content="CheckpointLTC is a Roblox Studio plugin that gives your team shared to do lists right inside Studio. Live sync, board view, script line links, TODO scanning and player bug reports.">
+<link rel="canonical" href="https://checkpointltc.ltclevtec.com/">
+<meta name="theme-color" content="#060c18">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="CheckpointLTC">
+<meta property="og:title" content="CheckpointLTC · Your team's to do list, inside Studio">
+<meta property="og:description" content="Shared to do lists for Roblox Studio. Live sync, board view, links to the exact script line, TODO scanning and bug reports from your players. Try the live demo in your browser.">
+<meta property="og:url" content="https://checkpointltc.ltclevtec.com/">
+<meta property="og:image" content="https://checkpointltc.ltclevtec.com/site/og-home.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="The CheckpointLTC plugin window showing a shared game launch checklist">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="CheckpointLTC · Your team's to do list, inside Studio">
+<meta name="twitter:description" content="Shared to do lists for Roblox Studio, with live sync, script line links and TODO scanning.">
+<meta name="twitter:image" content="https://checkpointltc.ltclevtec.com/site/og-home.jpg">
+<link rel="icon" type="image/png" href="/site/icon.png">
+<link rel="preload" href="/site/fonts/bricolage.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/site/site.css?v=7">
+<script src="/site/site.js?v=7" defer></script>
+</head>
+<body>
+<div class="grid" aria-hidden="true"></div>
+
+<header class="top">
+  <a class="brand" href="/"><img src="/site/icon.png" alt="" width="28" height="28"><span>CheckpointLTC</span></a>
+  <nav>
+    <a href="#demo">Try it</a>
+    <a href="#features">Features</a>
+    <a class="keep" href="/guide">Guide</a>
+    <a href="#discord">Discord</a>
+    <a class="get" href="https://create.roblox.com/store/asset/104522423965573" target="_blank" rel="noopener">Get the plugin</a>
+    <details class="menu"><summary aria-label="Menu"><i></i><i></i><i></i></summary><div class="menu-panel"><a href="#demo">Try it</a><a href="#features">Features</a><a href="/guide">Guide</a><a href="#discord">Discord</a></div></details>
+  </nav>
+</header>
+
+<main>
+  <svg class="track" aria-hidden="true"><path class="road"></path><path class="lit"></path><g class="pads"></g><rect class="runner" width="14" height="14" x="-7" y="-7"></rect></svg>
+
+  <section class="hero" data-side="l">
+    <div class="hero-copy">
+      <h1>Your team's<br>to do list,<br><span class="scribble">inside Studio.<svg viewBox="0 0 400 24" preserveAspectRatio="none" aria-hidden="true"><path d="M3 15 C 60 7, 120 19, 190 11 S 320 6, 397 13"></path></svg></span></h1>
+      <p class="lede">Stop keeping your task list in a Discord thread nobody scrolls back through. CheckpointLTC puts it right next to your Explorer, shared with your whole team, updating live.</p>
+      <div class="actions">
+        <a class="button primary" href="https://create.roblox.com/store/asset/104522423965573" target="_blank" rel="noopener">Get it on the Creator Store</a>
+        <a class="button" href="#demo">Try the live demo</a>
+      </div>
+      <p class="fine">Version 1.0.0 · Free for now · Logs in with Roblox · Only your UserId is shared</p>
+    </div>
+    <div class="live" aria-hidden="true">
+      <div class="live-head"><span>Spawn Lobby Update</span><span class="live-count">0 of 5</span></div>
+      <div class="live-bar"><span></span></div>
+      <ul class="live-list">
+        <li><i></i>Fix spawn pad collisions<em class="tag Scripting">Scripting</em></li>
+        <li><i></i>Lobby music fade in<em class="tag VFX">VFX</em></li>
+        <li><i></i>Shop button not clickable on mobile<em class="tag Bug">Bug</em></li>
+        <li><i></i>New leaderboard layout<em class="tag UI">UI</em></li>
+        <li><i></i>Test with 20 players<em class="tag plain">Launch</em></li>
+      </ul>
+      <div class="live-who"><b>Maya</b> checked off a task</div>
+    </div>
+  </section>
+
+  <section class="stage" data-side="r">
+    <div class="intro right">
+      <h2>Right where <mark>you build.</mark></h2>
+      <p class="sub">The window floats over the 3D view next to your Explorer. Drag it, resize it, close it. It opens right where you left it, and a badge on the toolbar button tells you when something changed while it was closed.</p>
+    </div>
+    <figure class="shot wide" data-depth="0.03" data-rot="-0.6deg"><img src="/site/shots/studio-context.webp" alt="CheckpointLTC open inside Roblox Studio, next to the Explorer" loading="lazy" decoding="async" width="1600" height="866"></figure>
+  </section>
+
+  <section class="demo-wrap" id="demo" data-side="l">
+    <div class="intro">
+      <h2>Go on, <mark>click around.</mark></h2>
+      <p class="sub">This is a working copy of the plugin window. Check things off, open a task, drag them around, flip to board view, or press <kbd>/</kbd> for the command bar. Nothing saves, so break whatever you want.</p>
+    </div>
+    <div class="window" id="app" tabindex="0" aria-label="CheckpointLTC demo">
+      <div class="titlebar">
+        <button class="icon menu-toggle" data-act="sidebar" aria-label="Show lists">☰</button>
+        <span class="title">CheckpointLTC</span>
+        <span class="spacer"></span>
+        <button class="icon" data-act="command" aria-label="Command bar" title="Command bar   /">⌕</button>
+        <button class="icon" data-act="reset" aria-label="Reset demo" title="Reset the demo">↺</button>
+      </div>
+      <div class="rule"><span></span><span></span></div>
+      <div class="body">
+        <aside class="sidebar">
+          <button class="new" data-act="newlist">New list</button>
+          <p class="group">My lists</p>
+          <div class="lists"></div>
+        </aside>
+        <section class="main">
+          <div class="head">
+            <div>
+              <p class="list-title"></p>
+              <p class="list-meta"></p>
+              <div class="progress"><span></span></div>
+            </div>
+            <div class="head-actions">
+              <button class="icon" data-act="board" aria-label="Board view" title="List or board view">▦</button>
+            </div>
+          </div>
+          <div class="chips"></div>
+          <div class="tasks"></div>
+          <form class="composer"><input type="text" maxlength="240" placeholder="Add a task and press Enter" aria-label="New task"><span class="count"></span></form>
+        </section>
+        <aside class="drawer" aria-hidden="true"></aside>
+      </div>
+      <div class="palette" hidden>
+        <input type="text" placeholder="Type a list, a task or an action" aria-label="Command bar">
+        <div class="results"></div>
+      </div>
+      <div class="toasts"></div>
+    </div>
+  </section>
+
+  <section class="row" id="features" data-side="r">
+    <div class="copy">
+      <h2>Everything about a task, <mark>one click away.</mark></h2>
+      <p class="sub">Click a task and its details slide in from the side. Every change saves on its own, and your teammates see it on their next refresh.</p>
+      <ul class="ticks">
+        <li><b>Priority, due dates and labels</b> for Scripting, UI, VFX and Bug</li>
+        <li><b>Sections and notes</b> so a big list stays readable</li>
+        <li><b>Assign it</b> to one person and it shows up in their My tasks</li>
+        <li><b>Comments with @mentions</b> that ping the right person</li>
+        <li><b>Who changed it last</b>, and when, right under the title</li>
+      </ul>
+    </div>
+    <div class="pics">
+      <figure class="shot" data-depth="0.05" data-rot="1.2deg"><img src="/site/shots/drawer.webp" alt="The task drawer with priority, label, due date, section, assignee, Studio link, notes and comments" loading="lazy" decoding="async" width="925" height="694"></figure>
+    </div>
+  </section>
+
+  <section class="row flip" data-side="l">
+    <div class="copy">
+      <h2>List or board. <mark>Or just press /.</mark></h2>
+      <p class="sub">Flip any list into a board with a column per section, then drag tasks across. Sort by your own order, priority, due date or what changed last.</p>
+      <p class="sub">The command bar finds lists, tasks and actions from a few letters. Press <kbd>/</kbd> with your mouse over the window, type, and hit Enter.</p>
+      <p class="sub small">Starting fresh? Make a blank list, or start from the <b>Game launch checklist</b> or <b>Bug triage</b> templates.</p>
+    </div>
+    <div class="pics pair">
+      <figure class="shot" data-depth="0.04" data-rot="-1.4deg"><img src="/site/shots/board.webp" alt="Board view with a column for each section" loading="lazy" decoding="async" width="925" height="694"></figure>
+      <figure class="shot small" data-depth="0.1" data-rot="2.2deg"><img src="/site/shots/command2.webp" alt="The command bar finding an action and two tasks" loading="lazy" decoding="async" width="925" height="694"></figure>
+    </div>
+  </section>
+
+  <section class="row todo" data-side="r">
+    <div class="copy">
+      <h2>Your TODOs, <mark>turned into tasks.</mark></h2>
+      <p class="sub">Write a TODO comment where the work is. CheckpointLTC finds it and keeps a link back to that exact line.</p>
+      <ol class="steps-mini">
+        <li><b>Write it.</b> <code>-- TODO: add a stamina bar</code> on line 13 of your SprintBoost script.</li>
+        <li><b>Scan.</b> Pick Scan scripts for TODO comments, choose a reminder, add the ones you want.</li>
+        <li><b>Jump back.</b> Press Go to SprintBoost line 13 and the editor opens with your cursor on it.</li>
+      </ol>
+    </div>
+    <div class="pics pair">
+      <figure class="code-card" data-depth="0.04" data-rot="-0.8deg">
+        <div class="code-tab"><span>SprintBoost</span><span>LocalScript</span></div>
+        <pre class="code luau"><code><span class="l" data-n="8"><span class="k">local</span> <span class="k">function</span> getHumanoid()</span><span class="l" data-n="9">	<span class="k">local</span> character = player.Character</span><span class="l" data-n="10">	<span class="k">return</span> character <span class="k">and</span> character:FindFirstChildOfClass(<span class="s">"Humanoid"</span>)</span><span class="l" data-n="11"><span class="k">end</span></span><span class="l" data-n="12"> </span><span class="l hl" data-n="13"><span class="c">-- <b class="t">TODO:</b> add a stamina bar so players can't sprint forever</span></span><span class="l" data-n="14">UserInputService.InputBegan:Connect(<span class="k">function</span>(input, processed)</span><span class="l" data-n="15">	<span class="k">if</span> processed <span class="k">or</span> input.KeyCode ~= Enum.KeyCode.LeftShift <span class="k">then</span></span><span class="l" data-n="16">		<span class="k">return</span></span><span class="l" data-n="17">	<span class="k">end</span></span><span class="l" data-n="18">	<span class="k">local</span> humanoid = getHumanoid()</span></code></pre>
+      </figure>
+      <figure class="shot small" data-depth="0.1" data-rot="2deg"><img src="/site/shots/todo-drawer.webp" alt="The new TODO task with a link to SprintBoost line 13" loading="lazy" decoding="async" width="925" height="694"></figure>
+    </div>
+  </section>
+
+  <section class="row flip jump" data-side="l">
+    <div class="copy">
+      <h2>Built for Studio, <mark>not bolted on.</mark></h2>
+      <ul class="ticks">
+        <li><b>Link a task</b> to a part, model or script. Click it later and Studio selects it, or opens the script at the right line.</li>
+        <li><b>Links survive renames and moves</b>, thanks to a tiny hidden marker on the object.</li>
+        <li><b>Pin a list to your game</b> so it sits at the top whenever anyone opens that place.</li>
+        <li><b>See who's around</b> in Team Create, and which task they have open right now.</li>
+        <li><b>Bind your own shortcuts</b> for six actions in Customize Shortcuts.</li>
+      </ul>
+    </div>
+    <div class="pics pair">
+      <figure class="shot" data-depth="0.04" data-rot="1deg"><img src="/site/shots/jump-editor.webp" alt="The script editor opened on line 13" loading="lazy" decoding="async" width="680" height="300"></figure>
+      <figure class="shot small narrow" data-depth="0.11" data-rot="-2.4deg"><img src="/site/shots/jump-explorer.webp" alt="SprintBoost selected in the Explorer" loading="lazy" decoding="async" width="355" height="400"></figure>
+    </div>
+  </section>
+
+  <section class="row" data-side="r">
+    <div class="copy">
+      <h2>Bug reports, <mark>straight from your players.</mark></h2>
+      <p class="sub">Let players send bugs and feedback from inside your live game. Every report is run through Roblox's text filter and lands in your list's inbox, waiting for you.</p>
+      <ol class="steps-mini">
+        <li><b>Make a game key</b> from the list's In game reports inbox.</li>
+        <li><b>Press Insert.</b> The scripts go into ServerScriptService with the key already in them.</li>
+        <li><b>Hook up your button</b> to the CheckpointLTCReport RemoteFunction.</li>
+        <li><b>Approve</b> a report and it becomes a task. Dismiss the rest.</li>
+      </ol>
+    </div>
+    <div class="pics pair">
+      <figure class="shot" data-depth="0.05" data-rot="-1deg"><img src="/site/shots/inbox.webp" alt="The In game reports inbox with a bug and a piece of feedback" loading="lazy" decoding="async" width="925" height="694"></figure>
+      <figure class="shot small strip-shot" data-depth="0.1" data-rot="1.8deg"><img src="/site/shots/module-explorer.webp" alt="The CheckpointLTC folder in ServerScriptService" loading="lazy" decoding="async" width="355" height="82"></figure>
+    </div>
+  </section>
+
+  <section class="row flip" data-side="l">
+    <div class="copy">
+      <h2>Made for <mark>teams.</mark></h2>
+      <p class="sub">Press Add a person and type a Roblox username or UserId. Or hand out an 8 letter share code, and make a new one whenever you want to cut off old access.</p>
+      <div class="roles" role="table" aria-label="Who can do what">
+        <div role="row" class="roles-head"><span role="columnheader">Role</span><span role="columnheader">What they can do</span></div>
+        <div role="row"><b role="cell">Owner</b><span role="cell">Everything, including archive and delete</span></div>
+        <div role="row"><b role="cell">Admin</b><span role="cell">Manage people, rename, pin, game keys</span></div>
+        <div role="row"><b role="cell">Editor</b><span role="cell">Add, edit, move and check off tasks</span></div>
+        <div role="row"><b role="cell">Viewer</b><span role="cell">See the list, check off their own tasks</span></div>
+        <div role="row"><b role="cell">Assigned</b><span role="cell">See it under Assigned to me</span></div>
+      </div>
+      <p class="sub small"><b>My tasks</b> gathers everything assigned to you across every list. <b>Search</b> looks through every list you can see. The bell catches mentions and new tasks, and a reminder pops up when something of yours is due within the hour.</p>
+    </div>
+    <div class="pics pair">
+      <figure class="shot" data-depth="0.06" data-rot="-1deg"><img src="/site/shots/people.webp" alt="The People page with a share code and Add a person" loading="lazy" decoding="async" width="925" height="694"></figure>
+      <figure class="shot small" data-depth="0.11" data-rot="2deg"><img src="/site/shots/mytasks.webp" alt="My tasks, every task assigned to you" loading="lazy" decoding="async" width="925" height="694"></figure>
+    </div>
+  </section>
+
+  <section class="row" data-side="r">
+    <div class="copy">
+      <h2>Nothing <mark>gets lost.</mark></h2>
+      <p class="sub">Deleted something by accident? It sits in the trash for 30 days, and undo takes back your own last change, one at a time. The activity log shows who changed what, and when.</p>
+      <p class="sub">Export any list as Markdown or JSON, with due dates in your own time and your UTC offset. Import one back, or write a Markdown file by hand.</p>
+      <figure class="md-card" aria-label="A piece of a Markdown export">
+        <pre class="code plain"><code><span class="l" data-n="1">## Gameplay</span><span class="l" data-n="2"> </span><span class="l" data-n="3">- [ ] Full playtest with a fresh account [Scripting] !3 due 2026-11-26 23:59 UTC-05:00</span><span class="l" data-n="4">  &gt; Use a fresh alt so no saved data carries over.</span><span class="l" data-n="5">- [ ] Check every badge and game pass [Scripting] !2 due 2026-12-02 23:59 UTC-05:00</span><span class="l" data-n="6">- [x] Balance pass on rewards</span></code></pre>
+      </figure>
+    </div>
+    <div class="pics pair">
+      <figure class="shot" data-depth="0.04" data-rot="1deg"><img src="/site/shots/trash.webp" alt="The trash with lists and tasks waiting to be restored" loading="lazy" decoding="async" width="925" height="694"></figure>
+      <figure class="shot small" data-depth="0.11" data-rot="-2.4deg"><img src="/site/shots/activity.webp" alt="The activity log" loading="lazy" decoding="async" width="925" height="694"></figure>
+    </div>
+  </section>
+
+  <section class="strip-wrap" data-side="l" aria-label="Screenshots">
+    <h2>A closer look.</h2>
+    <div class="strip">
+      <div class="track-imgs">
+        <img src="/site/shots/list.webp" alt="List view" loading="lazy" decoding="async" width="925" height="694">
+        <img src="/site/shots/menu-new.webp" alt="The New list menu with templates and import" loading="lazy" decoding="async" width="925" height="694">
+        <img src="/site/shots/filter.webp" alt="Filtering by the Scripting label" loading="lazy" decoding="async" width="925" height="694">
+        <img src="/site/shots/todo.webp" alt="The TODO comments page" loading="lazy" decoding="async" width="925" height="694">
+        <img src="/site/shots/search.webp" alt="Search across every list" loading="lazy" decoding="async" width="925" height="694">
+        <img src="/site/shots/whatsnew1.webp" alt="What's new after an update" loading="lazy" decoding="async" width="925" height="694">
+        <img src="/site/shots/set-help.webp" alt="Help settings with the tour and shortcuts" loading="lazy" decoding="async" width="925" height="694">
+        <img src="/site/shots/set-devices.webp" alt="Signed in devices" loading="lazy" decoding="async" width="925" height="694">
+      </div>
+    </div>
+  </section>
+
+  <section class="row flip" data-side="r">
+    <div class="copy">
+      <h2>Make it <mark>yours.</mark></h2>
+      <p class="sub">Every setting saves to your account, so it follows you to every computer you log in on.</p>
+      <div class="swatches" aria-label="Accent colors"><span class="sw-ltc">LTCLevTec</span><span class="sw-blue">Blue</span><span class="sw-red">Red</span><span class="sw-green">Green</span><span class="sw-purple">Purple</span><span class="sw-orange">Orange</span></div>
+      <ul class="ticks">
+        <li><b>Text sizes</b> for titles, body and small text, each on its own</li>
+        <li><b>Compact mode</b> and Hide done when you want more on screen</li>
+        <li><b>Plan meters</b> that turn yellow before you hit a limit</li>
+        <li><b>Support built in</b>, with a screenshot or video attached</li>
+        <li><b>Up to 10 devices</b>, and you can sign any of them out</li>
+      </ul>
+    </div>
+    <div class="pics pair">
+      <figure class="shot" data-depth="0.04" data-rot="-1.2deg"><img src="/site/shots/set-prefs2.webp" alt="Preferences with text sizes, notifications and accent colors" loading="lazy" decoding="async" width="925" height="694"></figure>
+      <figure class="shot small" data-depth="0.1" data-rot="2deg"><img src="/site/shots/set-plan.webp" alt="Plan and limits" loading="lazy" decoding="async" width="925" height="694"></figure>
+    </div>
+  </section>
+
+  <section class="row guide-promo" data-side="l">
+    <div class="copy">
+      <h2>Every button, <mark>written down.</mark></h2>
+      <p class="sub">I wrote a complete guide with real screenshots, a full worked example and every limit. Read it here in your browser, or grab the 50 page PDF. The plugin has a Download Guide button too, right above your version number.</p>
+      <div class="actions">
+        <a class="button primary" href="/guide">Read the guide</a>
+        <a class="button" href="/guide.pdf" download="CheckpointLTC Guide.pdf">Download the PDF</a>
+      </div>
+    </div>
+    <div class="pics">
+      <figure class="shot" data-depth="0.05" data-rot="1deg"><img src="/site/shots/guide-prompt.webp" alt="The Download Guide button in the plugin" loading="lazy" decoding="async" width="925" height="694"></figure>
+    </div>
+  </section>
+
+  <section class="source" id="source" data-side="r">
+    <div class="intro right">
+      <h2>Open to read, <mark>every line.</mark></h2>
+      <p class="sub">You log in with Roblox on Roblox's own page, and I only ever get your UserId. No password, no email, nothing from your places.</p>
+      <p class="sub">The full source is public on GitHub, so you can see exactly how CheckpointLTC works and what it does with your data. It's there to read and learn from, not to copy or reupload.</p>
+      <div class="actions">
+        <a class="button" href="https://github.com/clevy-cmd/CheckpointLTC" target="_blank" rel="noopener">View the source</a>
+        <a class="button" href="/privacy">Privacy</a>
+        <a class="button" href="/terms">Terms</a>
+      </div>
+    </div>
+  </section>
+
+  <section class="row community" id="discord" data-side="l">
+    <div class="copy">
+      <h2>Come <mark>hang out.</mark></h2>
+      <p class="sub">My Discord is where CheckpointLTC really lives. Ask me anything directly, swap tips with other people who use it every day, and see what I'm building before anyone else does.</p>
+      <ul class="ticks">
+        <li><b>Direct help</b> from me and the community</li>
+        <li><b>Updates first</b>, the moment they ship</li>
+        <li><b>Sneak peeks</b> at what's coming next</li>
+        <li><b>Your ideas</b> shape what I build</li>
+      </ul>
+      <div class="actions join">
+        <a class="button discord" href="https://discord.gg/5njkCsBdNd" target="_blank" rel="noopener">Join the Discord</a>
+      </div>
+    </div>
+    <figure class="chat" aria-hidden="true">
+      <div class="chat-top"><span class="chat-server">LTCLevTec</span><span class="chat-channel"># help</span></div>
+      <div class="chat-body">
+        <div class="chat-side">
+          <span data-ch="announcements"># announcements</span>
+          <span data-ch="sneakpeeks"># sneakpeeks</span>
+          <span data-ch="help" class="on"># help</span>
+          <span data-ch="ideas"># ideas</span>
+        </div>
+        <div class="chat-feed"></div>
+      </div>
+      <div class="chat-typing"><i></i><i></i><i></i><span></span></div>
+      <figcaption>A taste of what goes on in there</figcaption>
+    </figure>
+  </section>
+
+  <section class="final" data-side="r">
+    <div class="flag" aria-hidden="true"></div>
+    <h2>Finish line.</h2>
+    <p class="sub">Install CheckpointLTC, press Log in with Roblox, and make your first list.</p>
+    <a class="button primary big" href="https://create.roblox.com/store/asset/104522423965573" target="_blank" rel="noopener">Get it on the Creator Store</a>
+  </section>
+</main>
+
+<footer class="foot">
+  <span>Made by LTCLevTec LLC</span>
+  <span><a href="/guide">Guide</a> · <a href="https://discord.gg/5njkCsBdNd" target="_blank" rel="noopener">Discord</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></span>
+</footer>
+</body>
+</html>

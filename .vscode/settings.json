@@ -1,0 +1,11 @@
+{
+  "luau-lsp.sourcemap.rojoProjectFile": "plugin/default.project.json",
+  "luau-lsp.types.roblox": true,
+  "luau-lsp.platform.type": "roblox",
+  "luau-lsp.plugin.enabled": true,
+  "[luau]": {
+    "editor.defaultFormatter": "JohnnyMorganz.stylua",
+    "editor.formatOnSave": true
+  },
+  "files.exclude": { "**/node_modules": true, "worker/.wrangler": true }
+}

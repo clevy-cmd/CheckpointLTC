@@ -1,0 +1,9 @@
+node_modules/
+.wrangler/
+.dev.vars
+.env*
+*.rbxm
+*.rbxmx
+sourcemap.json
+worker/worker-configuration.d.ts
+worker/wrangler.ci.json
