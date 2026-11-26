@@ -115,8 +115,8 @@ export function legalPage(title: string, lead: string, summary: string[], body: 
 <meta name="theme-color" content="#29b9e8">
 <link rel="icon" type="image/png" href="/site/icon.png">
 <link rel="preload" href="/site/fonts/bricolage.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/site/site.css?v=7">
-<script src="/site/legal.js?v=5" defer></script>
+<link rel="stylesheet" href="/site/site.css?v=8">
+<script src="/site/legal.js?v=6" defer></script>
 </head>
 <body class="doc-page">
 <div class="grid" aria-hidden="true"></div>

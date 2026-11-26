@@ -1,14 +1,15 @@
 (() => {
   document.documentElement.classList.add("js");
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const grid = document.querySelector(".grid");
-  let drift = 0;
-  const tick = () => {
-    drift = (drift + 0.12) % 160;
-    grid.style.setProperty("--drift", `${drift}px`);
-    requestAnimationFrame(tick);
-  };
-  if (!reduced) requestAnimationFrame(tick);
+
+  const early = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      entry.target.loading = "eager";
+      early.unobserve(entry.target);
+    }
+  }, { rootMargin: `${Math.round(window.innerHeight * 1.5)}px 0px` });
+  for (const img of document.querySelectorAll('img[loading="lazy"]')) early.observe(img);
 
   const toc = document.querySelector(".guide-grid .toc");
   const list = toc.querySelector(".toc-list");

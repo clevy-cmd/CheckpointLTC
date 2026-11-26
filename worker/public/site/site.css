@@ -34,17 +34,12 @@ kbd { font-family: var(--mono); font-size: 0.85em; border: 1px solid var(--line)
 
 .grid {
   position: fixed; inset: -20vh -20vw; z-index: 0; pointer-events: none; opacity: 0.55;
-  background-image:
-    linear-gradient(rgba(41, 185, 232, 0.07) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(41, 185, 232, 0.07) 1px, transparent 1px),
-    linear-gradient(rgba(41, 185, 232, 0.035) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(41, 185, 232, 0.035) 1px, transparent 1px);
-  background-size: 160px 160px, 160px 160px, 32px 32px, 32px 32px;
-  transform: perspective(900px) rotateX(58deg) translateY(var(--drift, 0px));
+  background: url("/site/grid.svg") 0 0 / 100% 100% no-repeat;
+  transform: perspective(900px) rotateX(58deg) translateY(0);
   transform-origin: 50% 0%;
-  mask-image: linear-gradient(to bottom, transparent 0%, #000 25%, #000 70%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, transparent 0%, #000 25%, #000 70%, transparent 100%);
+  animation: grid-drift 22.222s linear infinite;
 }
+@keyframes grid-drift { from { transform: perspective(900px) rotateX(58deg) translateY(0); } to { transform: perspective(900px) rotateX(58deg) translateY(160px); } }
 
 .top { position: sticky; top: 0; z-index: 20; display: flex; align-items: center; justify-content: space-between; padding: 14px max(56px, calc(50% - 620px + 56px)) 14px max(var(--pad), calc(50% - 620px + var(--pad))); background: #060c18; border-bottom: 1px solid var(--line); }
 .brand { display: flex; align-items: center; gap: 10px; text-decoration: none; font-family: var(--display); font-weight: 700; font-size: 17px; }

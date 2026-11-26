@@ -16,3 +16,27 @@
   Strict-Transport-Security: max-age=63072000; includeSubDomains
   Content-Security-Policy: default-src 'none'; script-src 'self'; style-src 'self' 'sha256-1iBbV+hgkHnTrR3FDJAw/2+P2baEUIuvgpuu/Hjv7Q4='; img-src 'self'; font-src 'self'; base-uri 'none'; form-action 'none'; frame-ancestors 'none'
   X-Frame-Options: DENY
+
+/site/shots/*
+  ! Cache-Control
+  Cache-Control: public, max-age=300
+
+/site/grid.svg
+  ! Cache-Control
+  Cache-Control: public, max-age=300
+
+/site/icon.png
+  ! Cache-Control
+  Cache-Control: public, max-age=300
+
+/site/og-home.jpg
+  ! Cache-Control
+  Cache-Control: public, max-age=300
+
+/site/og-guide.jpg
+  ! Cache-Control
+  Cache-Control: public, max-age=300
+
+/site/fonts/*
+  ! Cache-Control
+  Cache-Control: public, max-age=3600

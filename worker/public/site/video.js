@@ -1,13 +1,5 @@
 (() => {
   const reduced = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
-  const grid = document.querySelector(".grid");
-  let drift = 0;
-  const tick = () => {
-    drift = (drift + 0.12) % 160;
-    grid.style.setProperty("--drift", `${drift}px`);
-    requestAnimationFrame(tick);
-  };
-  if (!reduced) requestAnimationFrame(tick);
 
   const video = document.querySelector("video");
   const steps = [...document.querySelectorAll(".steps li")];

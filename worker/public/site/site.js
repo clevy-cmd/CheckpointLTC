@@ -3,7 +3,6 @@
   const finePointer = window.matchMedia("(pointer: fine)").matches;
   const NS = "http://www.w3.org/2000/svg";
 
-  const grid = document.querySelector(".grid");
   const main = document.querySelector("main");
   const svg = main.querySelector(".track");
   const road = svg.querySelector(".road");
@@ -19,7 +18,6 @@
   let pads = [];
   let mainTop = 0;
   let shown = 0;
-  let drift = 0;
   let mouseX = 0;
   let mouseY = 0;
   let tiltX = 0;
@@ -103,10 +101,6 @@
   };
 
   const frame = () => {
-    if (!reduced) {
-      drift = (drift + 0.12) % 160;
-      grid.style.setProperty("--drift", `${drift}px`);
-    }
     const atBottom = window.scrollY + window.innerHeight >= document.documentElement.scrollHeight - 4;
     const target = atBottom ? total : lengthAtY(window.scrollY - mainTop + window.innerHeight * 0.62);
     const step = reduced ? target - shown : (target - shown) * 0.075;
@@ -283,6 +277,15 @@
       watcher.disconnect();
     }, { rootMargin: "800px 0px" }).observe(track);
   }
+
+  const early = new IntersectionObserver((entries) => {
+    for (const entry of entries) {
+      if (!entry.isIntersecting) continue;
+      entry.target.loading = "eager";
+      early.unobserve(entry.target);
+    }
+  }, { rootMargin: `${Math.round(window.innerHeight * 1.5)}px 0px` });
+  for (const img of document.querySelectorAll('img[loading="lazy"]')) early.observe(img);
 
   const app = document.getElementById("app");
   if (!app) return;
