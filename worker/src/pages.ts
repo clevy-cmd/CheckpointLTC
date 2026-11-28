@@ -85,12 +85,67 @@ export function page(title: string, body: string, status = 200, allowForms = fal
   return new Response(html, { status, headers: headers(allowForms, nonce) });
 }
 
+const authCss = `
+.auth { padding-top: 110px; padding-bottom: 120px; }
+.auth h1 { font-size: clamp(44px, 6vw, 80px); max-width: 14ch; }
+.auth.bad .scribble, .auth.bad .kicker { color: var(--redb); }
+.auth .lede { margin-top: 28px; }
+.auth-window { max-width: 460px; margin: 42px 0 34px; background: var(--win); border: 1px solid var(--winline); border-top: 3px solid var(--blue);
+  box-shadow: 0 40px 80px -45px rgba(0, 0, 0, 0.85), 0 30px 70px -50px rgba(41, 185, 232, 0.35); }
+.auth-code { padding: 30px 22px 32px; text-align: center; font: 700 clamp(30px, 4.6vw, 46px)/1 var(--mono); letter-spacing: 0.18em; color: var(--blue); }
+.auth-note { max-width: 60ch; margin-top: 38px; padding-top: 20px; border-top: 1px solid var(--line); color: var(--sub); font-size: 14.5px; line-height: 1.7; }
+.auth-note b { color: var(--text); font-weight: 600; }
+@media (max-width: 900px) { .auth { padding-top: 64px; padding-bottom: 80px; } .auth-window { margin: 32px 0 28px; } }
+`;
+
+type AuthPage = { title: string; kicker: string; lead: string; accent: string; lede: string; body?: string; bad?: boolean; status?: number };
+
+export function authPage(options: AuthPage): Response {
+  const nonce = makeNonce();
+  const html = `<!doctype html>
+<html lang="en">
+<head>
+<style>html{background:#060c18;color-scheme:dark}</style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#060c18">
+<title>${escapeHtml(options.title)} · CheckpointLTC</title>
+<link rel="icon" type="image/png" href="/site/icon.png">
+<link rel="preload" href="/site/fonts/bricolage.woff2" as="font" type="font/woff2" crossorigin>
+<link rel="stylesheet" href="/site/site.css?v=8">
+<style nonce="${nonce}">${authCss}</style>
+</head>
+<body>
+<div class="grid" aria-hidden="true"></div>
+<header class="top">
+  <a class="brand" href="/"><img src="/site/icon.png" alt="" width="28" height="28"><span>CheckpointLTC</span></a>
+</header>
+<main>
+  <section class="auth in${options.bad ? " bad" : ""}">
+    <p class="kicker">${escapeHtml(options.kicker)}</p>
+    <h1>${escapeHtml(options.lead)} <span class="scribble">${escapeHtml(options.accent)}<svg viewBox="0 0 400 24" preserveAspectRatio="none" aria-hidden="true"><path d="M3 14 C 70 6, 140 19, 210 12 S 330 7, 397 12"></path></svg></span></h1>
+    <p class="lede">${escapeHtml(options.lede)}</p>
+    ${options.body ?? ""}
+  </section>
+</main>
+</body>
+</html>`;
+  return new Response(html, { status: options.status ?? 200, headers: headers(false, nonce) });
+}
+
 export function messagePage(title: string, message: string, isError: boolean, status = 200): Response {
-  return page(
+  const words = title.split(" ");
+  const last = words.pop() ?? title;
+  return authPage({
     title,
-    `<h1${isError ? ' class="bad"' : ""}>${escapeHtml(title)}</h1><p>${escapeHtml(message)}</p>`,
+    kicker: isError ? "Something went wrong" : "CheckpointLTC",
+    lead: words.join(" "),
+    accent: `${last}.`,
+    lede: message,
+    bad: isError,
     status,
-  );
+  });
 }
 
 const storeLink = "https://create.roblox.com/store/asset/104522423965573";

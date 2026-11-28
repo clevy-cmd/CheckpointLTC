@@ -4,7 +4,7 @@ import { hashKey, newKey, newLoginCode, randomToken } from "../crypto";
 import { bannedMessage, limits } from "../config";
 import { authorizeUrl, exchangeCode, isPaid, oauthConfigured, revoke, userIdFromToken } from "../oauth";
 import { ownsPlugin, seal, storeUrl } from "../licence";
-import { escapeHtml, messagePage, page } from "../pages";
+import { authPage, escapeHtml, messagePage } from "../pages";
 import * as v from "../validate";
 import { activeBan, blocksLogin, sessionLabel, startSession } from "../sessions";
 
@@ -104,17 +104,19 @@ export async function loginPage(_request: Request, env: Env, code: string): Prom
   const session = await env.DB.prepare("SELECT * FROM login_sessions WHERE code = ?").bind(code).first<Session>();
   if (!session || session.expires_at < Date.now()) return expiredPage();
   if (session.error) return messagePage("Login failed", session.error, true);
-  if (session.user_id !== null) return messagePage("You are logged in", "Go back to Roblox Studio.", false);
+  if (session.user_id !== null) return messagePage("You are logged in", "Go back to Roblox Studio. The window finishes on its own.", false);
 
   const link = await authorizeUrl(env, session.oauth_state, session.pkce_verifier);
-  return page(
-    "Log in",
-    `<h1>Log in to CheckpointLTC</h1>
-<p>Check this code matches the one showing in your Roblox Studio panel.</p>
-<div class="code">${escapeHtml(formatCode(code))}</div>
-<a class="button" href="${escapeHtml(link)}">Continue with Roblox</a>
-<small>Only continue if you pressed Log in with Roblox in Studio yourself just now. Never use a login link someone sent you. ${escapeHtml(sharedNote(env))}</small>`,
-  );
+  return authPage({
+    title: "Log in",
+    kicker: "Roblox Studio login",
+    lead: "Log in to",
+    accent: "CheckpointLTC.",
+    lede: "Check this code matches the one in your CheckpointLTC window in Studio.",
+    body: `<div class="auth-window"><div class="code-tab"><span>CheckpointLTC</span><span>Roblox Studio</span></div><div class="auth-code">${escapeHtml(formatCode(code))}</div></div>
+    <a class="button primary big" href="${escapeHtml(link)}">Continue with Roblox</a>
+    <p class="auth-note"><b>Only continue if you pressed Log in with Roblox in Studio yourself just now.</b> Never use a login link someone sent you. ${escapeHtml(sharedNote(env))}</p>`,
+  });
 }
 
 export async function callback(request: Request, env: Env): Promise<Response> {
@@ -173,16 +175,18 @@ export async function callback(request: Request, env: Env): Promise<Response> {
     .bind(userId, refresh, session.code)
     .run();
   if (done.meta.changes !== 1) return expiredPage();
-  return messagePage("You are logged in", "Go back to Roblox Studio. The panel finishes on its own.", false);
+  return messagePage("You are logged in", "Go back to Roblox Studio. The window finishes on its own.", false);
 }
 
 function notOwnedPage(env: Env): Response {
   const url = storeUrl(env);
-  return page(
-    "Get CheckpointLTC",
-    `<h1>You don't own CheckpointLTC yet</h1>
-<p>Get it on the Creator Store with this same Roblox account, then press Log in with Roblox in Studio again.</p>
-<a class="button" href="${escapeHtml(url)}">Get it on the Creator Store</a>
-<small>Already bought it? Make sure you logged in with the account you bought it on.</small>`,
-  );
+  return authPage({
+    title: "Get CheckpointLTC",
+    kicker: "Roblox Studio login",
+    lead: "You don't own it",
+    accent: "yet.",
+    lede: "Get CheckpointLTC on the Creator Store with this same Roblox account, then press Log in with Roblox in Studio again.",
+    body: `<a class="button primary big" href="${escapeHtml(url)}" target="_blank" rel="noopener">Get it on the Creator Store</a>
+    <p class="auth-note"><b>Already got it?</b> Make sure you logged in with the account you got it on.</p>`,
+  });
 }
