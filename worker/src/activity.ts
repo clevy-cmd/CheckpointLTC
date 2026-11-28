@@ -18,6 +18,8 @@ export type ActivityKind =
   | "list.archived"
   | "list.unarchived"
   | "list.pinned"
+  | "list.autoassign"
+  | "item.split"
   | "list.imported"
   | "member.changed"
   | "report.approved"

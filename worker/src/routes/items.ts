@@ -1,6 +1,7 @@
 import type { Caller, Env } from "../env";
 import { ApiError, json, readBody } from "../http";
-import { bumpRevision, requireRole, requireWritable, roleRank, type Access } from "../access";
+import { bumpRevision, bumpRevisionIfChanged, requireRole, requireWritable, roleRank, type Access } from "../access";
+import { getListPayload } from "./lists";
 import { newId } from "../crypto";
 import { labels, limits } from "../config";
 import * as v from "../validate";
@@ -20,12 +21,28 @@ export interface ItemRow {
   section: string | null;
   notes: string | null;
   assignee_id: number | null;
+  assignees: string | null;
   link: string | null;
   created_by: number;
   updated_by: number;
   created_at: number;
   updated_at: number;
   deleted_at: number | null;
+}
+
+export function parseIdList(raw: string | null): number[] {
+  if (!raw) return [];
+  try {
+    const parsed = JSON.parse(raw) as unknown;
+    return Array.isArray(parsed) ? parsed.filter((id): id is number => Number.isSafeInteger(id) && id > 0) : [];
+  } catch {
+    return [];
+  }
+}
+
+export function assigneesOf(r: { assignees: string | null; assignee_id: number | null }): number[] {
+  if (r.assignees) return parseIdList(r.assignees);
+  return r.assignee_id ? [r.assignee_id] : [];
 }
 
 export function itemJson(r: ItemRow) {
@@ -42,6 +59,7 @@ export function itemJson(r: ItemRow) {
     section: r.section,
     notes: r.notes,
     assigneeId: r.assignee_id,
+    assigneeIds: assigneesOf(r),
     link: r.link ? JSON.parse(r.link) : null,
     createdBy: r.created_by,
     updatedBy: r.updated_by,
@@ -70,15 +88,28 @@ async function hidden<T>(work: () => Promise<T>): Promise<T> {
   }
 }
 
-export async function requirePersonOnList(env: Env, access: Access, target: number): Promise<void> {
-  if (target === access.list.owner_id) return;
-  const row = await env.DB.prepare(
-    `SELECT EXISTS (SELECT 1 FROM members WHERE list_id = ?1 AND user_id = ?2)
-         OR EXISTS (SELECT 1 FROM assignments WHERE list_id = ?1 AND user_id = ?2) AS ok`,
+async function onListAlready(env: Env, access: Access, targets: number[]): Promise<Set<number>> {
+  const others = [...new Set(targets)].filter((id) => id !== access.list.owner_id);
+  const ok = new Set<number>([access.list.owner_id]);
+  if (others.length === 0) return ok;
+  const rows = await env.DB.prepare(
+    `SELECT user_id FROM members WHERE list_id = ?1 AND user_id IN (SELECT value FROM json_each(?2))
+     UNION SELECT user_id FROM assignments WHERE list_id = ?1 AND user_id IN (SELECT value FROM json_each(?2))`,
   )
-    .bind(access.list.id, target)
-    .first<{ ok: number }>();
-  if (!row?.ok) throw new ApiError("bad_request", "Add that person to the list before giving them a task.");
+    .bind(access.list.id, JSON.stringify(others))
+    .all<{ user_id: number }>();
+  for (const row of rows.results) ok.add(row.user_id);
+  return ok;
+}
+
+export async function requirePeopleOnList(env: Env, access: Access, targets: number[]): Promise<void> {
+  const ok = await onListAlready(env, access, targets);
+  if (targets.some((id) => !ok.has(id))) throw new ApiError("bad_request", "Add that person to the list before giving them a task.");
+}
+
+export async function peopleStillOnList(env: Env, access: Access, targets: number[]): Promise<number[]> {
+  const ok = await onListAlready(env, access, targets);
+  return [...new Set(targets)].filter((id) => ok.has(id));
 }
 
 interface Fields {
@@ -89,6 +120,7 @@ interface Fields {
   section?: string | null;
   notes?: string | null;
   assigneeId?: number | null;
+  assigneeIds?: number[];
   link?: v.TaskLink | null;
 }
 
@@ -100,7 +132,12 @@ function readFields(body: Record<string, unknown>): Fields {
   if (body.label !== undefined) f.label = body.label === null ? null : v.oneOf(body.label, "label", labels);
   if (body.section !== undefined) f.section = v.optionalText(body.section, "Section", limits.sectionMaxLength);
   if (body.notes !== undefined) f.notes = v.optionalText(body.notes, "Notes", limits.notesMaxLength);
-  if (body.assigneeId !== undefined) f.assigneeId = body.assigneeId === null ? null : v.userId(body.assigneeId, "assigneeId");
+  if (body.assigneeIds !== undefined) {
+    f.assigneeIds = v.userIds(body.assigneeIds, "assigneeIds", limits.assigneesPerItem);
+  } else if (body.assigneeId !== undefined) {
+    f.assigneeIds = body.assigneeId === null ? [] : [v.userId(body.assigneeId, "assigneeId")];
+  }
+  if (f.assigneeIds !== undefined) f.assigneeId = f.assigneeIds[0] ?? null;
   if (body.link !== undefined) f.link = v.link(body.link, limits.linkMaxLength);
   return f;
 }
@@ -113,11 +150,19 @@ const columnFor: Record<keyof Fields, keyof ItemRow> = {
   section: "section",
   notes: "notes",
   assigneeId: "assignee_id",
+  assigneeIds: "assignees",
   link: "link",
 };
 
 function stored(key: keyof Fields, value: unknown): unknown {
+  if (key === "assigneeIds") return Array.isArray(value) && value.length > 0 ? JSON.stringify(value) : null;
   return key === "link" && value !== null && value !== undefined ? JSON.stringify(value) : value;
+}
+
+function readStored(key: keyof Fields, value: unknown): unknown {
+  if (key === "assigneeIds") return parseIdList((value as string | null) ?? null);
+  if (key === "link") return value ? JSON.parse(value as string) : null;
+  return value;
 }
 
 export async function addItem(request: Request, env: Env, caller: Caller, listId: string): Promise<Response> {
@@ -128,7 +173,12 @@ export async function addItem(request: Request, env: Env, caller: Caller, listId
   if (access.list.item_count >= limits.itemsPerList) {
     throw new ApiError("limit_reached", `A list can hold up to ${limits.itemsPerList} tasks.`);
   }
-  if (fields.assigneeId) await requirePersonOnList(env, access, fields.assigneeId);
+  let assignees = fields.assigneeIds;
+  if (assignees === undefined) {
+    assignees = await peopleStillOnList(env, access, parseIdList(access.list.auto_assignees));
+  } else {
+    await requirePeopleOnList(env, access, assignees);
+  }
 
   const top = await env.DB.prepare("SELECT COALESCE(MAX(position), 0) AS top FROM items WHERE list_id = ?")
     .bind(listId)
@@ -137,9 +187,9 @@ export async function addItem(request: Request, env: Env, caller: Caller, listId
   const id = newId();
   const statements = [
     env.DB.prepare(
-      `INSERT INTO items (id, list_id, text, done, position, version, priority, due_at, label, section, notes, assignee_id, link,
+      `INSERT INTO items (id, list_id, text, done, position, version, priority, due_at, label, section, notes, assignee_id, assignees, link,
                           created_by, updated_by, created_at, updated_at)
-       VALUES (?, ?, ?, 0, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+       VALUES (?, ?, ?, 0, ?, 1, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
     ).bind(
       id,
       listId,
@@ -150,7 +200,8 @@ export async function addItem(request: Request, env: Env, caller: Caller, listId
       fields.label ?? null,
       fields.section ?? null,
       fields.notes ?? null,
-      fields.assigneeId ?? null,
+      assignees[0] ?? null,
+      stored("assigneeIds", assignees),
       stored("link", fields.link ?? null),
       caller.userId,
       caller.userId,
@@ -160,8 +211,8 @@ export async function addItem(request: Request, env: Env, caller: Caller, listId
     bumpRevision(env, listId),
     ...recordActivity(env, { listId, actorId: caller.userId, kind: "item.added", itemId: id, data: { text: fields.text } }),
   ];
-  if (fields.assigneeId && fields.assigneeId !== caller.userId) {
-    statements.push(notify(env, fields.assigneeId, listId, id, caller.userId, "task.assigned", { text: fields.text }));
+  for (const person of assignees) {
+    if (person !== caller.userId) statements.push(notify(env, person, listId, id, caller.userId, "task.assigned", { text: fields.text }));
   }
   await env.DB.batch(statements);
   return json({ item: itemJson(await loadItem(env, id)) }, 201);
@@ -178,15 +229,15 @@ export async function updateItem(request: Request, env: Env, caller: Caller, ite
   if (keys.length === 0 && !hasDone) throw new ApiError("bad_request", "Nothing to change.");
 
   const isEditor = roleRank[access.role] >= roleRank.editor;
-  const isOwnTask = existing.assignee_id === caller.userId;
+  const isOwnTask = assigneesOf(existing).includes(caller.userId);
   if (!isEditor && !(isOwnTask && keys.length === 0)) throw new ApiError("forbidden", "Only editors can do that.");
-  if (fields.assigneeId) await requirePersonOnList(env, access, fields.assigneeId);
+  if (fields.assigneeIds) await requirePeopleOnList(env, access, fields.assigneeIds);
 
   const changes: Record<string, { from: unknown; to: unknown }> = {};
   for (const key of keys) {
-    const before = existing[columnFor[key]];
+    const before = key === "assigneeIds" ? stored(key, assigneesOf(existing)) : existing[columnFor[key]];
     const after = stored(key, fields[key]);
-    if (before !== after) changes[key] = { from: key === "link" && before ? JSON.parse(before as string) : before, to: fields[key] };
+    if (before !== after) changes[key] = { from: readStored(key, before), to: fields[key] };
   }
   const textual = fields.text !== undefined || fields.notes !== undefined;
   const expected = textual && body.version !== undefined ? v.positiveInt(body.version, "version") : null;
@@ -227,10 +278,15 @@ export async function updateItem(request: Request, env: Env, caller: Caller, ite
     );
   }
   const statements = [update, bump, ...log, activityPrune(env, existing.list_id)];
-  if (changes.assigneeId && fields.assigneeId && fields.assigneeId !== caller.userId) {
-    statements.push(
-      notify(env, fields.assigneeId, existing.list_id, itemId, caller.userId, "task.assigned", { text: fields.text ?? existing.text }),
-    );
+  if (changes.assigneeIds && fields.assigneeIds) {
+    const before = new Set(assigneesOf(existing));
+    for (const person of fields.assigneeIds) {
+      if (!before.has(person) && person !== caller.userId) {
+        statements.push(
+          notify(env, person, existing.list_id, itemId, caller.userId, "task.assigned", { text: fields.text ?? existing.text }),
+        );
+      }
+    }
   }
   const [result] = await env.DB.batch(statements);
 
@@ -342,8 +398,9 @@ export async function restoreItem(_request: Request, env: Env, caller: Caller, i
 
 export async function myTasks(_request: Request, env: Env, caller: Caller): Promise<Response> {
   const rows = await env.DB.prepare(
-    `SELECT i.*, l.title AS list_title FROM items i JOIN lists l ON l.id = i.list_id
-      WHERE i.assignee_id = ? AND i.deleted_at IS NULL AND l.deleted_at IS NULL
+    `SELECT i.*, l.title AS list_title FROM item_assignees ia
+       JOIN items i ON i.id = ia.item_id JOIN lists l ON l.id = i.list_id
+      WHERE ia.user_id = ? AND i.deleted_at IS NULL AND l.deleted_at IS NULL
       ORDER BY i.done ASC, COALESCE(i.due_at, 9e15) ASC, i.priority DESC, i.updated_at DESC LIMIT ?`,
   )
     .bind(caller.userId, limits.myTasksMaxResults)
@@ -366,11 +423,11 @@ export async function search(request: Request, env: Env, caller: Caller): Promis
           OR EXISTS (SELECT 1 FROM members m WHERE m.list_id = l.id AND m.user_id = ?1)
           OR EXISTS (SELECT 1 FROM assignments a WHERE a.list_id = l.id AND a.user_id = ?1)
           OR EXISTS (SELECT 1 FROM visits vi WHERE vi.list_id = l.id AND vi.user_id = ?1)
-          OR i.assignee_id = ?1)
+          OR EXISTS (SELECT 1 FROM item_assignees ia WHERE ia.item_id = i.id AND ia.user_id = ?1))
         AND (?2 = '%%' OR i.text LIKE ?2 ESCAPE '\\' OR i.notes LIKE ?2 ESCAPE '\\')
         AND (?3 IS NULL OR i.label = ?3)
         AND (?4 IS NULL OR i.done = ?4)
-        AND (?5 IS NULL OR i.assignee_id = ?5)
+        AND (?5 IS NULL OR EXISTS (SELECT 1 FROM item_assignees ib WHERE ib.item_id = i.id AND ib.user_id = ?5))
       ORDER BY i.updated_at DESC LIMIT ?6`,
   )
     .bind(
@@ -389,4 +446,103 @@ export async function requireItemAccess(env: Env, itemId: string, userId: number
   const item = await loadItem(env, itemId);
   const access = await hidden(() => requireRole(env, item.list_id, userId, minimum));
   return { item, access };
+}
+
+export async function splitItem(request: Request, env: Env, caller: Caller, itemId: string): Promise<Response> {
+  const existing = await loadItem(env, itemId);
+  const access = await hidden(() => requireWritable(env, existing.list_id, caller.userId, "editor"));
+  const body = await readBody(request);
+  if (!Array.isArray(body.parts)) throw new ApiError("bad_request", "parts must be a list of task texts.");
+  if (body.parts.length > limits.splitMaxParts) {
+    throw new ApiError("bad_request", `A task can be split into up to ${limits.splitMaxParts} tasks at once.`);
+  }
+  const parts = body.parts.map((part, index) => v.text(part, `Part ${index + 1}`, limits.itemMaxLength));
+  if (parts.length < 2) throw new ApiError("bad_request", "Split needs at least two parts.");
+  const added = parts.length - 1;
+  if (access.list.item_count + added > limits.itemsPerList) {
+    throw new ApiError("limit_reached", `A list can hold up to ${limits.itemsPerList} tasks.`);
+  }
+  const expected = body.version === undefined ? null : v.positiveInt(body.version, "version");
+  const listId = existing.list_id;
+
+  const nextPosition = async (from: number): Promise<number | null> => {
+    const row = await env.DB.prepare("SELECT MIN(position) AS p FROM items WHERE list_id = ? AND position > ?")
+      .bind(listId, from)
+      .first<{ p: number | null }>();
+    return row?.p ?? null;
+  };
+  let base = existing.position;
+  let next = await nextPosition(base);
+  if (next !== null && (next - base) / (added + 1) < 1e-6) {
+    await env.DB.prepare(
+      `UPDATE items SET position = (SELECT COUNT(*) FROM items j WHERE j.list_id = items.list_id
+                                      AND (j.position < items.position OR (j.position = items.position AND j.id < items.id))) + 1
+        WHERE list_id = ?`,
+    )
+      .bind(listId)
+      .run();
+    base = (await loadItem(env, itemId)).position;
+    next = await nextPosition(base);
+  }
+  const step = next === null ? 1 : (next - base) / (added + 1);
+
+  const now = Date.now();
+  const ids = parts.slice(1).map(() => newId());
+  const statements: D1PreparedStatement[] = [
+    env.DB.prepare(
+      `UPDATE items SET text = ?1, version = version + 1, updated_by = ?2, updated_at = ?3
+        WHERE id = ?4 AND deleted_at IS NULL AND (?5 IS NULL OR version = ?5)`,
+    ).bind(parts[0], caller.userId, now, itemId, expected),
+  ];
+  ids.forEach((id, index) => {
+    statements.push(
+      env.DB.prepare(
+        `INSERT INTO items (id, list_id, text, done, position, version, priority, due_at, label, section, notes, assignee_id, assignees, link,
+                            created_by, updated_by, created_at, updated_at)
+         SELECT ?1, ?2, ?3, ?4, ?5, 1, ?6, ?7, ?8, ?9, NULL, ?10, ?11, NULL, ?12, ?12, ?13, ?13 WHERE changes() > 0`,
+      ).bind(
+        id,
+        listId,
+        parts[index + 1],
+        existing.done,
+        base + step * (index + 1),
+        existing.priority,
+        existing.due_at,
+        existing.label,
+        existing.section,
+        existing.assignee_id,
+        existing.assignees,
+        caller.userId,
+        now,
+      ),
+    );
+  });
+  statements.push(
+    bumpRevisionIfChanged(env, listId),
+    ...ids.map((id, index) =>
+      activityInsert(env, {
+        listId,
+        actorId: caller.userId,
+        kind: "item.added",
+        itemId: id,
+        data: { text: parts[index + 1] },
+        onlyIfChanged: true,
+      }),
+    ),
+    activityInsert(env, {
+      listId,
+      actorId: caller.userId,
+      kind: "item.split",
+      itemId,
+      data: { text: existing.text, from: existing.text, to: parts[0], added: ids },
+      onlyIfChanged: true,
+    }),
+    activityPrune(env, listId),
+  );
+  const [result] = await env.DB.batch(statements);
+  if (result.meta.changes === 0) {
+    const current = await loadItem(env, itemId);
+    return json({ error: { code: "conflict", message: "Someone else changed this task first." }, item: itemJson(current) }, 409);
+  }
+  return getListPayload(env, listId, caller.userId);
 }

@@ -43,6 +43,9 @@ function Drawer.new(ctx: any): any
 		Visible = false,
 		ClipsDescendants = true,
 	})
+	Kit.hitbox({ ZIndex = 50, Parent = root })
+	local view: any = { root = root, applyCollapse = function() end }
+	Overlay.registerFloating(root)
 
 	local top = Kit.frame({ Size = UDim2.fromScale(1, 0.08), ZIndex = 51, Parent = root })
 	Kit.paddingXY(0.03, 0.12).Parent = top
@@ -50,9 +53,26 @@ function Drawer.new(ctx: any): any
 		text = "Task",
 		role = "label",
 		token = "subtext",
-		props = { Size = UDim2.fromScale(0.7, 1), ZIndex = 51 },
+		props = { Size = UDim2.fromScale(0.5, 1), ZIndex = 51 },
 	})
 	topTitle.Parent = top
+	local textCollapsed = false
+	local collapseButton = Controls.button({
+		text = "Collapse text",
+		kind = "ghost",
+		tooltip = "Shrink the task text so the details move up",
+		onClick = function()
+			textCollapsed = not textCollapsed
+			view.applyCollapse()
+		end,
+		props = {
+			AnchorPoint = Vector2.new(1, 0),
+			Position = UDim2.fromScale(0.89, 0.1),
+			Size = UDim2.fromScale(0.34, 0.8),
+			ZIndex = 52,
+		},
+		parent = top,
+	}, maid)
 	Controls.iconButton({
 		icon = "close",
 		tooltip = "Close details",
@@ -77,13 +97,12 @@ function Drawer.new(ctx: any): any
 	Kit.paddingXY(0.04, 0).Parent = stack.frame
 	ctx.lock:register(stack)
 
-	local view: any = { root = root }
 	local shownId: string? = nil
 	local shownVersion = -1
 	local open = false
 
-	local function save(itemId: string, fields: { [string]: any })
-		Actions.updateItem(itemId, fields)
+	local function save(itemId: string, fields: { [string]: any }, message: string?)
+		Actions.updateItem(itemId, fields, message)
 	end
 
 	local function rowLabel(text: string, parent: Instance)
@@ -132,7 +151,8 @@ function Drawer.new(ctx: any): any
 		end
 	end
 
-	local function build(item: any)
+	local function build(item: any, keepScroll: boolean)
+		local scroll = if keepScroll then stack.frame.CanvasPosition else Vector2.zero
 		contentMaid:clean()
 		stack:clear()
 		local state = Store.get()
@@ -140,28 +160,46 @@ function Drawer.new(ctx: any): any
 		local editable = detail
 			and (detail.role == "owner" or detail.role == "admin" or detail.role == "editor")
 			and not detail.list.archived
-		local canToggle = editable or (item.assigneeId == state.userId)
+		local mine = Actions.isAssigned(item, state.userId)
+		local canToggle = editable or (mine and detail ~= nil and not detail.list.archived)
 
 		local titleRow = Kit.frame({ ZIndex = 52, ClipsDescendants = false })
-		local titleBox = GrowingTextBox.new({
+		local titleBox
+		titleBox = GrowingTextBox.new({
 			parent = titleRow,
 			placeholder = "Task text",
+			fill = true,
+			maxLines = Config.interaction.maxFillLines,
+			action = if editable then { icon = "check", tooltip = "Save the task text", shortcut = "Enter" } else nil,
 			maxLength = function()
 				return Store.limit("itemMaxLength", Config.fallbackLimits.itemMaxLength)
 			end,
 			zIndex = 60,
 			keepOnSubmit = true,
-			onFocusLost = function(text)
+			onFocusLost = function(text, confirmed)
 				local trimmed = string.match(text, "^%s*(.-)%s*$") or ""
 				if editable and trimmed ~= "" and trimmed ~= item.text then
-					save(item.id, { text = trimmed })
+					save(item.id, { text = trimmed }, "Task updated.")
+				elseif editable and confirmed then
+					Actions.toast("info", "No changes to save.")
 				end
+			end,
+			onLinesChanged = function()
+				stack:lock()
 			end,
 		}, contentMaid)
 		titleBox:setText(item.text)
 		titleBox:setEditable(editable)
 		view.boxes = { titleBox }
-		stack:add(titleRow, Kit.rows.composer)
+		stack:add(titleRow, function(designWidth: number, width: number?)
+			local lines = if textCollapsed then Config.interaction.titleCollapsedLines else nil
+			return designWidth / titleBox:fitHeight(width or designWidth, lines)
+		end)
+		function view.applyCollapse()
+			collapseButton.setText(if textCollapsed then "Show all text" else "Collapse text")
+			stack:lock()
+		end
+		collapseButton.setText(if textCollapsed then "Show all text" else "Collapse text")
 
 		local doneRow = Kit.frame({ ZIndex = 52 })
 		local doneButton = Controls.button({
@@ -310,28 +348,35 @@ function Drawer.new(ctx: any): any
 
 		local assigneeRow = Kit.frame({ ZIndex = 52 })
 		rowLabel("Assigned to", assigneeRow)
+		local assignees = Actions.assigneesOf(item)
+		local names = {}
+		for _, userId in assignees do
+			table.insert(names, Store.shortName(userId))
+		end
 		Controls.button({
-			text = if item.assigneeId then Store.personName(item.assigneeId) else "Nobody",
+			text = if #names == 0 then "Nobody" else table.concat(names, ", "),
 			onClick = function()
 				if not editable then
 					return
 				end
-				local menu: { Overlay.MenuItem } = {
-					{
+				local menu: { Overlay.MenuItem } = {}
+				if #assignees > 0 then
+					table.insert(menu, {
 						text = "Nobody",
 						run = function()
-							save(item.id, { assigneeId = Client.null })
+							save(item.id, { assigneeIds = {} })
 						end,
-					},
-				}
+					})
+				end
 				local seen: { [number]: boolean } = {}
 				local function add(userId: number)
 					if not seen[userId] then
 						seen[userId] = true
+						local on = table.find(assignees, userId) ~= nil
 						table.insert(menu, {
-							text = Store.personName(userId),
+							text = (if on then "✓  " else "     ") .. Store.personName(userId),
 							run = function()
-								save(item.id, { assigneeId = userId })
+								Actions.toggleAssignee(item.id, userId)
 							end,
 						})
 					end
@@ -345,6 +390,7 @@ function Drawer.new(ctx: any): any
 				end
 				Overlay.menu(menu)
 			end,
+			tooltip = if editable then "Pick one or more people. Pick someone again to take them off." else nil,
 			props = { Position = UDim2.fromScale(0.26, 0.1), Size = UDim2.fromScale(0.74, 0.8), ZIndex = 52 },
 			parent = assigneeRow,
 		}, contentMaid)
@@ -396,25 +442,36 @@ function Drawer.new(ctx: any): any
 		local notesTitle = Controls.sectionTitle("Notes", { ZIndex = 52 })
 		stack:add(notesTitle, Kit.rows.section)
 		local notesRow = Kit.frame({ ZIndex = 52, ClipsDescendants = false })
-		local notes = GrowingTextBox.new({
+		local notes
+		notes = GrowingTextBox.new({
 			parent = notesRow,
 			placeholder = if editable then "Add notes" else "No notes",
 			multiline = true,
+			fill = true,
+			maxLines = Config.interaction.maxFillLines,
+			action = if editable then { icon = "check", tooltip = "Save the notes" } else nil,
+			onLinesChanged = function()
+				stack:lock()
+			end,
 			maxLength = function()
 				return Store.limit("notesMaxLength", Config.fallbackLimits.notesMaxLength)
 			end,
 			zIndex = 58,
-			onFocusLost = function(text)
+			onFocusLost = function(text, confirmed)
 				local trimmed = string.match(text, "^%s*(.-)%s*$") or ""
 				if editable and trimmed ~= (item.notes or "") then
-					save(item.id, { notes = if trimmed == "" then Client.null else trimmed })
+					save(item.id, { notes = if trimmed == "" then Client.null else trimmed }, "Notes saved.")
+				elseif editable and confirmed then
+					Actions.toast("info", "No changes to save.")
 				end
 			end,
 		}, contentMaid)
 		notes:setText(item.notes or "")
 		notes:setEditable(editable)
 		table.insert(view.boxes, notes)
-		stack:add(notesRow, Kit.rows.composer)
+		stack:add(notesRow, function(designWidth: number, width: number?)
+			return designWidth / notes:fitHeight(width or designWidth)
+		end)
 
 		local commentsTitle = Controls.sectionTitle("Comments", { ZIndex = 52 })
 		stack:add(commentsTitle, Kit.rows.section)
@@ -482,12 +539,13 @@ function Drawer.new(ctx: any): any
 					return width / (text.TextSize * (lines + 1.6) * 1.3)
 				end)
 			end
-			local canComment = editable or item.assigneeId == state.userId
+			local canComment = editable or mine
 			if canComment then
 				local composerRow = Kit.frame({ ZIndex = 52, ClipsDescendants = false })
 				local composer = GrowingTextBox.new({
 					parent = composerRow,
 					placeholder = "Write a comment, Enter sends",
+					action = { icon = "forward", tooltip = "Send the comment", shortcut = "Enter" },
 					maxLength = function()
 						return Store.limit("commentMaxLength", Config.fallbackLimits.commentMaxLength)
 					end,
@@ -511,6 +569,18 @@ function Drawer.new(ctx: any): any
 		end
 
 		if editable then
+			local splitRow = Kit.frame({ ZIndex = 52 })
+			Controls.button({
+				text = "Split task",
+				hint = "Turn one long task into a few. They stay in the same section",
+				onClick = function()
+					view.openSplit(item)
+				end,
+				props = { Size = UDim2.fromScale(1, 1), ZIndex = 52 },
+				parent = splitRow,
+			}, contentMaid)
+			stack:add(splitRow, Kit.rows.button * 0.7)
+
 			local deleteRow = Kit.frame({ ZIndex = 52 })
 			Controls.button({
 				text = "Delete task",
@@ -540,6 +610,64 @@ function Drawer.new(ctx: any): any
 			stack:add(deleteRow, Kit.rows.button * 0.7)
 		end
 		stack:lock()
+		stack.frame.CanvasPosition = scroll
+	end
+
+	function view.splitGuess(text: string): string
+		local marked = text
+		for _, joiner in { ",%s+and%s+finally%s+", ",%s+and%s+then%s+", ",%s+then%s+", ",%s+also%s+", ";%s*" } do
+			marked = string.gsub(marked, joiner, "\n")
+		end
+		marked = string.gsub(marked, "([%.!%?])%s+", "%1\n")
+		local pieces = {}
+		for piece in string.gmatch(marked .. "\n", "(.-)\n") do
+			local trimmed = string.match(piece, "^%s*(.-)%s*$") or ""
+			if trimmed ~= "" then
+				table.insert(pieces, (string.gsub(trimmed, "^%l", string.upper)))
+			end
+		end
+		if #pieces >= 2 then
+			return table.concat(pieces, "\n")
+		end
+		return text
+	end
+
+	function view.openSplit(item: any)
+		local maxParts = Store.limit("splitMaxParts", 10)
+		local limit = Store.limit("itemMaxLength", Config.fallbackLimits.itemMaxLength)
+		Overlay.prompt({
+			title = "Split task",
+			body = "Put each task on its own line. The first line stays as this task, the rest go right below it.",
+			placeholder = "One task per line",
+			initial = view.splitGuess(item.text),
+			confirm = "Split",
+			multiline = true,
+			maxLength = limit * maxParts,
+			onConfirm = function(text)
+				local parts = {}
+				for line in string.gmatch(text .. "\n", "(.-)\r?\n") do
+					local trimmed = string.match(line, "^%s*(.-)%s*$") or ""
+					if trimmed ~= "" then
+						table.insert(parts, trimmed)
+					end
+				end
+				if #parts < 2 then
+					Actions.toast("warning", "Put at least two lines in to split the task.")
+					return
+				end
+				if #parts > maxParts then
+					Actions.toast("warning", string.format("You can split into up to %d tasks at once.", maxParts))
+					return
+				end
+				for _, part in parts do
+					if (utf8.len(part) or #part) > limit then
+						Actions.toast("warning", string.format("Each task can be up to %d characters.", limit))
+						return
+					end
+				end
+				Actions.splitItem(item.id, parts)
+			end,
+		})
 	end
 
 	local function slide(visible: boolean)
@@ -592,9 +720,10 @@ function Drawer.new(ctx: any): any
 				end
 			end
 			if not focused then
+				local sameItem = shownId == item.id
 				shownId = item.id
 				shownVersion = version
-				build(item)
+				build(item, sameItem)
 			end
 		end
 		slide(true)

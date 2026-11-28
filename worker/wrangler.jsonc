@@ -31,7 +31,7 @@
   "media": { "binding": "MEDIA" },
   "triggers": { "crons": ["17 * * * *"] },
   "vars": {
-    "latestPluginVersion": "1.1.0",
+    "latestPluginVersion": "1.1.1",
     "minPluginVersion": "1.0.0",
     "requireVerification": "true",
     "publicOrigin": "https://checkpointltc.ltclevtec.com",

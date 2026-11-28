@@ -37,6 +37,8 @@ export async function me(_request: Request, env: Env, caller: Caller): Promise<R
       itemsPerList: limits.itemsPerList,
       editorsPerList: limits.membersPerList,
       assignedPerList: limits.assignmentsPerList,
+      assigneesPerItem: limits.assigneesPerItem,
+      splitMaxParts: limits.splitMaxParts,
       titleMaxLength: limits.titleMaxLength,
       itemMaxLength: limits.itemMaxLength,
       notesMaxLength: limits.notesMaxLength,

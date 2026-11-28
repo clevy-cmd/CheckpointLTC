@@ -112,3 +112,9 @@ export function idText(value: unknown, field: string): string {
   if (typeof value !== "string" || !/^[a-z0-9]{6,32}$/.test(value)) throw new ApiError("bad_request", `${field} is not a valid id.`);
   return value;
 }
+
+export function userIds(value: unknown, field: string, max: number): number[] {
+  if (!Array.isArray(value)) throw new ApiError("bad_request", `${field} must be a list of UserIds.`);
+  if (value.length > max) throw new ApiError("bad_request", `${field} can hold up to ${max} people.`);
+  return [...new Set(value.map((id) => userId(id, field)))];
+}

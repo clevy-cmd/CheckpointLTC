@@ -5,7 +5,17 @@ import { activityInsert, activityPrune } from "../activity";
 import { limits } from "../config";
 import { getListPayload } from "./lists";
 
-const undoable = ["item.added", "item.deleted", "item.edited", "item.checked", "item.unchecked", "item.moved", "list.renamed"];
+const undoable = [
+  "item.added",
+  "item.deleted",
+  "item.edited",
+  "item.checked",
+  "item.unchecked",
+  "item.moved",
+  "item.split",
+  "list.renamed",
+  "list.autoassign",
+];
 
 const columnFor: Record<string, string> = {
   text: "text",
@@ -15,6 +25,7 @@ const columnFor: Record<string, string> = {
   section: "section",
   notes: "notes",
   assigneeId: "assignee_id",
+  assigneeIds: "assignees",
   link: "link",
 };
 
@@ -67,6 +78,7 @@ export async function undoLast(_request: Request, env: Env, caller: Caller, list
       const sets = keys.map((key) => `${columnFor[key]} = ?`).join(", ");
       const values = keys.map((key) => {
         const from = changes[key].from;
+        if (key === "assigneeIds") return Array.isArray(from) && from.length > 0 ? JSON.stringify(from) : null;
         return key === "link" && from !== null && from !== undefined ? JSON.stringify(from) : (from ?? null);
       });
       revert.push(
@@ -84,6 +96,25 @@ export async function undoLast(_request: Request, env: Env, caller: Caller, list
           item,
         ),
       );
+      break;
+    }
+    case "item.split": {
+      const added = Array.isArray(data.added) ? data.added.filter((id): id is string => typeof id === "string").slice(0, 50) : [];
+      revert.push(
+        env.DB.prepare("UPDATE items SET text = ?, version = version + 1, updated_at = ? WHERE id = ?").bind(String(data.from ?? ""), now, item),
+      );
+      if (added.length > 0) {
+        const marks = added.map(() => "?").join(",");
+        revert.push(
+          env.DB.prepare(`UPDATE items SET deleted_at = ? WHERE list_id = ? AND deleted_at IS NULL AND id IN (${marks})`).bind(now, listId, ...added),
+          env.DB.prepare(`UPDATE activity SET undone = 1 WHERE list_id = ? AND kind = 'item.added' AND item_id IN (${marks})`).bind(listId, ...added),
+        );
+      }
+      break;
+    }
+    case "list.autoassign": {
+      const from = Array.isArray(data.from) ? data.from.filter((id): id is number => Number.isSafeInteger(id)) : [];
+      revert.push(env.DB.prepare("UPDATE lists SET auto_assignees = ? WHERE id = ?").bind(from.length ? JSON.stringify(from) : null, listId));
       break;
     }
     case "list.renamed":

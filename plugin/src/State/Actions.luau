@@ -126,9 +126,34 @@ function Actions.resolveNames(ids: { number })
 	end)
 end
 
+function Actions.assigneesOf(item: any): { number }
+	if type(item.assigneeIds) == "table" then
+		return item.assigneeIds
+	end
+	return if item.assigneeId then { item.assigneeId } else {}
+end
+
+function Actions.isAssigned(item: any, userId: number): boolean
+	return table.find(Actions.assigneesOf(item), userId) ~= nil
+end
+
 local function cloneDetail(detail: Detail): Detail
 	local copy = table.clone(detail)
 	copy.items = table.clone(detail.items)
+	return copy
+end
+
+local function counted(detail: Detail): Detail
+	local done = 0
+	for _, item in detail.items do
+		if item.done then
+			done += 1
+		end
+	end
+	local copy = table.clone(detail)
+	copy.list = table.clone(detail.list)
+	copy.list.itemCount = #detail.items
+	copy.list.doneCount = done
 	return copy
 end
 
@@ -157,7 +182,7 @@ local function patchItem(listId: string, itemId: string, change: (Item) -> Item?
 	else
 		table.remove(detail.items, index)
 	end
-	Store.set({ detail = detail })
+	Store.set({ detail = counted(detail) })
 end
 
 local function sortItems(items: { Item })
@@ -187,6 +212,23 @@ local function mergeDetail(incoming: Detail): Detail
 	return merged
 end
 
+local function syncOpenComments()
+	local state = Store.get()
+	local comments = state.comments
+	local detail = state.detail
+	if not comments or comments.loading or not detail or comments.itemId ~= state.drawerItemId then
+		return
+	end
+	for _, item in detail.items do
+		if item.id == comments.itemId then
+			if item.commentCount ~= nil and item.commentCount ~= #comments.list then
+				Actions.loadComments(item.id, true)
+			end
+			return
+		end
+	end
+end
+
 local function applyDetail(data: any)
 	if type(data) ~= "table" or not data.list then
 		return
@@ -194,16 +236,17 @@ local function applyDetail(data: any)
 	local detail = mergeDetail(data :: Detail)
 	sortItems(detail.items)
 	rememberPeople(data.people)
-	local ids = {}
+	local ids = table.clone(detail.list.autoAssignees or {})
 	for _, item in detail.items do
-		if item.assigneeId then
-			table.insert(ids, item.assigneeId)
+		for _, userId in Actions.assigneesOf(item) do
+			table.insert(ids, userId)
 		end
 	end
 	Actions.resolveNames(ids)
-	Store.set({ detail = detail, detailLoading = false })
+	Store.set({ detail = counted(detail), detailLoading = false })
 	Store.clear("detailError")
 	changed()
+	syncOpenComments()
 end
 
 local function applyDelta(data: any)
@@ -232,17 +275,9 @@ local function applyDelta(data: any)
 		end
 	end
 	sortItems(copy.items)
-	local done = 0
-	for _, item in copy.items do
-		if item.done then
-			done += 1
-		end
-	end
-	copy.list = table.clone(copy.list)
-	copy.list.itemCount = #copy.items
-	copy.list.doneCount = done
-	Store.set({ detail = copy })
+	Store.set({ detail = counted(copy) })
 	changed()
+	syncOpenComments()
 end
 
 local function markSeen(listId: string, revision: number)
@@ -623,6 +658,7 @@ function Actions.addItem(text: string, fields: { [string]: any }?)
 	tempCounter += 1
 	local tempId = "temp:" .. tempCounter
 	local last = detail.items[#detail.items]
+	local assignees = if fields and fields.assigneeIds then fields.assigneeIds else detail.list.autoAssignees or {}
 	local optimistic: Item = {
 		id = tempId,
 		text = trimmed,
@@ -634,11 +670,13 @@ function Actions.addItem(text: string, fields: { [string]: any }?)
 		label = if fields then fields.label else nil,
 		dueAt = if fields then fields.dueAt else nil,
 		link = if fields then fields.link else nil,
+		assigneeIds = assignees,
+		assigneeId = assignees[1],
 		pending = true,
 	}
 	local copy = cloneDetail(detail)
 	table.insert(copy.items, optimistic)
-	Store.set({ detail = copy })
+	Store.set({ detail = counted(copy) })
 	changed()
 	task.spawn(function()
 		local payload: { [string]: any } = { text = trimmed }
@@ -698,7 +736,7 @@ function Actions.toggleDone(itemId: string)
 	end, 0)
 end
 
-function Actions.updateItem(itemId: string, fields: { [string]: any })
+function Actions.updateItem(itemId: string, fields: { [string]: any }, message: string?)
 	local listId, detail = currentDetail()
 	if not listId or not detail or string.sub(itemId, 1, 5) == "temp:" then
 		return
@@ -717,6 +755,9 @@ function Actions.updateItem(itemId: string, fields: { [string]: any })
 		for key, value in fields do
 			(item :: any)[key] = if value == Client.null then nil else value
 		end
+		if fields.assigneeIds then
+			item.assigneeId = fields.assigneeIds[1]
+		end
 		item.pending = true
 		return item
 	end)
@@ -728,6 +769,9 @@ function Actions.updateItem(itemId: string, fields: { [string]: any })
 			patchItem(listId, itemId, function()
 				return result.data.item
 			end)
+			if message then
+				Actions.toast("success", message)
+			end
 		elseif result.error.code == "conflict" and type(result.error.body) == "table" and result.error.body.item then
 			patchItem(listId, itemId, function()
 				return result.error.body.item
@@ -740,6 +784,63 @@ function Actions.updateItem(itemId: string, fields: { [string]: any })
 			fail(result)
 		end
 		changed()
+	end)
+end
+
+function Actions.toggleAssignee(itemId: string, userId: number)
+	local _, detail = currentDetail()
+	if not detail then
+		return
+	end
+	local index = findItemIndex(detail, itemId)
+	if not index then
+		return
+	end
+	local next = table.clone(Actions.assigneesOf(detail.items[index]))
+	local at = table.find(next, userId)
+	if at then
+		table.remove(next, at)
+	else
+		local max = Store.limit("assigneesPerItem", 10)
+		if #next >= max then
+			Actions.toast("warning", string.format("A task can have up to %d people.", max))
+			return
+		end
+		table.insert(next, userId)
+	end
+	Actions.updateItem(itemId, { assigneeIds = next })
+end
+
+function Actions.splitItem(itemId: string, parts: { string })
+	local listId, detail = currentDetail()
+	if not listId or not detail or string.sub(itemId, 1, 5) == "temp:" then
+		return
+	end
+	local index = findItemIndex(detail, itemId)
+	if not index then
+		return
+	end
+	local version = detail.items[index].version
+	Debounce.run("split:" .. itemId, function()
+		local result = Client.splitItem(itemId, parts, version)
+		if result.ok then
+			applyDetail(result.data)
+			Actions.toast("success", string.format("Split into %d tasks.", #parts), {
+				label = "Undo",
+				run = Actions.undo,
+			})
+		elseif result.error.code == "conflict" and type(result.error.body) == "table" and result.error.body.item then
+			patchItem(listId, itemId, function()
+				return result.error.body.item
+			end)
+			changed()
+			Actions.toast(
+				"warning",
+				"Someone else changed this task first. I loaded their version, try the split again."
+			)
+		else
+			fail(result)
+		end
 	end)
 end
 
@@ -777,7 +878,7 @@ function Actions.deleteItem(itemId: string)
 				local copy = cloneDetail(current)
 				table.insert(copy.items, removed)
 				sortItems(copy.items)
-				Store.set({ detail = copy })
+				Store.set({ detail = counted(copy) })
 				changed()
 			end
 			fail(result)
@@ -837,7 +938,7 @@ function Actions.moveItem(itemId: string, aboveId: string?, belowId: string?, se
 	pendingItems[itemId] = true
 	copy.items[index] = item
 	sortItems(copy.items)
-	Store.set({ detail = copy })
+	Store.set({ detail = counted(copy) })
 	changed()
 	task.spawn(function()
 		local result = Client.moveItem(itemId, aboveId, belowId, section)
@@ -926,6 +1027,14 @@ function Actions.updateList(listId: string, patch: { [string]: any }, message: s
 			fail(result)
 		end
 	end)
+end
+
+function Actions.setAutoAssignees(listId: string, ids: { number })
+	Actions.updateList(
+		listId,
+		{ autoAssignees = ids },
+		if #ids == 0 then "New tasks are not auto assigned anymore." else "New tasks get auto assigned."
+	)
 end
 
 function Actions.renameList(listId: string, title: string)
@@ -1089,11 +1198,13 @@ function Actions.removePerson(listId: string, userId: number, fromAssignments: b
 	end)
 end
 
-function Actions.loadComments(itemId: string)
+function Actions.loadComments(itemId: string, quiet: boolean?)
 	if string.sub(itemId, 1, 5) == "temp:" then
 		return
 	end
-	Store.set({ comments = { itemId = itemId, list = {}, loading = true } })
+	if not quiet then
+		Store.set({ comments = { itemId = itemId, list = {}, loading = true } })
+	end
 	task.spawn(function()
 		local result = Client.comments(itemId)
 		if Store.get().drawerItemId ~= itemId then
@@ -1106,7 +1217,14 @@ function Actions.loadComments(itemId: string)
 			end
 			Actions.resolveNames(ids)
 			Store.set({ comments = { itemId = itemId, list = result.data.comments, loading = false } })
-		else
+			local listId = Store.get().listId
+			if listId then
+				patchItem(listId, itemId, function(item)
+					item.commentCount = #result.data.comments
+					return item
+				end)
+			end
+		elseif not quiet then
 			Store.set({ comments = { itemId = itemId, list = {}, loading = false } })
 		end
 		changed()
@@ -1138,12 +1256,33 @@ function Actions.addComment(itemId: string, body: string)
 end
 
 function Actions.deleteComment(itemId: string, commentId: string)
+	local comments = Store.get().comments
+	if comments and comments.itemId == itemId then
+		local list = {}
+		for _, comment in comments.list do
+			if comment.id ~= commentId then
+				table.insert(list, comment)
+			end
+		end
+		Store.set({ comments = { itemId = itemId, list = list, loading = false } })
+	end
+	local listId = Store.get().listId
+	if listId then
+		patchItem(listId, itemId, function(item)
+			item.commentCount = math.max(0, (item.commentCount or 1) - 1)
+			return item
+		end)
+	end
+	changed()
 	task.spawn(function()
 		local result = Client.deleteComment(commentId)
 		if result.ok then
-			Actions.loadComments(itemId)
+			Actions.toast("success", "Comment deleted.")
 		else
 			fail(result)
+		end
+		if Store.get().drawerItemId == itemId then
+			Actions.loadComments(itemId, true)
 		end
 	end)
 end

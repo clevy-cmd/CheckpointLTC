@@ -116,6 +116,100 @@ check("drag between two tasks into a section", between.status === 200 && between
 const order = (await call(u.owner, "GET", `/v1/lists/${listId}`)).data.items.map((i) => i.id);
 check("order stuck", order.indexOf(third.id) === order.indexOf(first.id) + 1, order.slice(0, 4));
 
+console.log("\nSeveral people on one task");
+const multi = await call(u.owner, "PATCH", `/v1/items/${third.id}`, { assigneeIds: [ids.editor, ids.viewer] });
+check(
+  "give a task to two people",
+  multi.status === 200 && multi.data.item.assigneeIds.length === 2 && multi.data.item.assigneeId === ids.editor,
+  multi.data,
+);
+check("second person sees it in My tasks", (await call(u.viewer, "GET", "/v1/tasks/mine")).data.items.some((i) => i.id === third.id));
+check("second person can check it off", (await call(u.viewer, "PATCH", `/v1/items/${third.id}`, { done: true })).status === 200);
+check("second person can comment", (await call(u.viewer, "POST", `/v1/items/${third.id}/comments`, { body: "on it" })).status === 201);
+check("second person can uncheck it", (await call(u.viewer, "PATCH", `/v1/items/${third.id}`, { done: false })).status === 200);
+check(
+  "stranger cannot be one of them",
+  (await call(u.owner, "PATCH", `/v1/items/${third.id}`, { assigneeIds: [ids.editor, ids.stranger] })).status === 400,
+);
+check(
+  "more than 10 people refused",
+  (await call(u.owner, "PATCH", `/v1/items/${third.id}`, { assigneeIds: Array.from({ length: 11 }, (_, n) => n + 100) })).status === 400,
+);
+const single = await call(u.owner, "PATCH", `/v1/items/${third.id}`, { assigneeId: ids.editor });
+check("old assigneeId still works", single.status === 200 && single.data.item.assigneeIds.join() === String(ids.editor), single.data);
+const undoAssign = await call(u.owner, "POST", `/v1/lists/${listId}/undo`);
+check(
+  "undo brings both people back",
+  undoAssign.status === 200 && undoAssign.data.items.find((i) => i.id === third.id)?.assigneeIds.length === 2,
+  undoAssign.data,
+);
+const cleared = await call(u.owner, "PATCH", `/v1/items/${third.id}`, { assigneeIds: [] });
+check("clear everyone", cleared.status === 200 && cleared.data.item.assigneeIds.length === 0 && cleared.data.item.assigneeId === null);
+check("unassigned viewer cannot check it now (403)", (await call(u.viewer, "PATCH", `/v1/items/${third.id}`, { done: true })).status === 403);
+
+console.log("\nAuto assign");
+check("editor cannot set auto assign (403)", (await call(u.editor, "PATCH", `/v1/lists/${listId}`, { autoAssignees: [ids.editor] })).status === 403);
+check("stranger cannot be auto assigned", (await call(u.owner, "PATCH", `/v1/lists/${listId}`, { autoAssignees: [ids.stranger] })).status === 400);
+const auto = await call(u.owner, "PATCH", `/v1/lists/${listId}`, { autoAssignees: [ids.editor] });
+check("owner turns on auto assign", auto.status === 200 && auto.data.list.autoAssignees.join() === String(ids.editor), auto.data);
+const autoItem = await call(u.owner, "POST", `/v1/lists/${listId}/items`, { text: "Auto assigned task" });
+check("new task gets auto assigned", autoItem.status === 201 && autoItem.data.item.assigneeIds.join() === String(ids.editor), autoItem.data);
+const oldClient = await call(u.owner, "POST", `/v1/lists/${listId}/items`, { text: "Old plugin task" });
+check("works for old plugins too", oldClient.data.item.assigneeId === ids.editor);
+const picked = await call(u.owner, "POST", `/v1/lists/${listId}/items`, { text: "Nobody on this", assigneeIds: [] });
+check("can still pick nobody", picked.status === 201 && picked.data.item.assigneeIds.length === 0);
+check("viewers do not see auto assign", (await call(u.viewer, "GET", `/v1/lists/${listId}`)).data.list.autoAssignees.length === 0);
+const autoOff = await call(u.owner, "PATCH", `/v1/lists/${listId}`, { autoAssignees: [] });
+check("turn auto assign off", autoOff.status === 200 && autoOff.data.list.autoAssignees.length === 0);
+const afterOff = await call(u.owner, "POST", `/v1/lists/${listId}/items`, { text: "After off" });
+check("no one assigned after turning it off", afterOff.data.item.assigneeIds.length === 0);
+for (const extra of [autoItem, oldClient, picked, afterOff]) await call(u.owner, "DELETE", `/v1/items/${extra.data.item.id}`);
+
+console.log("\nSplit a task");
+const long = await call(u.editor, "POST", `/v1/lists/${listId}/items`, {
+  text: "Fix the shop and redo the lobby lighting",
+  section: "Polish",
+  priority: 2,
+  assigneeIds: [ids.editor, ids.viewer],
+});
+const longId = long.data.item.id;
+check("viewer cannot split (403)", (await call(u.viewer, "POST", `/v1/items/${longId}/split`, { parts: ["a", "b"] })).status === 403);
+check("one part refused", (await call(u.editor, "POST", `/v1/items/${longId}/split`, { parts: ["only"] })).status === 400);
+check(
+  "too many parts refused",
+  (await call(u.editor, "POST", `/v1/items/${longId}/split`, { parts: Array.from({ length: 11 }, (_, n) => `p${n}`) })).status === 400,
+);
+check(
+  "stale version refused (409)",
+  (await call(u.editor, "POST", `/v1/items/${longId}/split`, { parts: ["a", "b"], version: long.data.item.version + 5 })).status === 409,
+);
+const split = await call(u.editor, "POST", `/v1/items/${longId}/split`, {
+  parts: ["Fix the shop", "Redo the lobby lighting", "Test both on mobile"],
+  version: long.data.item.version,
+});
+const splitItems = split.data.items ?? [];
+const original = splitItems.find((i) => i.id === longId);
+const made = splitItems.filter((i) => i.text === "Redo the lobby lighting" || i.text === "Test both on mobile");
+check("split into three", split.status === 200 && original?.text === "Fix the shop" && made.length === 2, split.data);
+check("new parts stay in the same section", made.every((i) => i.section === "Polish"));
+check("new parts keep priority and people", made.every((i) => i.priority === 2 && i.assigneeIds.length === 2));
+const at = splitItems.findIndex((i) => i.id === longId);
+check(
+  "new parts sit right below the original",
+  splitItems[at + 1]?.text === "Redo the lobby lighting" && splitItems[at + 2]?.text === "Test both on mobile",
+  splitItems.map((i) => i.text),
+);
+const undoSplit = await call(u.editor, "POST", `/v1/lists/${listId}/undo`);
+const afterUndo = undoSplit.data.items ?? [];
+check(
+  "undo puts the split back together",
+  undoSplit.status === 200 &&
+    afterUndo.find((i) => i.id === longId)?.text === "Fix the shop and redo the lobby lighting" &&
+    !afterUndo.some((i) => i.text === "Redo the lobby lighting"),
+  afterUndo.map((i) => i.text),
+);
+await call(u.editor, "DELETE", `/v1/items/${longId}`);
+
 console.log("\nSearch");
 const found = await call(u.viewer, "GET", `/v1/search?q=${encodeURIComponent("mobile")}`);
 check("search finds text in tasks I can see", found.status === 200 && found.data.items.length >= 1);

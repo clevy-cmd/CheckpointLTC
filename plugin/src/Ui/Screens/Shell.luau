@@ -286,6 +286,14 @@ function Shell.sidebar(ctx: any): any
 		return row
 	end
 
+	local function countsOf(state: Store.State, summary: Store.ListSummary): (number, number)
+		local detail = state.detail
+		if detail and detail.list.id == summary.id then
+			return detail.list.doneCount, detail.list.itemCount
+		end
+		return summary.doneCount, summary.itemCount
+	end
+
 	local function render(state: Store.State)
 		renderVersion(state.updateVersion)
 		local home = state.home
@@ -293,10 +301,14 @@ function Shell.sidebar(ctx: any): any
 		if home then
 			for _, group in { home.mine, home.assigned, home.opened } do
 				for _, summary in group do
+					local doneCount, itemCount = countsOf(state, summary)
 					table.insert(
 						parts,
 						summary.id
 							.. summary.title
+							.. doneCount
+							.. "/"
+							.. itemCount
 							.. summary.unseen
 							.. tostring(summary.archived)
 							.. tostring(summary.placeId)
@@ -318,9 +330,8 @@ function Shell.sidebar(ctx: any): any
 		end
 		local function listRow(summary: Store.ListSummary)
 			local active = state.view == "list" and state.listId == summary.id
-			local done = if summary.itemCount > 0
-				then string.format("  %d/%d", summary.doneCount, summary.itemCount)
-				else ""
+			local doneCount, itemCount = countsOf(state, summary)
+			local done = if itemCount > 0 then string.format("  %d/%d", doneCount, itemCount) else ""
 			stack:add(
 				navRow(summary.title .. done, summary.role, active, summary.unseen, function()
 					Actions.openList(summary.id)

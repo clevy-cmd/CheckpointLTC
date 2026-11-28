@@ -677,7 +677,8 @@ function Pages.search(ctx: any): any
 			return table.concat(parts, ",")
 		end,
 		function(state, add, maid)
-			local box = Kit.surface("input", {}, {})
+			local row = Kit.frame({})
+			local box = Kit.surface("input", { Size = UDim2.fromScale(0.74, 1), Parent = row }, {})
 			local input = Kit.create("TextBox", {
 				BackgroundTransparency = 1,
 				Size = UDim2.fromScale(1, 1),
@@ -704,7 +705,19 @@ function Pages.search(ctx: any): any
 					end)
 				end
 			end))
-			add(box, Kit.rows.composer)
+			Controls.button({
+				text = "Search",
+				kind = "primary",
+				tooltip = "Search every list",
+				shortcut = "Enter",
+				onClick = function()
+					query = input.Text
+					Actions.search(query, nil)
+				end,
+				props = { Position = UDim2.fromScale(0.77, 0), Size = UDim2.fromScale(0.23, 1) },
+				parent = row,
+			}, maid)
+			add(row, Kit.rows.composer)
 			if state.searchQuery ~= "" and state.searchResults and #state.searchResults == 0 then
 				add(noteRow("No tasks match."))
 			end
@@ -956,6 +969,8 @@ local activityWords: { [string]: string } = {
 	["item.deleted"] = "deleted",
 	["item.restored"] = "restored",
 	["item.moved"] = "moved",
+	["item.split"] = "split",
+	["list.autoassign"] = "changed who new tasks go to",
 	["comment.added"] = "commented on",
 	["member.added"] = "added a person",
 	["member.changed"] = "changed someone's role",
@@ -1304,6 +1319,7 @@ function Pages.people(ctx: any): any
 			detail.role,
 			tostring(state.prefs.showHints),
 			tostring(state.prefs.defaultRole),
+			table.concat(detail.list.autoAssignees or {}, "."),
 		}
 		for _, person in detail.members do
 			table.insert(parts, person.userId .. (person.role or "") .. (person.name or ""))
@@ -1410,6 +1426,27 @@ function Pages.people(ctx: any): any
 			end
 			add(
 				addButton("Assign the list", "Shows under their Assigned to me, view only", "viewer", true),
+				Kit.rows.button * 0.7
+			)
+		end
+
+		if manages then
+			add(Controls.sectionTitle("Auto assign"), Kit.rows.section)
+			local auto = detail.list.autoAssignees or {}
+			local names = {}
+			for _, userId in auto do
+				table.insert(names, Store.shortName(userId))
+			end
+			add(
+				Controls.button({
+					text = if #names == 0
+						then "New tasks go to nobody"
+						else "New tasks go to " .. table.concat(names, ", "),
+					hint = "Every new task on this list is given to these people. You can still change it on each task",
+					onClick = function()
+						ctx.autoAssignMenu()
+					end,
+				}, maid).root,
 				Kit.rows.button * 0.7
 			)
 		end

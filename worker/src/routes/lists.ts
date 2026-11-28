@@ -5,7 +5,7 @@ import { hashKey, newId, newShareCode, randomToken } from "../crypto";
 import { labels, limits, templates } from "../config";
 import * as v from "../validate";
 import { recordActivity } from "../activity";
-import { itemJson, type ItemRow } from "./items";
+import { assigneesOf, itemJson, parseIdList, peopleStillOnList, type ItemRow } from "./items";
 import { usersById } from "../users";
 
 interface SummaryRow extends ListRow {
@@ -53,7 +53,8 @@ export async function home(_request: Request, env: Env, caller: Caller): Promise
         WHERE l.deleted_at IS NULL AND l.owner_id <> ?1
           AND NOT EXISTS (SELECT 1 FROM members m WHERE m.list_id = l.id AND m.user_id = ?1)
           AND (EXISTS (SELECT 1 FROM assignments a WHERE a.list_id = l.id AND a.user_id = ?1)
-            OR EXISTS (SELECT 1 FROM items i WHERE i.list_id = l.id AND i.assignee_id = ?1 AND i.deleted_at IS NULL))
+            OR EXISTS (SELECT 1 FROM item_assignees ia JOIN items i ON i.id = ia.item_id
+                        WHERE ia.list_id = l.id AND ia.user_id = ?1 AND i.deleted_at IS NULL))
         ORDER BY l.updated_at DESC`,
     ).bind(caller.userId),
     env.DB.prepare(
@@ -218,6 +219,7 @@ const itemEventKinds = new Set([
   "item.deleted",
   "item.restored",
   "item.moved",
+  "item.split",
   "comment.added",
 ]);
 
@@ -286,7 +288,7 @@ export async function getListPayload(env: Env, listId: string, userId: number, s
     list.owner_id,
     ...members.results.map((r) => r.user_id as number),
     ...assignments.results.map((r) => r.user_id as number),
-    ...items.results.map((r) => r.assignee_id as number | null).filter((id): id is number => id !== null),
+    ...items.results.flatMap((r) => assigneesOf(r as unknown as ItemRow)),
     ...presence.results.map((r) => r.user_id as number),
   ];
   const names = await usersById(env, peopleIds);
@@ -309,6 +311,7 @@ export async function getListPayload(env: Env, listId: string, userId: number, s
         shareCode: canSeePeople ? list.share_code : null,
         archived: list.archived_at !== null,
         placeId: list.place_id,
+        autoAssignees: canSeePeople ? parseIdList(list.auto_assignees) : [],
         itemCount: list.item_count,
         doneCount: list.done_count,
         updatedAt: list.updated_at,
@@ -370,7 +373,31 @@ export async function updateList(request: Request, env: Env, caller: Caller, lis
       );
     }
   }
-  if (statements.length === 0 && body.title === undefined && body.archived === undefined && body.placeId === undefined) {
+  if (body.autoAssignees !== undefined) {
+    if (list.archived_at !== null) throw new ApiError("forbidden", "This list is archived. Unarchive it to make changes.");
+    const wanted = v.userIds(body.autoAssignees, "autoAssignees", limits.autoAssigneesPerList);
+    const kept = await peopleStillOnList(env, access, wanted);
+    if (kept.length < wanted.length) throw new ApiError("bad_request", "Add that person to the list before auto assigning them.");
+    const value = kept.length > 0 ? JSON.stringify(kept) : null;
+    if (value !== list.auto_assignees) {
+      statements.push(
+        env.DB.prepare("UPDATE lists SET auto_assignees = ?, revision = revision + 1, updated_at = ? WHERE id = ?").bind(value, now, listId),
+        ...recordActivity(env, {
+          listId,
+          actorId: caller.userId,
+          kind: "list.autoassign",
+          data: { from: parseIdList(list.auto_assignees), to: kept },
+        }),
+      );
+    }
+  }
+  if (
+    statements.length === 0 &&
+    body.title === undefined &&
+    body.archived === undefined &&
+    body.placeId === undefined &&
+    body.autoAssignees === undefined
+  ) {
     throw new ApiError("bad_request", "Nothing to change.");
   }
   if (statements.length > 0) await env.DB.batch(statements);

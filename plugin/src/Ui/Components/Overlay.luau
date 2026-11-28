@@ -5,7 +5,9 @@ local Kit = require(script.Parent.Parent.Kit)
 local Maid = require(script.Parent.Parent.Parent.Core.Maid)
 local Theme = require(script.Parent.Parent.Theme)
 
+local GuiService = game:GetService("GuiService")
 local TextService = game:GetService("TextService")
+local UserInputService = game:GetService("UserInputService")
 
 local Overlay = {}
 
@@ -21,6 +23,8 @@ local onHintsChanged: (() -> ())? = nil
 local modalMaid: Maid.Maid? = nil
 local modalRoot: GuiObject? = nil
 local toastCounter = 0
+local floating: { [GuiObject]: { Instance } } = setmetatable({}, { __mode = "k" }) :: any
+local toastAnchor: (() -> number?)? = nil
 
 function Overlay.mount(root: GuiObject, plugin: Plugin, maid: Maid.Maid)
 	pluginRef = plugin
@@ -53,6 +57,9 @@ function Overlay.mount(root: GuiObject, plugin: Plugin, maid: Maid.Maid)
 	}, { Kit.list(Enum.FillDirection.Vertical, Enum.HorizontalAlignment.Center, Enum.VerticalAlignment.Bottom, 0.015) })
 	toastStack = stack
 	maid:give(frame)
+	maid:give(frame:GetPropertyChangedSignal("AbsoluteSize"):Connect(function()
+		Overlay.placeToasts()
+	end))
 	Overlay.enablePeek(tip, tipText, frame)
 end
 
@@ -103,7 +110,7 @@ function Overlay.enablePeek(tip: Frame, tipText: TextLabel, frame: Frame)
 		end
 		local mine = peekToken
 		task.delay(Config.interaction.tooltipDelay, function()
-			if mine ~= peekToken or not label.Parent or label.TextFits then
+			if mine ~= peekToken or not label.Parent or label.TextFits or Overlay.isCovered(label) then
 				return
 			end
 			local size = tipText.TextSize
@@ -150,7 +157,15 @@ function Overlay.tooltip(target: GuiObject, text: string, shortcut: string?, mai
 		local mine = token
 		task.delay(Config.interaction.tooltipDelay, function()
 			local tip, label, frame = tooltipFrame, tooltipLabel, layer
-			if mine ~= token or not showTooltips or not tip or not label or not frame or not target.Parent then
+			if
+				mine ~= token
+				or not showTooltips
+				or not tip
+				or not label
+				or not frame
+				or not target.Parent
+				or Overlay.isCovered(target)
+			then
 				return
 			end
 			label.TextWrapped = false
@@ -186,11 +201,32 @@ end
 
 export type ToastAction = { label: string, run: () -> () }
 
+function Overlay.setToastAnchor(getter: () -> number?)
+	toastAnchor = getter
+	Overlay.placeToasts()
+end
+
+function Overlay.placeToasts()
+	local stack, frame = toastStack, layer
+	if not stack or not frame then
+		return
+	end
+	local total = frame.AbsoluteSize.Y
+	local y = if toastAnchor then toastAnchor() else nil
+	if y and total > 0 then
+		local scale = (y - frame.AbsolutePosition.Y) / total - 0.012
+		stack.Position = UDim2.fromScale(0.5, math.clamp(scale, 0.3, 0.97))
+	else
+		stack.Position = UDim2.fromScale(0.5, 0.97)
+	end
+end
+
 function Overlay.toast(kind: string, text: string, action: ToastAction?)
 	local stack = toastStack
 	if not stack then
 		return
 	end
+	Overlay.placeToasts()
 	toastCounter += 1
 	local token = if kind == "error"
 		then "dangerSoft"
@@ -202,6 +238,8 @@ function Overlay.toast(kind: string, text: string, action: ToastAction?)
 		{ Size = UDim2.fromScale(1, 0.16), LayoutOrder = toastCounter, ZIndex = 131, Parent = stack },
 		{}
 	)
+	Kit.hitbox({ ZIndex = 131, Parent = card })
+	Overlay.registerFloating(card)
 	local message = Kit.label({
 		text = text,
 		role = "meta",
@@ -265,9 +303,61 @@ local function closeModal()
 	end
 end
 
+function Overlay.registerFloating(frame: GuiObject, above: { Instance }?)
+	floating[frame] = above or {}
+end
+
+function Overlay.unregisterFloating(frame: GuiObject)
+	floating[frame] = nil
+end
+
+local function shown(frame: GuiObject): boolean
+	local node: Instance? = frame
+	while node and node:IsA("GuiObject") do
+		if not node.Visible then
+			return false
+		end
+		node = node.Parent
+	end
+	return node ~= nil
+end
+
+local function under(frame: GuiObject, point: Vector2): boolean
+	local position, size = frame.AbsolutePosition, frame.AbsoluteSize
+	return point.X >= position.X
+		and point.X <= position.X + size.X
+		and point.Y >= position.Y
+		and point.Y <= position.Y + size.Y
+end
+
+function Overlay.mouse(): Vector2
+	local inset = GuiService:GetGuiInset()
+	return UserInputService:GetMouseLocation() - inset
+end
+
 function Overlay.isCovered(target: Instance): boolean
 	local root = modalRoot
-	return root ~= nil and root.Parent ~= nil and not target:IsDescendantOf(root)
+	if root ~= nil and root.Parent ~= nil then
+		return not target:IsDescendantOf(root)
+	end
+	if layer and target:IsDescendantOf(layer) then
+		return false
+	end
+	local point = Overlay.mouse()
+	for frame, above in floating do
+		if frame.Parent and not target:IsDescendantOf(frame) and shown(frame) and under(frame, point) then
+			local onTop = false
+			for _, other in above do
+				if target:IsDescendantOf(other) then
+					onTop = true
+				end
+			end
+			if not onTop then
+				return true
+			end
+		end
+	end
+	return false
 end
 
 Overlay.closeModal = closeModal
@@ -474,13 +564,24 @@ export type PromptOptions = {
 	initial: string?,
 	maxLength: number,
 	readOnly: boolean?,
+	multiline: boolean?,
 	onConfirm: ((string) -> ())?,
 }
 
 function Overlay.prompt(options: PromptOptions)
-	local card, maid = Overlay.modalCard(0.4)
-	local title =
-		Kit.label({ text = options.title, role = "title", props = { Size = UDim2.fromScale(1, 0.18), ZIndex = 113 } })
+	local multiline = options.multiline == true
+	local card, maid = Overlay.modalCard(if multiline then 0.66 else 0.4)
+	local titleHeight = if multiline then 0.11 else 0.18
+	local bodyHeight = if multiline then 0.14 else 0.22
+	local fieldTop = if multiline then 0.27 else 0.42
+	local fieldHeight = if multiline then 0.55 else 0.26
+	local buttonTop = if multiline then 0.85 else 0.76
+	local buttonHeight = if multiline then 0.14 else 0.22
+	local title = Kit.label({
+		text = options.title,
+		role = "title",
+		props = { Size = UDim2.fromScale(1, titleHeight), ZIndex = 113 },
+	})
 	title.Parent = card
 	if options.body then
 		local body = Kit.label({
@@ -488,15 +589,16 @@ function Overlay.prompt(options: PromptOptions)
 			role = "meta",
 			token = "subtext",
 			wrap = true,
-			props = { Position = UDim2.fromScale(0, 0.18), Size = UDim2.fromScale(1, 0.22), ZIndex = 113 },
+			props = { Position = UDim2.fromScale(0, titleHeight), Size = UDim2.fromScale(1, bodyHeight), ZIndex = 113 },
 		})
 		body.Parent = card
 	end
-	local field = Kit.surface(
-		"input",
-		{ Position = UDim2.fromScale(0, 0.42), Size = UDim2.fromScale(1, 0.26), ZIndex = 113, Parent = card },
-		{}
-	)
+	local field = Kit.surface("input", {
+		Position = UDim2.fromScale(0, fieldTop),
+		Size = UDim2.fromScale(1, fieldHeight),
+		ZIndex = 113,
+		Parent = card,
+	}, {})
 	local input = Kit.create("TextBox", {
 		BackgroundTransparency = 1,
 		Size = UDim2.fromScale(1, 1),
@@ -504,11 +606,13 @@ function Overlay.prompt(options: PromptOptions)
 		PlaceholderText = options.placeholder,
 		ClearTextOnFocus = false,
 		TextEditable = not options.readOnly,
+		MultiLine = multiline,
 		TextWrapped = true,
 		TextXAlignment = Enum.TextXAlignment.Left,
+		TextYAlignment = if multiline then Enum.TextYAlignment.Top else Enum.TextYAlignment.Center,
 		ZIndex = 114,
 		Parent = field,
-	}, { Kit.padding() })
+	}, { Kit.padding(if multiline then 0.03 else 0.05) })
 	input.FontFace = title.FontFace
 	input.TextSize = math.max(12, title.TextSize - 3)
 	Theme.bind(input, "TextColor3", "text")
@@ -533,15 +637,15 @@ function Overlay.prompt(options: PromptOptions)
 		end
 	end
 	maid:give(input.FocusLost:Connect(function(enter)
-		if enter then
+		if enter and not multiline then
 			submit()
 		end
 	end))
 	local function makeButton(text: string, primary: boolean, x: number, width: number, onClick: () -> ())
 		local button = Kit.hitbox({
 			Text = text,
-			Position = UDim2.fromScale(x, 0.76),
-			Size = UDim2.fromScale(width, 0.22),
+			Position = UDim2.fromScale(x, buttonTop),
+			Size = UDim2.fromScale(width, buttonHeight),
 			ZIndex = 114,
 			Parent = card,
 		})

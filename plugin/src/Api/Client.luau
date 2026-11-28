@@ -216,6 +216,9 @@ end
 function Client.restoreItem(itemId: string): Result
 	return authed("POST", "/v1/items/" .. seg(itemId) .. "/restore")
 end
+function Client.splitItem(itemId: string, parts: { string }, version: number?): Result
+	return authed("POST", "/v1/items/" .. seg(itemId) .. "/split", { parts = parts, version = version })
+end
 function Client.comments(itemId: string): Result
 	return authed("GET", "/v1/items/" .. seg(itemId) .. "/comments")
 end

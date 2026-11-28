@@ -4,7 +4,7 @@ local Kit = require(script.Parent.Parent.Kit)
 local Maid = require(script.Parent.Parent.Parent.Core.Maid)
 local Typography = require(script.Parent.Parent.Typography)
 
-export type Row = { root: GuiObject, bind: (any, any, number) -> (), destroy: ((any) -> ())? }
+export type Row = { root: GuiObject, bind: (any, any, number, number) -> (), destroy: ((any) -> ())? }
 
 export type Options = {
 	parent: Instance,
@@ -13,6 +13,7 @@ export type Options = {
 	build: () -> Row,
 	lines: ((any) -> number)?,
 	lineGrowth: number?,
+	lineHeight: (() -> number)?,
 	empty: GuiObject?,
 	props: Kit.Props?,
 }
@@ -85,7 +86,9 @@ function VirtualList.lock(self: VirtualList)
 	local rowsThatFit = math.max(1, math.floor(size.Y / target))
 	local unit = size.Y / rowsThatFit
 	self.unit = unit
-	local growth = self.options.lineGrowth or Kit.rows.lineGrowth
+	local growth = if self.options.lineHeight
+		then self.options.lineHeight() / unit
+		else self.options.lineGrowth or Kit.rows.lineGrowth
 	local total = 0
 	table.clear(self.offsets)
 	table.clear(self.heights)
@@ -160,14 +163,14 @@ function VirtualList.render(self: VirtualList)
 		row.root.Visible = true
 		row.root.Position = UDim2.fromOffset(0, self.offsets[index])
 		row.root.Size = UDim2.new(1, 0, 0, self.heights[index])
-		row.bind(row, self.data[index], index)
+		row.bind(row, self.data[index], index, self.heights[index] / math.max(1, self.unit))
 	end
 end
 
 function VirtualList.refreshRows(self: VirtualList)
 	for index, row in self.used do
 		if self.data[index] then
-			row.bind(row, self.data[index], index)
+			row.bind(row, self.data[index], index, (self.heights[index] or self.unit) / math.max(1, self.unit))
 		end
 	end
 end

@@ -15,6 +15,7 @@ export interface ListRow {
   archived_at: number | null;
   deleted_at: number | null;
   place_id: number | null;
+  auto_assignees: string | null;
   created_at: number;
   updated_at: number;
 }
@@ -33,7 +34,8 @@ export async function resolveAccess(env: Env, listId: string, userId: number): P
             m.role AS member_role,
             EXISTS (SELECT 1 FROM assignments a WHERE a.list_id = l.id AND a.user_id = ?2) AS assigned,
             EXISTS (SELECT 1 FROM visits v WHERE v.list_id = l.id AND v.user_id = ?2) AS visited,
-            EXISTS (SELECT 1 FROM items i WHERE i.list_id = l.id AND i.assignee_id = ?2 AND i.deleted_at IS NULL) AS has_task
+            EXISTS (SELECT 1 FROM item_assignees ia JOIN items i ON i.id = ia.item_id
+                     WHERE ia.list_id = l.id AND ia.user_id = ?2 AND i.deleted_at IS NULL) AS has_task
        FROM lists l
        LEFT JOIN members m ON m.list_id = l.id AND m.user_id = ?2
       WHERE l.id = ?1 AND l.deleted_at IS NULL`,

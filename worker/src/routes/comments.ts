@@ -3,7 +3,7 @@ import { ApiError, json, readBody } from "../http";
 import { newId } from "../crypto";
 import { limits } from "../config";
 import * as v from "../validate";
-import { requireItemAccess } from "./items";
+import { assigneesOf, requireItemAccess } from "./items";
 import { recordActivity } from "../activity";
 import { notify } from "../notifications";
 import { bumpRevision } from "../access";
@@ -49,7 +49,7 @@ async function peopleOnList(env: Env, listId: string, ownerId: number): Promise<
 
 export async function addComment(request: Request, env: Env, caller: Caller, itemId: string): Promise<Response> {
   const { item, access } = await requireItemAccess(env, itemId, caller.userId, "viewer");
-  if (access.role === "viewer" && item.assignee_id !== caller.userId) {
+  if (access.role === "viewer" && !assigneesOf(item).includes(caller.userId)) {
     throw new ApiError("forbidden", "Only editors and the person the task is assigned to can comment.");
   }
   if (access.list.archived_at !== null) throw new ApiError("forbidden", "This list is archived. Unarchive it to make changes.");

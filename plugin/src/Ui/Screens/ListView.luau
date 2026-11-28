@@ -32,7 +32,8 @@ function ListView.visibleItems(state: Store.State): { any }
 	local items = {}
 	for _, item in detail.items do
 		if
-			not (state.prefs.hideCompleted and item.done) and (not state.labelFilter or item.label == state.labelFilter)
+			not (state.prefs.hideCompleted and item.done)
+			and (not state.labelFilter or item.label == state.labelFilter)
 		then
 			table.insert(items, item)
 		end
@@ -188,7 +189,7 @@ function ListView.new(ctx: any): any
 
 	local view: any = { root = root }
 	local current: { any } = {}
-	local charsPerLine = 40
+	local rowWidth = 300
 
 	local handlers: TaskRow.Handlers = {
 		open = function(item)
@@ -212,7 +213,7 @@ function ListView.new(ctx: any): any
 		canToggle = function(item)
 			local state = Store.get()
 			return canEdit(state.detail)
-				or (item.assigneeId == state.userId and state.detail ~= nil and not state.detail.list.archived)
+				or (Actions.isAssigned(item, state.userId) and state.detail ~= nil and not state.detail.list.archived)
 		end,
 		isSelected = function(item)
 			return Store.get().drawerItemId == item.id
@@ -240,7 +241,7 @@ function ListView.new(ctx: any): any
 			props = { Visible = false, Parent = task.root, Name = "SectionHeader" },
 		})
 		local baseBind = task.bind
-		function task.bind(self: any, item: any)
+		function task.bind(self: any, item: any, index: number?, units: number?)
 			local isHeader = item.isHeader == true
 			headerLabel.Visible = isHeader
 			for _, child in self.root:GetChildren() do
@@ -252,7 +253,7 @@ function ListView.new(ctx: any): any
 				headerLabel.Text = string.upper(item.title) .. "   " .. item.count
 				self.item = item
 			else
-				baseBind(self, item)
+				baseBind(self, item, index, units)
 			end
 		end
 		return task
@@ -263,11 +264,12 @@ function ListView.new(ctx: any): any
 		rowRatio = Kit.rows.taskRow,
 		build = buildRow,
 		empty = empty,
+		lineHeight = TaskRow.lineHeight,
 		lines = function(item)
 			if item.isHeader then
 				return 1
 			end
-			return TaskRow.lines(item, charsPerLine, expanded[item.id] == true)
+			return TaskRow.lines(item, rowWidth, expanded[item.id] == true)
 		end,
 	}, maid)
 	ctx.lock:register(list)
@@ -290,11 +292,15 @@ function ListView.new(ctx: any): any
 	local composer
 	composer = GrowingTextBox.new({
 		parent = composerSlot,
-		placeholder = "Add a task and press Enter",
+		placeholder = "Add a task",
+		action = { icon = "forward", tooltip = "Add the task", shortcut = "Enter" },
 		maxLength = function()
 			return Store.limit("itemMaxLength", Config.fallbackLimits.itemMaxLength)
 		end,
 		zIndex = 30,
+		onLinesChanged = function()
+			Overlay.placeToasts()
+		end,
 		onSubmit = function(text)
 			local state = Store.get()
 			local fields: { [string]: any } = {}
@@ -320,7 +326,7 @@ function ListView.new(ctx: any): any
 		parent = composerRow,
 	}, maid)
 	local composerHint = Kit.label({
-		text = "Enter adds the task. Double click a task to edit it here.",
+		text = "Enter or the arrow adds the task. Double click a task to edit it here.",
 		role = "hint",
 		token = "dim",
 		props = { Position = UDim2.fromScale(0, 0.965), Size = UDim2.fromScale(1, 0.035), Parent = root },
@@ -396,6 +402,67 @@ function ListView.new(ctx: any): any
 	}, maid)
 	view.menuButton = menuButton.root
 
+	function view.toastAnchor(): number?
+		if not root.Visible then
+			return nil
+		end
+		if composerRow.Visible then
+			return composer.box.AbsolutePosition.Y
+		elseif archivedBar.Visible then
+			return archivedBar.AbsolutePosition.Y
+		elseif viewerBar.Visible then
+			return viewerBar.AbsolutePosition.Y
+		end
+		return nil
+	end
+
+	function view.autoAssignMenu()
+		local state = Store.get()
+		local detail = state.detail
+		local listId = state.listId
+		if not detail or not listId then
+			return
+		end
+		local current = table.clone(detail.list.autoAssignees or {})
+		local menu: { Overlay.MenuItem } = {}
+		if #current > 0 then
+			table.insert(menu, {
+				text = "Nobody, turn auto assign off",
+				run = function()
+					Actions.setAutoAssignees(listId, {})
+				end,
+			})
+		end
+		local seen: { [number]: boolean } = {}
+		local function add(userId: number)
+			if seen[userId] then
+				return
+			end
+			seen[userId] = true
+			local at = table.find(current, userId)
+			table.insert(menu, {
+				text = (if at then "✓  " else "     ") .. Store.personName(userId),
+				run = function()
+					local next = table.clone(current)
+					if at then
+						table.remove(next, at)
+					else
+						table.insert(next, userId)
+					end
+					Actions.setAutoAssignees(listId, next)
+				end,
+			})
+		end
+		add(detail.list.ownerId)
+		for _, person in detail.members do
+			add(person.userId)
+		end
+		for _, person in detail.assignments do
+			add(person.userId)
+		end
+		Overlay.menu(menu)
+	end
+
 	function view.listMenu()
 		local state = Store.get()
 		local detail = state.detail
@@ -430,6 +497,10 @@ function ListView.new(ctx: any): any
 					Actions.pinToGame(listId, true)
 				end)
 			end
+			add(
+				if #(detail.list.autoAssignees or {}) > 0 then "Auto assign new tasks (on)" else "Auto assign new tasks",
+				view.autoAssignMenu
+			)
 		end
 		add("Duplicate list", function()
 			Actions.duplicateList(listId)
@@ -553,8 +624,11 @@ function ListView.new(ctx: any): any
 					Actions.updateItem(item.id, { priority = level })
 				end)
 			end
-			add("Assign to me", function()
-				Actions.updateItem(item.id, { assigneeId = state.userId })
+			add(if Actions.isAssigned(item, state.userId) then "Take me off this task" else "Assign to me", function()
+				Actions.toggleAssignee(item.id, state.userId)
+			end)
+			add("Split task", function()
+				ctx.splitTask(item)
 			end)
 			add("Link to my selection", function()
 				local link = Links.fromSelection()
@@ -594,25 +668,29 @@ function ListView.new(ctx: any): any
 		inlineMaid:clean()
 		local origin = root.AbsolutePosition
 		local size = root.AbsoluteSize
+		local height = math.max(area.AbsoluteSize.Y, size.Y * 0.075)
 		local slot = Kit.frame({
 			Position = UDim2.fromScale(
 				(area.AbsolutePosition.X - origin.X) / size.X,
 				(area.AbsolutePosition.Y - origin.Y) / size.Y
 			),
-			Size = UDim2.fromScale(
-				area.AbsoluteSize.X / size.X,
-				math.min(area.AbsoluteSize.Y, size.Y * 0.075) / size.Y
-			),
+			Size = UDim2.fromScale((area.AbsoluteSize.X + size.X * 0.08) / size.X, height / size.Y),
 			ZIndex = 40,
 			ClipsDescendants = false,
 			Parent = root,
 		})
 		inlineMaid:give(slot)
+		Overlay.registerFloating(slot)
+		inlineMaid:give(function()
+			Overlay.unregisterFloating(slot)
+		end)
 		local editorMaid = Maid.new()
 		inlineMaid:give(editorMaid)
 		local editor = GrowingTextBox.new({
 			parent = slot,
 			placeholder = "Task text",
+			fill = true,
+			action = { icon = "check", tooltip = "Save", shortcut = "Enter" },
 			maxLength = function()
 				return Store.limit("itemMaxLength", Config.fallbackLimits.itemMaxLength)
 			end,
@@ -620,7 +698,7 @@ function ListView.new(ctx: any): any
 			keepOnSubmit = true,
 			onSubmit = function(text)
 				if text ~= item.text then
-					Actions.updateItem(item.id, { text = text })
+					Actions.updateItem(item.id, { text = text }, "Task updated.")
 				end
 			end,
 			onFocusLost = function()
@@ -785,8 +863,9 @@ function ListView.new(ctx: any): any
 					build = function()
 						return TaskRow.new(handlers, boardMaid)
 					end,
+					lineHeight = TaskRow.lineHeight,
 					lines = function(item)
-						return TaskRow.lines(item, math.floor(charsPerLine * 0.45), expanded[item.id] == true)
+						return TaskRow.lines(item, holder.AbsoluteSize.X, expanded[item.id] == true)
 					end,
 				}, boardMaid)
 				ctx.lock:register(columnList)
@@ -869,10 +948,11 @@ function ListView.new(ctx: any): any
 		addButton.setVisible(editable)
 
 		local items = ListView.visibleItems(state)
-		charsPerLine =
-			math.max(16, math.floor(listArea.AbsoluteSize.X * 0.72 / math.max(6, composer.input.TextSize * 0.5)))
+		rowWidth = math.max(1, listArea.AbsoluteSize.X - list.frame.ScrollBarThickness)
 		emptyLabel.Text = if #detail.items == 0
-			then (if editable then "No tasks yet. Type one below and press Enter." else "This list has no tasks yet.")
+			then (if editable
+				then "No tasks yet. Type one below and press Enter or the arrow."
+				else "This list has no tasks yet.")
 			else "Nothing matches these filters."
 
 		local board = state.prefs.view == "board"

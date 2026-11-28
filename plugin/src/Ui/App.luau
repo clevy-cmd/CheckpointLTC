@@ -70,6 +70,7 @@ function App.mount(widget: any, plugin: Plugin, maid: Maid.Maid, host: GuiObject
 	maid:give(Kit.hitbox({ ZIndex = 44, Parent = scrim }).Activated:Connect(function()
 		Actions.toggleSidebar(false)
 	end))
+	Overlay.registerFloating(scrim, { sidebar.root })
 
 	Overlay.mount(background, plugin, maid)
 	Overlay.onHintsToggled(function()
@@ -118,6 +119,19 @@ function App.mount(widget: any, plugin: Plugin, maid: Maid.Maid, host: GuiObject
 	listView.root.Parent = main
 	local drawer = Drawer.new(ctx)
 	drawer.root.Parent = main
+	ctx.splitTask = function(item: any)
+		drawer.openSplit(item)
+	end
+	ctx.autoAssignMenu = function()
+		listView.autoAssignMenu()
+	end
+	Overlay.setToastAnchor(function()
+		local state = Store.get()
+		if state.phase == "ready" and state.view == "list" and bodyFrame.Visible then
+			return listView.toastAnchor()
+		end
+		return nil
+	end)
 	local settingsView = Settings.new(ctx)
 	settingsView.root.Parent = main
 	local pages = {
@@ -229,6 +243,7 @@ function App.mount(widget: any, plugin: Plugin, maid: Maid.Maid, host: GuiObject
 		end
 		drawer.render(state)
 		lock:contentChanged()
+		Overlay.placeToasts()
 
 		if not tourChecked and state.me and widget.Enabled then
 			tourChecked = true
@@ -411,7 +426,7 @@ local tourSteps = {
 	{
 		key = "composer",
 		title = "Add tasks",
-		body = "Type a task and press Enter. Long tasks grow upward as you type. Double click a task to edit it right there.",
+		body = "Type a task and press Enter or the arrow. Long tasks grow upward as you type. Double click a task to edit it right there.",
 	},
 	{
 		key = "menu",

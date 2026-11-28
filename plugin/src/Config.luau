@@ -7,7 +7,7 @@ local flavor: { [string]: any } = if flavorModule and flavorModule:IsA("ModuleSc
 
 local Config = {}
 
-Config.version = "1.1.0"
+Config.version = "1.1.1"
 Config.isTestBuild = flavor.isTestBuild == true
 Config.productName = flavor.productName or "CheckpointLTC"
 Config.toolbarName = flavor.toolbarName or "LTCLevTec"
@@ -44,6 +44,8 @@ Config.interaction = {
 	drawerSeconds = 0.18,
 	counterFromFraction = 0.8,
 	maxInputLines = 6,
+	maxFillLines = 14,
+	titleCollapsedLines = 2,
 }
 
 Config.fallbackLimits = {
@@ -176,15 +178,15 @@ Config.rows = {
 }
 
 Config.whatsNew = {
-	version = "1.1.0",
+	version = "1.1.1",
 	items = {
-		"A real Notifications page. Press the bell for tabs: Needs fixing, Due dates, Tasks, Shared and Updates.",
-		"The toolbar icon gets a red dot whenever something needs you, even with the window closed.",
-		"Tick notifications to mark them read or delete them. Deleted ones go to the Trash, and you can undo or restore them.",
-		"Due and overdue tasks show up in Notifications instead of popping up.",
-		"Game keys are safer. Keep yours in your game's Secrets, and a key that gets flooded with reports is turned off for you.",
-		"Players can send one report an hour across every server.",
-		"Text that doesn't fit ends in ..., hover it to read the whole thing.",
+		"Give a task to more than one person. Pick Assigned to in the task, and pick someone again to take them off.",
+		"Auto assign. In a list's ••• menu, pick people that every new task on that list goes to. You can still change it on each task.",
+		"Split task. Turn one long task into a few, one per line. They stay in the same section, and Undo puts it back.",
+		"The task panel shows the whole task text. Collapse text shrinks it, and notes grow down instead of covering things.",
+		"Tasks in the list show up to 5 lines, with a thin line between them.",
+		"Every typing box has a send or save button now, and saving tells you Task updated.",
+		"Panels and banners don't let clicks through to what's behind them anymore.",
 	},
 }
 

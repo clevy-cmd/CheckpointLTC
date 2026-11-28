@@ -43,7 +43,7 @@ const criticalStyle = "'sha256-1iBbV+hgkHnTrR3FDJAw/2+P2baEUIuvgpuu/Hjv7Q4='";
 
 const makeNonce = (): string => btoa(String.fromCharCode(...crypto.getRandomValues(new Uint8Array(16))));
 
-export function headers(allowForms = false, nonce = makeNonce()): Record<string, string> {
+export function headers(allowForms = false, nonce = makeNonce(), frameSrc = ""): Record<string, string> {
   return {
     "content-type": "text/html; charset=utf-8",
     "cache-control": "no-store",
@@ -56,6 +56,7 @@ export function headers(allowForms = false, nonce = makeNonce()): Record<string,
     "content-security-policy":
       `default-src 'none'; script-src 'self' 'nonce-${nonce}' https://static.cloudflareinsights.com; ` +
       "connect-src 'self' https://cloudflareinsights.com; img-src 'self'; media-src 'self'; font-src 'self'; " +
+      (frameSrc ? `frame-src ${frameSrc}; ` : "") +
       `style-src 'self' 'nonce-${nonce}' ${criticalStyle}; ` +
       `base-uri 'none'; form-action ${allowForms ? "'self'" : "'none'"}; frame-ancestors 'none'`,
   };
@@ -113,7 +114,7 @@ export function authPage(options: AuthPage): Response {
 <title>${escapeHtml(options.title)} · CheckpointLTC</title>
 <link rel="icon" type="image/png" href="/site/icon.png">
 <link rel="preload" href="/site/fonts/bricolage.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/site/site.css?v=8">
+<link rel="stylesheet" href="/site/site.css?v=11">
 <style nonce="${nonce}">${authCss}</style>
 </head>
 <body>
@@ -170,7 +171,7 @@ export function legalPage(title: string, lead: string, summary: string[], body: 
 <meta name="theme-color" content="#29b9e8">
 <link rel="icon" type="image/png" href="/site/icon.png">
 <link rel="preload" href="/site/fonts/bricolage.woff2" as="font" type="font/woff2" crossorigin>
-<link rel="stylesheet" href="/site/site.css?v=8">
+<link rel="stylesheet" href="/site/site.css?v=11">
 <script src="/site/legal.js?v=6" defer></script>
 </head>
 <body class="doc-page">
@@ -180,10 +181,12 @@ export function legalPage(title: string, lead: string, summary: string[], body: 
   <nav>
     <a href="/#demo">Try it</a>
     <a href="/#features">Features</a>
+    <a href="/#video">Video</a>
     <a class="keep" href="/guide">Guide</a>
+    <a href="/updates">Updates</a>
     <a href="/#discord">Discord</a>
     <a class="get" href="${storeLink}" target="_blank" rel="noopener">Get the plugin</a>
-    <details class="menu"><summary aria-label="Menu"><i></i><i></i><i></i></summary><div class="menu-panel"><a href="/#demo">Try it</a><a href="/#features">Features</a><a href="/guide">Guide</a><a href="/#discord">Discord</a></div></details>
+    <details class="menu"><summary aria-label="Menu"><i></i><i></i><i></i></summary><div class="menu-panel"><a href="/#demo">Try it</a><a href="/#features">Features</a><a href="/#video">Video</a><a href="/guide">Guide</a><a href="/updates">Updates</a><a href="/#discord">Discord</a></div></details>
   </nav>
 </header>
 <main>
@@ -210,7 +213,7 @@ export function legalPage(title: string, lead: string, summary: string[], body: 
 </main>
 <footer class="foot">
   <span>Made by LTCLevTec LLC</span>
-  <span><a href="/">Home</a> · <a href="/guide">Guide</a> · <a href="${discordLink}" target="_blank" rel="noopener">Discord</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></span>
+  <span><a href="/">Home</a> · <a href="/#video">Video</a> · <a href="/guide">Guide</a> · <a href="/updates">Updates</a> · <a href="${discordLink}" target="_blank" rel="noopener">Discord</a> · <a href="/privacy">Privacy</a> · <a href="/terms">Terms</a></span>
 </footer>
 </body>
 </html>`;

@@ -3,15 +3,22 @@ import { headers, legalPage } from "./pages";
 
 const discord = "https://discord.gg/5njkCsBdNd";
 const updated = "November 24, 2026";
+const privacyUpdated = "November 28, 2026";
 
 export async function home(request: Request, env: Env): Promise<Response> {
   const file = await env.ASSETS.fetch(new Request(new URL("/site/home.html", request.url)));
   if (!file.ok) return new Response("Not found", { status: 404 });
-  return new Response(file.body, { headers: headers() });
+  return new Response(file.body, { headers: headers(false, undefined, "https://www.youtube-nocookie.com") });
 }
 
 export async function guide(request: Request, env: Env): Promise<Response> {
   const file = await env.ASSETS.fetch(new Request(new URL("/site/guide.html", request.url)));
+  if (!file.ok) return new Response("Not found", { status: 404 });
+  return new Response(file.body, { headers: headers() });
+}
+
+export async function updates(request: Request, env: Env): Promise<Response> {
+  const file = await env.ASSETS.fetch(new Request(new URL("/site/updates.html", request.url)));
   if (!file.ok) return new Response("Not found", { status: 404 });
   return new Response(file.body, { headers: headers() });
 }
@@ -25,7 +32,7 @@ export async function demo(request: Request, env: Env): Promise<Response> {
 export async function privacy(): Promise<Response> {
   return legalPage(
     "Privacy policy",
-    `Last updated ${updated}. CheckpointLTC is a Roblox Studio plugin I make and run through LTCLevTec LLC. On this page, "I", "me" and "my" mean LTCLevTec LLC.`,
+    `Last updated ${privacyUpdated}. CheckpointLTC is a Roblox Studio plugin I make and run through LTCLevTec LLC. On this page, "I", "me" and "my" mean LTCLevTec LLC.`,
     [
     "I only get your Roblox UserId. Never your password or email.",
     "Your lists are seen by you and the people you share them with. Nobody else.",
@@ -52,6 +59,7 @@ export async function privacy(): Promise<Response> {
 <h2>Who sees it</h2>
 <p>People you share a list with see that list. Nobody else. I don't sell or share your data, and there are no ads. My server runs on Cloudflare, and Roblox handles login and purchases under their own privacy policy.</p>
 <p>These web pages (not the plugin) use Cloudflare Web Analytics to count visits, which uses no cookies and doesn't follow you to other sites, and Cloudflare's bot protection to block automated abuse.</p>
+<p>The home page has my YouTube video embedded in YouTube's privacy enhanced mode, so YouTube doesn't set cookies until you press play. Once you play it, YouTube's own privacy policy applies.</p>
 
 <h2>Removing your data</h2>
 <p>Delete a list in the plugin and it's gone. To delete everything, message me in my <a href="${discord}">Discord</a> and I'll remove your account and lists. You can also remove CheckpointLTC from the apps connected to your Roblox account any time.</p>
