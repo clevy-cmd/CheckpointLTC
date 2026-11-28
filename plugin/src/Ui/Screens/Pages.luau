@@ -584,6 +584,7 @@ function Pages.notifications(ctx: any): any
 			end
 		end
 		toolNote.Size = UDim2.fromScale(math.max(0, right / width), 1)
+		toolNote.Visible = textWidth(toolNote.Text, "hint") <= right
 	end
 	maid:give(tools:GetPropertyChangedSignal("AbsoluteSize"):Connect(layoutTools))
 

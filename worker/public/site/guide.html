@@ -5,13 +5,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CheckpointLTC guide · Every button, menu and setting</title>
-<meta name="description" content="The complete CheckpointLTC guide for Roblox Studio. Every button, menu, setting and limit in version 1.0.0, with real screenshots and a worked TODO example. Read it here or download the PDF.">
+<meta name="description" content="The complete CheckpointLTC guide for Roblox Studio. Every button, menu, setting and limit in version 1.1.0, with real screenshots and a worked TODO example. Read it here or download the PDF.">
 <link rel="canonical" href="https://checkpointltc.ltclevtec.com/guide">
 <meta name="theme-color" content="#060c18">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="CheckpointLTC">
 <meta property="og:title" content="The complete CheckpointLTC guide">
-<meta property="og:description" content="Every button, menu, setting and limit in CheckpointLTC 1.0.0, with real screenshots and a worked example. Read it in your browser or download the 50 page PDF.">
+<meta property="og:description" content="Every button, menu, setting and limit in CheckpointLTC 1.1.0, with real screenshots and a worked example. Read it in your browser or download the 50 page PDF.">
 <meta property="og:url" content="https://checkpointltc.ltclevtec.com/guide">
 <meta property="og:image" content="https://checkpointltc.ltclevtec.com/site/og-guide.jpg">
 <meta property="og:image:width" content="1200">
@@ -19,7 +19,7 @@
 <meta property="og:image:alt" content="The complete CheckpointLTC guide">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="The complete CheckpointLTC guide">
-<meta name="twitter:description" content="Every button, menu, setting and limit in CheckpointLTC 1.0.0.">
+<meta name="twitter:description" content="Every button, menu, setting and limit in CheckpointLTC 1.1.0.">
 <meta name="twitter:image" content="https://checkpointltc.ltclevtec.com/site/og-guide.jpg">
 <link rel="icon" type="image/png" href="/site/icon.png">
 <link rel="preload" href="/site/fonts/bricolage.woff2" as="font" type="font/woff2" crossorigin>
@@ -45,7 +45,7 @@
   <section class="doc guide">
     <div class="guide-hero">
       <div>
-        <p class="kicker">Plugin version 1.0.0 · November 2026</p>
+        <p class="kicker">Plugin version 1.1.0 · November 2026</p>
         <h1>The complete <span class="scribble">guide.<svg viewBox="0 0 400 24" preserveAspectRatio="none" aria-hidden="true"><path d="M3 14 C 70 6, 140 19, 210 12 S 330 7, 397 12"></path></svg></span></h1>
         <p class="lede">Every button, menu, setting and limit in CheckpointLTC, with real screenshots from Studio and a worked example you can follow along with in your own place.</p>
         <div class="actions">
@@ -102,10 +102,14 @@
           <a href="#reports">Player reports</a>
           <a href="#reports-code">Player reports: the code</a>
           <a href="#reports-inbox">Player reports: the inbox</a>
+          <a href="#reports-off">When a key gets turned off</a>
           <a class="part" href="#part-4">4 · Teams and tidying up</a>
           <a href="#people">People and sharing</a>
           <a href="#roles">Who can do what</a>
-          <a href="#my-tasks">My tasks, search and notifications</a>
+          <a href="#my-tasks">My tasks and search</a>
+          <a href="#notifications">Notifications</a>
+          <a href="#notifications-read">Read, delete and undo</a>
+          <a href="#notifications-more">Due dates, fixes and updates</a>
           <a href="#trash">Trash</a>
           <a href="#activity">Activity log</a>
           <a href="#export">Export</a>
@@ -134,7 +138,7 @@
             <li><b>Open and close</b> with the toolbar button, the ✕ in the title bar, or a shortcut you bind yourself.</li>
             <li><b>Move it</b> by dragging the title bar. <b>Resize it</b> from the grip in the bottom right corner. The smallest size is 360 by 440 pixels.</li>
             <li><b>It remembers</b> where you left it, so it opens in the same spot next time.</li>
-            <li><b>A badge on the toolbar icon</b> means something changed while the window was closed: a teammate edited your list, someone mentioned you, or one of your tasks is due within the hour. Opening the window clears it.</li>
+            <li><b>A red dot on the toolbar icon</b> means something needs you: an unread notification, a task due soon, or a new version. It stays, window open or closed, until you deal with it on the Notifications page. If <b>Changes to my lists</b> is on, teammates editing your lists light it too while the window is closed.</li>
           </ul>
         </section>
 
@@ -171,7 +175,7 @@
               <div class="table-wrap"><table class="keys narrow">
                 <tr><td>☰</td><td>Shows the list sidebar. Only appears when the window is narrower than 560 pixels.</td></tr>
                 <tr><td>Search</td><td>Opens the command bar. Same as <kbd>/</kbd>.</td></tr>
-                <tr><td>Bell</td><td>Your last 10 notifications, with a count of unread ones.</td></tr>
+                <tr><td>Bell</td><td>Opens the Notifications page. The number is how much is waiting for you.</td></tr>
                 <tr><td>Refresh</td><td>Checks for changes right now.</td></tr>
                 <tr><td>Gear</td><td>Settings, help, plan, support and devices.</td></tr>
                 <tr><td>✕</td><td>Closes the window.</td></tr>
@@ -190,7 +194,8 @@
             </div>
           </div>
           <p>Each list row shows its name, a done count like <kbd>2/12</kbd>, and a blue badge counting changes other people made since you last opened it. Everything else, like Duplicate, Archive and Delete, lives in that list's ••• menu.</p>
-          <p>At the bottom of the sidebar, <b>Download Guide</b> gives you the link to this guide, and the small text under it is your plugin version, like <kbd>v1.0.0</kbd>. When a newer version is out it turns yellow and says so. Update from Manage Plugins.</p>
+          <p>At the bottom of the sidebar, <b>Download Guide</b> gives you the link to this guide, and the small text under it is your plugin version, like <kbd>v1.1.0</kbd>. When a newer version is out it turns orange and says so. Click it to open the Updates tab.</p>
+          <p><b>Text that doesn't fit</b> ends in …, like a long list name in the sidebar. Hover it and the whole thing shows.</p>
         </section>
 
         <section class="topic" id="syncing">
@@ -205,7 +210,7 @@
             <li><b>It remembers your last list</b> and opens it the next time you log in.</li>
           </ul>
           <h4>Toasts</h4>
-          <p>Small messages at the bottom of the window are called toasts. Blue means info, green means done, yellow is a warning and red is an error. Some carry a button, like <b>Undo</b> after a delete. They close by themselves after 5 seconds.</p>
+          <p>Small messages at the bottom of the window are called toasts. Blue means info, green means done, yellow is a warning and red is an error. Some carry a button, like <b>Undo</b> after a delete. They close by themselves after 5 seconds, ones with a button after 12. Toasts are only for things you just did. Notifications never pop up, they wait on the Notifications page.</p>
           <figure class="fig"><img src="/site/shots/list-created.webp" alt="A toast saying List created" loading="lazy" decoding="async" width="925" height="94"></figure>
         </section>
 
@@ -652,6 +657,28 @@
           </ul>
         </section>
 
+        <section class="topic" id="reports-off">
+          <h3>Player reports: when a key gets turned off</h3>
+          <p>Your game only lets each player send one report an hour. If one player sends far more than that, someone outside your game has the key and is calling CheckpointLTC with it directly. The key is turned off on the spot.</p>
+          <div class="twoshot">
+            <figure class="fig"><img src="/site/shots/notif-fix.webp" alt="A turned off key under Needs fixing" loading="lazy" decoding="async" width="617" height="645"><figcaption>The alert in Notifications, under Needs fixing.</figcaption></figure>
+            <figure class="fig"><img src="/site/shots/inbox-off.webp" alt="The turned off key in In game reports" loading="lazy" decoding="async" width="617" height="645"><figcaption>Fix it opens the list's In game reports.</figcaption></figure>
+          </div>
+          <h4>What happens</h4>
+          <ul class="ticks">
+            <li><b>The key stops working</b> straight away for every server of your game. Players see "Reports are off right now."</li>
+            <li><b>The list owner and every admin</b> get a red alert in <b>Needs fixing</b>. The toolbar dot lights up.</li>
+            <li><b>The report that got through</b> before the cutoff is still in the inbox, so you can see what they sent.</li>
+          </ul>
+          <h4>What to do</h4>
+          <ol class="steps-mini">
+            <li>Press <b>Fix it</b>. It opens In game reports for that list.</li>
+            <li>Press <b>Make a game key</b> and <b>Insert</b>, or put the new key in your game's Secrets.</li>
+            <li><b>Delete</b> the turned off key.</li>
+          </ol>
+          <p>The alert clears from your count when you press Fix it. After that it can be deleted like any other notification.</p>
+        </section>
+
         <header class="part-head" id="part-4"><span class="num">04</span><h2>Teams and tidying up</h2><p>Share lists, pick roles, keep track of your own work, and clean up safely.</p></header>
 
         <section class="topic" id="people">
@@ -685,7 +712,7 @@
         </section>
 
         <section class="topic" id="my-tasks">
-          <h3>My tasks, search and notifications</h3>
+          <h3>My tasks and search</h3>
           <div class="twoshot">
             <figure class="fig"><img src="/site/shots/mytasks.webp" alt="My tasks" loading="lazy" decoding="async" width="925" height="694"><figcaption>My tasks</figcaption></figure>
             <figure class="fig"><img src="/site/shots/search.webp" alt="Search" loading="lazy" decoding="async" width="925" height="694"><figcaption>Search finds the player report approved earlier.</figcaption></figure>
@@ -706,9 +733,76 @@
             <div>
               <h4>Notifications</h4>
               <ul class="ticks">
-                <li><b>The bell</b> lists your last 10. Opening it marks them read.</li>
-                <li><b>You get one when</b> someone gives you a task, mentions you, or adds you to a list.</li>
-                <li><b>Reminders:</b> a yellow toast when one of your tasks is due within the hour.</li>
+                <li><b>They have their own page now.</b> Press the bell. See <a href="#notifications">Notifications</a> below.</li>
+              </ul>
+            </div>
+          </div>
+        </section>
+
+        <section class="topic" id="notifications">
+          <h3>Notifications</h3>
+          <p>The bell opens the Notifications page. Everything that needs you lands here, sorted into tabs, and nothing pops up over your work.</p>
+          <figure class="fig fig-m"><img src="/site/shots/notif-tasks.webp" alt="The Notifications page on the Tasks tab" loading="lazy" decoding="async" width="617" height="645"><figcaption>The Tasks tab with mentions waiting. Newest unread first.</figcaption></figure>
+          <div class="table-wrap"><table class="keys">
+            <tr><th>Tab</th><th>What goes there</th></tr>
+            <tr><td>Needs fixing</td><td>Things that are broken until you act, like a game key that got turned off. Red.</td></tr>
+            <tr><td>Due dates</td><td>Tasks given to you that are overdue or due within a day.</td></tr>
+            <tr><td>Tasks</td><td>Someone gave you a task, or mentioned you in a comment.</td></tr>
+            <tr><td>Shared</td><td>Someone added you to a list.</td></tr>
+            <tr><td>Updates</td><td>A new version of CheckpointLTC is out.</td></tr>
+          </table></div>
+          <ul class="ticks">
+            <li><b>The page opens on the most serious tab</b> that has something in it.</li>
+            <li><b>Order:</b> newer unread first, then older unread, then everything you already read.</li>
+            <li><b>The counts only go down when you act.</b> Looking at the page doesn't clear anything.</li>
+          </ul>
+        </section>
+
+        <section class="topic" id="notifications-read">
+          <h3>Read, delete and undo</h3>
+          <div class="twoshot">
+            <figure class="fig"><img src="/site/shots/notif-select.webp" alt="Two notifications ticked" loading="lazy" decoding="async" width="617" height="645"><figcaption>Two ticked, with Delete 2 and Mark 2 read.</figcaption></figure>
+            <figure class="fig"><img src="/site/shots/notif-undo.webp" alt="The Undo toast after deleting" loading="lazy" decoding="async" width="617" height="645"><figcaption>Right after deleting, with Undo.</figcaption></figure>
+          </div>
+          <ul class="ticks">
+            <li><b>Open</b> on a card takes you to the task or list and marks it read.</li>
+            <li><b>Tick boxes</b> pick cards. <b>Select all</b> and <b>Unselect all</b> sit at the top.</li>
+            <li><b>Mark read</b> clears the ticked ones. With nothing ticked it says <b>Mark all read</b>.</li>
+            <li><b>Delete</b> moves the ticked ones to the Trash. Press <b>Undo</b> on the toast, or restore them from Trash later.</li>
+            <li><b>Read cards stay</b> on the page, greyed out and below the unread ones, until you delete them.</li>
+            <li><b>30 days.</b> Notifications clear on their own 30 days after they were sent, and you keep your newest 100.</li>
+            <li><b>Only you</b> see your notifications. Marking one read or deleting it never touches anyone else's copy.</li>
+          </ul>
+        </section>
+
+        <section class="topic" id="notifications-more">
+          <h3>Due dates, fixes and updates</h3>
+          <div class="twoshot">
+            <figure class="fig"><img src="/site/shots/notif-due.webp" alt="The Due dates tab" loading="lazy" decoding="async" width="617" height="645"><figcaption>An overdue task and one due tomorrow.</figcaption></figure>
+            <figure class="fig"><img src="/site/shots/notif-updates.webp" alt="The Updates tab" loading="lazy" decoding="async" width="617" height="645"><figcaption>An update card after pressing Got it.</figcaption></figure>
+          </div>
+          <div class="cols">
+            <div>
+              <h4>Due dates</h4>
+              <ul class="ticks">
+                <li><b>Shows up</b> when a task given to you is overdue or due within a day.</li>
+                <li><b>Open task</b> jumps to it and marks it read. Marking it done makes it go away.</li>
+              </ul>
+              <h4>Needs fixing</h4>
+              <ul class="ticks">
+                <li><b>No tick box</b> until you press <b>Fix it</b>. These can't be cleared without fixing them.</li>
+              </ul>
+            </div>
+            <div>
+              <h4>Updates</h4>
+              <ul class="ticks">
+                <li><b>Says which version is out</b> and how to update: Plugins, Manage Plugins, Update. It should be good to go, if not reopen Studio.</li>
+                <li><b>Got it</b> marks it read until the next version.</li>
+              </ul>
+              <h4>The red dot</h4>
+              <figure class="fig fig-s"><img src="/site/shots/toolbar-dot.webp" alt="The toolbar icon with a red dot" loading="lazy" decoding="async" width="320" height="220"></figure>
+              <ul class="ticks">
+                <li><b>On the toolbar icon</b> whenever any tab has something waiting.</li>
               </ul>
             </div>
           </div>
@@ -718,7 +812,7 @@
           <h3>Trash</h3>
           <figure class="fig"><img src="/site/shots/trash.webp" alt="The trash" loading="lazy" decoding="async" width="925" height="694"></figure>
           <ul class="ticks">
-            <li><b>30 days.</b> Deleted lists and tasks wait here, then they're erased for good.</li>
+            <li><b>30 days.</b> Deleted lists, tasks and notifications wait here, then they're erased for good. Notifications sit under their own heading.</li>
             <li><b>Restore</b> on any row brings one back.</li>
             <li><b>Tap rows</b> to tick them, or <b>Select all</b>, then Restore or Delete the ticked ones in one go.</li>
             <li><b>Empty trash</b> erases everything you're allowed to erase. It asks first.</li>
@@ -787,15 +881,15 @@
 
         <section class="topic" id="help">
           <h3>Help, tour and What's new</h3>
-          <figure class="fig"><img src="/site/shots/set-help.webp" alt="The Help tab" loading="lazy" decoding="async" width="925" height="694"></figure>
+          <figure class="fig fig-m"><img src="/site/shots/peek.webp" alt="The Help tab, with a shortened list name hovered" loading="lazy" decoding="async" width="617" height="645"><figcaption>Hovering a shortened list name in the sidebar shows all of it.</figcaption></figure>
           <div class="table-wrap"><table class="keys">
             <tr><td>Show hint text under buttons</td><td>The small grey notes, like "Moves it to the trash for 30 days". On.</td></tr>
             <tr><td>Show tooltips on hover</td><td>Every icon button names itself and its shortcut. On.</td></tr>
-            <tr><td>Show What's new after updates</td><td>A short walkthrough the first time you open a new version. On.</td></tr>
+            <tr><td>Show What's new after updates</td><td>A popup listing what changed, the first time you open a new version. On.</td></tr>
           </table></div>
           <div class="twoshot">
             <figure class="fig"><img src="/site/shots/tour1.webp" alt="The first step of the tour" loading="lazy" decoding="async" width="925" height="694"><figcaption>The 4 step tour runs on your first login.</figcaption></figure>
-            <figure class="fig"><img src="/site/shots/whatsnew1.webp" alt="The first step of What's new" loading="lazy" decoding="async" width="925" height="694"><figcaption>The 5 step What's new for 1.0.0.</figcaption></figure>
+            <figure class="fig"><img src="/site/shots/whatsnew.webp" alt="What's new for 1.1.0" loading="lazy" decoding="async" width="617" height="645"><figcaption>What's new for 1.1.0, one card listing the changes. Close it with ✕.</figcaption></figure>
           </div>
         </section>
 
@@ -869,6 +963,8 @@
             <tr><td>Only png, jpg, mp4, mov, txt files can be attached.</td><td>Convert the file, or attach a screenshot.</td></tr>
             <tr><td>You can send one bug report per hour.</td><td>Wait for the countdown.</td></tr>
             <tr><td>This list is archived.</td><td>The owner can press Unarchive.</td></tr>
+            <tr><td>Moved 2 notifications to the trash.</td><td>Press Undo, or restore them from Trash.</td></tr>
+            <tr><td>CheckpointLTC: your game key was refused.</td><td>In your game's output. The key was revoked or turned off. Make a new one.</td></tr>
           </table></div>
         </section>
 
