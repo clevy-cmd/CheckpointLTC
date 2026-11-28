@@ -55,27 +55,7 @@ function Shell.titleBar(ctx: any): any
 		icon = "bell",
 		tooltip = "Notifications",
 		onClick = function()
-			local notifications = Store.get().notifications
-			local items: { Overlay.MenuItem } = {}
-			for index, n in if notifications then notifications.list else {} do
-				if index > 10 then
-					break
-				end
-				table.insert(items, {
-					text = (if n.read then "" else "● ") .. Actions.describeNotification(n),
-					run = function()
-						Actions.openList(n.listId)
-						if n.itemId then
-							Actions.openDrawer(n.itemId)
-						end
-					end,
-				})
-			end
-			if #items == 0 then
-				table.insert(items, { text = "Nothing new", run = function() end })
-			end
-			Overlay.menu(items)
-			Actions.readNotifications()
+			Actions.showView("notifications")
 		end,
 		props = { Size = UDim2.fromScale(0.22, 1), LayoutOrder = 2 },
 		parent = right,
@@ -119,7 +99,7 @@ function Shell.titleBar(ctx: any): any
 			bell.setVisible(ready)
 			refresh.setVisible(ready)
 			settingsButton.setVisible(ready)
-			bell.setBadge(if state.notifications then state.notifications.unread else 0)
+			bell.setBadge(Actions.notificationCount(state))
 			title.Text = if not Config.isTestBuild and state.environment ~= "production"
 				then Config.productName .. "  ·  " .. state.environment
 				else Config.productName
@@ -236,13 +216,21 @@ function Shell.sidebar(ctx: any): any
 	})
 	versionLabel.Parent = footer
 	local shownUpdate: string? = nil
+	local versionHit =
+		Kit.hitbox({ Position = versionLabel.Position, Size = versionLabel.Size, ZIndex = 46, Parent = footer })
+	maid:give(versionHit.Activated:Connect(function()
+		if shownUpdate then
+			Actions.showView("notifications")
+			Actions.setNotificationTab("updates")
+		end
+	end))
 	local function renderVersion(update: string?)
 		if update == shownUpdate and versionLabel.Text ~= "" then
 			return
 		end
 		shownUpdate = update
 		if update then
-			versionLabel.Text = "v" .. Config.version .. "  ·  " .. update .. " is out, update in Manage Plugins"
+			versionLabel.Text = "v" .. Config.version .. "  ·  " .. update .. " is out"
 			Theme.bind(versionLabel, "TextColor3", "warning")
 		else
 			versionLabel.Text = "v" .. Config.version
@@ -287,7 +275,7 @@ function Shell.sidebar(ctx: any): any
 		end
 		local hit = Kit.hitbox({ ZIndex = 49, Parent = row })
 		rowMaid:give(hit.MouseEnter:Connect(function()
-			if not active then
+			if not active and not Overlay.isCovered(hit) then
 				Theme.bind(row, "BackgroundColor3", "hover")
 			end
 		end))
@@ -316,9 +304,7 @@ function Shell.sidebar(ctx: any): any
 				end
 			end
 		end
-		if state.notifications then
-			table.insert(parts, tostring(state.notifications.unread))
-		end
+		table.insert(parts, tostring(Actions.notificationCount(state)))
 		local nextSignature = table.concat(parts, "|")
 		if nextSignature == signature then
 			return

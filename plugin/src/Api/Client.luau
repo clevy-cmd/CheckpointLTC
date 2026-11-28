@@ -87,8 +87,11 @@ end
 function Client.notifications(): Result
 	return authed("GET", "/v1/notifications")
 end
-function Client.readNotifications(upTo: number?): Result
-	return authed("POST", "/v1/notifications/read", { upTo = upTo })
+function Client.readNotifications(upTo: number?, ids: { number }?): Result
+	return authed("POST", "/v1/notifications/read", { upTo = upTo, ids = ids })
+end
+function Client.deleteNotifications(ids: { number }): Result
+	return authed("POST", "/v1/notifications/delete", { ids = ids })
 end
 function Client.myTasks(): Result
 	return authed("GET", "/v1/tasks/mine")
@@ -103,11 +106,11 @@ end
 function Client.trash(): Result
 	return authed("GET", "/v1/trash")
 end
-function Client.restoreTrash(items: { string }, lists: { string }): Result
-	return authed("POST", "/v1/trash/restore", { items = items, lists = lists })
+function Client.restoreTrash(items: { string }, lists: { string }, notifications: { number }?): Result
+	return authed("POST", "/v1/trash/restore", { items = items, lists = lists, notifications = notifications })
 end
-function Client.deleteTrash(items: { string }, lists: { string }): Result
-	return authed("POST", "/v1/trash/delete", { items = items, lists = lists })
+function Client.deleteTrash(items: { string }, lists: { string }, notifications: { number }?): Result
+	return authed("POST", "/v1/trash/delete", { items = items, lists = lists, notifications = notifications })
 end
 function Client.emptyTrash(): Result
 	return authed("POST", "/v1/trash/empty", {})

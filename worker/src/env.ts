@@ -17,6 +17,9 @@ export interface Env {
   AI: Ai;
   MEDIA: MediaBinding;
   gameLimiter: RateLimit;
+  gameIpLimiter: RateLimit;
+  bulkLimiter: RateLimit;
+  GAME_FLOOD_RULE?: string;
   environmentName: "production" | "staging" | "local";
   moderationThresholds: string;
   discordTags: string;

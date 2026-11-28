@@ -22,14 +22,16 @@
     { "name": "authLimiter", "namespace_id": "41002", "simple": { "limit": 20, "period": 60 } },
     { "name": "pollLimiter", "namespace_id": "41004", "simple": { "limit": 60, "period": 60 } },
     { "name": "ipLimiter", "namespace_id": "41003", "simple": { "limit": 300, "period": 60 } },
-    { "name": "gameLimiter", "namespace_id": "41005", "simple": { "limit": 60, "period": 60 } }
+    { "name": "gameLimiter", "namespace_id": "41005", "simple": { "limit": 60, "period": 60 } },
+    { "name": "gameIpLimiter", "namespace_id": "41006", "simple": { "limit": 600, "period": 60 } },
+    { "name": "bulkLimiter", "namespace_id": "41007", "simple": { "limit": 30, "period": 60 } }
   ],
   "r2_buckets": [{ "binding": "UPLOADS", "bucket_name": "checkpointltc-uploads" }],
   "ai": { "binding": "AI" },
   "media": { "binding": "MEDIA" },
   "triggers": { "crons": ["17 * * * *"] },
   "vars": {
-    "latestPluginVersion": "1.0.0",
+    "latestPluginVersion": "1.1.0",
     "minPluginVersion": "1.0.0",
     "requireVerification": "true",
     "publicOrigin": "https://checkpointltc.ltclevtec.com",

@@ -6,6 +6,7 @@ local Controls = require(script.Parent.Parent.Components.Controls)
 local Files = require(script.Parent.Parent.Parent.Studio.Files)
 local GrowingTextBox = require(script.Parent.Parent.Components.GrowingTextBox)
 local Kit = require(script.Parent.Parent.Kit)
+local Measure = require(script.Parent.Parent.Measure)
 local Maid = require(script.Parent.Parent.Parent.Core.Maid)
 local Overlay = require(script.Parent.Parent.Components.Overlay)
 local Stack = require(script.Parent.Parent.Layout.Stack)
@@ -38,10 +39,11 @@ function Settings.new(ctx: any): any
 	)
 	Kit.paddingXY(0.04, 0.08).Parent = tabRow
 	local tabChips = {}
+	local tabWidths = { 0.235, 0.14, 0.14, 0.18, 0.18 }
 	for index, tab in tabs do
 		local chip = Controls.chip(tab.text, nil, function()
 			Actions.openSettings(tab.key)
-		end, maid, { Size = UDim2.fromScale(0.185, 1), LayoutOrder = index })
+		end, maid, { Size = UDim2.fromScale(tabWidths[index] or 0.18, 1), LayoutOrder = index })
 		chip.root.Parent = tabRow
 		tabChips[tab.key] = chip
 	end
@@ -128,11 +130,7 @@ function Settings.new(ctx: any): any
 		toggle("Hide done tasks", nil, "hideCompleted")
 		toggle("Confirm before deleting a task", nil, "confirmDelete")
 		add(Controls.sectionTitle("Text"), Kit.rows.section)
-		choice(
-			"Sizing",
-			"textSizing",
-			{ { text = "Fixed", value = "fixed" }, { text = "Grows with window", value = "auto" } }
-		)
+		choice("Sizing", "textSizing", { { text = "Fixed", value = "fixed" }, { text = "Auto", value = "auto" } })
 		local sizes = {
 			{ text = "S", value = 0.85 },
 			{ text = "M", value = 1 },
@@ -151,7 +149,7 @@ function Settings.new(ctx: any): any
 		local prefs = Store.get().prefs
 		for index, name in { "brand", "blue", "red", "green", "purple", "orange" } do
 			local chip = Controls.chip(
-				if name == "brand" then "LTCLevTec" else name:sub(1, 1):upper() .. name:sub(2),
+				if name == "brand" then "Default" else name:sub(1, 1):upper() .. name:sub(2),
 				(Config.accents :: any)[name],
 				function()
 					Actions.setPreference("accent", name)
@@ -197,7 +195,10 @@ function Settings.new(ctx: any): any
 				token = "subtext",
 				wrap = true,
 			}),
-			Kit.rows.field * 0.55
+			Measure.paragraph(
+				"Bind CheckpointLTC actions under File > Customize Shortcuts: open the panel, command bar, add a task from the selection, focus the new task box, refresh and undo. Press / with the mouse over the window to open the command bar.",
+				"meta"
+			)
 		)
 	end
 
@@ -418,7 +419,10 @@ function Settings.new(ctx: any): any
 			add(categoryRow, Kit.rows.setting)
 		end
 
-		add(Kit.label({ text = uploadWarning, role = "meta", token = "warning", wrap = true }), Kit.rows.field * 0.42)
+		add(
+			Kit.label({ text = uploadWarning, role = "meta", token = "warning", wrap = true }),
+			Measure.paragraph(uploadWarning, "meta")
+		)
 		if me and me.uploads ~= "allowed" then
 			add(
 				Kit.label({

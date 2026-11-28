@@ -105,6 +105,8 @@ function Kit.aspectRow(ratio: number, props: Props?, children: { any }?): Frame
 	return row
 end
 
+Kit.peek = nil :: ((TextLabel, boolean) -> ())?
+
 export type TextOptions = {
 	text: string?,
 	role: string?,
@@ -113,6 +115,7 @@ export type TextOptions = {
 	yAlign: Enum.TextYAlignment?,
 	wrap: boolean?,
 	rich: boolean?,
+	noPeek: boolean?,
 	props: Props?,
 }
 
@@ -124,7 +127,7 @@ function Kit.label(options: TextOptions): TextLabel
 		TextXAlignment = options.align or Enum.TextXAlignment.Left,
 		TextYAlignment = options.yAlign or Enum.TextYAlignment.Center,
 		TextWrapped = options.wrap == true,
-		TextTruncate = if options.wrap then Enum.TextTruncate.None else Enum.TextTruncate.AtEnd,
+		TextTruncate = Enum.TextTruncate.AtEnd,
 		RichText = options.rich == true,
 	}, { Kit.padding() })
 	for key, value in options.props or {} do
@@ -132,6 +135,20 @@ function Kit.label(options: TextOptions): TextLabel
 	end
 	Typography.apply(label, options.role or "body")
 	Theme.bind(label, "TextColor3", options.token or "text")
+	if not options.noPeek then
+		label.MouseEnter:Connect(function()
+			local peek = Kit.peek
+			if peek and not label.TextFits then
+				peek(label, true)
+			end
+		end)
+		label.MouseLeave:Connect(function()
+			local peek = Kit.peek
+			if peek then
+				peek(label, false)
+			end
+		end)
+	end
 	return label
 end
 

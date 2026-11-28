@@ -122,6 +122,7 @@ function App.mount(widget: any, plugin: Plugin, maid: Maid.Maid, host: GuiObject
 	settingsView.root.Parent = main
 	local pages = {
 		myTasks = Pages.myTasks(ctx),
+		notifications = Pages.notifications(ctx),
 		search = Pages.search(ctx),
 		trash = Pages.trash(ctx),
 		activity = Pages.activity(ctx),
@@ -229,9 +230,13 @@ function App.mount(widget: any, plugin: Plugin, maid: Maid.Maid, host: GuiObject
 		drawer.render(state)
 		lock:contentChanged()
 
-		if not tourChecked and state.me then
+		if not tourChecked and state.me and widget.Enabled then
 			tourChecked = true
 			task.delay(1, function()
+				if not widget.Enabled then
+					tourChecked = false
+					return
+				end
 				local prefs = Store.get().prefs
 				if not prefs.tourDone then
 					ctx.startTour()
@@ -296,6 +301,7 @@ function App.mount(widget: any, plugin: Plugin, maid: Maid.Maid, host: GuiObject
 	maid:give(widget:GetPropertyChangedSignal("Enabled"):Connect(function()
 		if widget.Enabled then
 			lock:open()
+			render(Store.get())
 		else
 			lock:close()
 		end
@@ -450,35 +456,17 @@ function App.tour(targets: { [string]: any })
 	step()
 end
 
-function App.whatsNew(targets: { [string]: GuiObject }, force: boolean)
+function App.whatsNew(_targets: { [string]: GuiObject }, force: boolean)
 	local prefs = Store.get().prefs
 	if not force and (not prefs.showWhatsNew or prefs.seenVersion == Config.whatsNew.version) then
 		return
 	end
-	local items = Config.whatsNew.items
-	local index = 0
-	local function finish()
-		Overlay.closeModal()
-		Actions.setPreference("seenVersion", Config.whatsNew.version)
-	end
-	local function step()
-		index += 1
-		local entry = items[index]
-		if not entry then
-			finish()
-			return
-		end
-		Overlay.highlight(
-			targets[entry.target],
-			entry.title,
-			entry.body,
-			string.format("What's new in %s  ·  %d of %d", Config.version, index, #items),
-			step,
-			finish,
-			if index == #items then "Got it" else "Next"
-		)
-	end
-	step()
+	Overlay.notes({
+		title = "Updated to " .. Config.whatsNew.version,
+		subtitle = "Here's what's new.",
+		bullets = Config.whatsNew.items,
+	})
+	Actions.setPreference("seenVersion", Config.whatsNew.version)
 end
 
 return App

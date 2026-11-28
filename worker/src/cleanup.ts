@@ -24,10 +24,12 @@ export async function cleanup(env: Env): Promise<void> {
     env.DB.prepare("DELETE FROM lists WHERE deleted_at IS NOT NULL AND deleted_at < ?").bind(trashCutoff),
     env.DB.prepare("DELETE FROM presence WHERE updated_at < ?").bind(now - limits.presenceTtlMs * 10),
     env.DB.prepare("DELETE FROM export_tokens WHERE expires_at < ?").bind(now),
+    env.DB.prepare("DELETE FROM game_report_attempts WHERE created_at < ?").bind(now - limits.gameAttemptsKeptMs),
+    env.DB.prepare("DELETE FROM game_keys WHERE revoked_at IS NOT NULL AND revoked_at < ?").bind(now - limits.activityMaxAgeMs),
     env.DB.prepare("DELETE FROM login_sessions WHERE expires_at < ?").bind(now),
     env.DB.prepare("DELETE FROM activity WHERE created_at < ?").bind(now - limits.activityMaxAgeMs),
     env.DB.prepare("DELETE FROM game_reports WHERE status <> 'new' AND created_at < ?").bind(now - limits.activityMaxAgeMs),
-    env.DB.prepare("DELETE FROM notifications WHERE created_at < ?").bind(now - limits.activityMaxAgeMs),
+    env.DB.prepare("DELETE FROM notifications WHERE created_at < ?").bind(now - limits.notificationMaxAgeMs),
     env.DB.prepare("DELETE FROM submissions WHERE created_at < ? AND attachment_id IS NULL").bind(now - limits.activityMaxAgeMs),
   ]);
 }

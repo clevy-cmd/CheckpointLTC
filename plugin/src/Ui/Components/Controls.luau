@@ -77,7 +77,9 @@ function Controls.button(options: ButtonOptions, maid: Maid.Maid): Button
 		Theme.bind(label, "TextColor3", if enabled then tokens.text else "dim")
 	end
 	maid:give(hit.MouseEnter:Connect(function()
-		paint(true)
+		if not Overlay.isCovered(hit) then
+			paint(true)
+		end
 	end))
 	maid:give(hit.MouseLeave:Connect(function()
 		paint(false)
@@ -164,7 +166,9 @@ function Controls.iconButton(options: IconOptions, maid: Maid.Maid): IconButton
 		Theme.bind(body, "BackgroundColor3", if active then "selected" else "hover")
 	end
 	maid:give(hit.MouseEnter:Connect(function()
-		paint(true)
+		if not Overlay.isCovered(hit) then
+			paint(true)
+		end
 	end))
 	maid:give(hit.MouseLeave:Connect(function()
 		paint(false)

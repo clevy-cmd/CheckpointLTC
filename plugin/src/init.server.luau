@@ -48,11 +48,17 @@ end
 maid:give(button.Click:Connect(function()
 	widget.Enabled = not widget.Enabled
 end))
+local changesWaiting = false
+local function refreshBadge()
+	setBadge(changesWaiting or Actions.notificationCount(Store.get()) > 0)
+end
+
 local function syncButton()
 	button:SetActive(widget.Enabled)
 	if widget.Enabled then
-		setBadge(false)
+		changesWaiting = false
 	end
+	refreshBadge()
 end
 maid:give(widget:GetPropertyChangedSignal("Enabled"):Connect(syncButton))
 syncButton()
@@ -90,7 +96,7 @@ action("Undo", Config.productName .. ": Undo my last change", "Undo your last ch
 
 local booted = false
 local function bootIfNeeded()
-	if booted or not widget.Enabled then
+	if booted then
 		return
 	end
 	booted = true
@@ -103,6 +109,9 @@ local function touched()
 end
 maid:give(Selection.SelectionChanged:Connect(touched))
 maid:give(widget:GetPropertyChangedSignal("Enabled"):Connect(touched))
+maid:give(Store.changed:connect(function()
+	refreshBadge()
+end))
 maid:give(Store.changed:connect(function(state)
 	if state.lastChangeAt > lastActivity then
 		touched()
@@ -152,7 +161,8 @@ maid:give(task.spawn(function()
 			end
 			task.wait(2)
 			local after = Store.get()
-			local unseen = if after.notifications then after.notifications.unread else 0
+			refreshBadge()
+			local unseen = 0
 			if after.home then
 				for _, group in { after.home.mine, after.home.assigned, after.home.opened } do
 					for _, summary in group do
@@ -161,7 +171,8 @@ maid:give(task.spawn(function()
 				end
 			end
 			if not widget.Enabled and unseen > lastUnseen and after.prefs.notifyChanges then
-				setBadge(true)
+				changesWaiting = true
+				refreshBadge()
 			end
 			lastUnseen = unseen
 		end
@@ -199,11 +210,7 @@ maid:give(task.spawn(function()
 			for _, item in state.myTasks or {} do
 				if item.dueAt and not item.done and item.dueAt - now < 3600000 and not reminded[item.id] then
 					reminded[item.id] = true
-					local due = Time.dueText(item.dueAt)
-					Actions.toast("warning", due .. ": " .. item.text)
-					if not widget.Enabled then
-						setBadge(true)
-					end
+					refreshBadge()
 				end
 			end
 		end

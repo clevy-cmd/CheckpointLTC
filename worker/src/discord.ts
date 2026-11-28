@@ -160,6 +160,36 @@ export async function reviewAlert(env: Env, text: string): Promise<void> {
   }).catch((err) => console.error("review alert failed", err));
 }
 
+export interface AlertField {
+  name: string;
+  value: string;
+  inline?: boolean;
+}
+
+export async function detailAlert(env: Env, title: string, description: string, fields: AlertField[]): Promise<void> {
+  const hook = env.DISCORD_ALERT_WEBHOOK;
+  if (env.environmentName === "local" || !hook) {
+    console.error("ALERT", title, JSON.stringify(fields));
+    return;
+  }
+  await fetch(hook, {
+    method: "POST",
+    headers: { "content-type": "application/json" },
+    body: JSON.stringify({
+      content: `🚨 ${env.environmentName === "production" ? "" : "[Test] "}**${title}**`,
+      allowed_mentions: { parse: [] },
+      embeds: [
+        {
+          color: brandRed,
+          description: description.slice(0, 4000),
+          fields: fields.slice(0, 25).map((f) => ({ name: f.name.slice(0, 256), value: (f.value || "unknown").slice(0, 1024), inline: f.inline ?? false })),
+          timestamp: new Date().toISOString(),
+        },
+      ],
+    }),
+  }).catch((err) => console.error("detail alert failed", err));
+}
+
 export async function urgentAlert(env: Env, text: string): Promise<void> {
   const hook = env.DISCORD_ALERT_WEBHOOK || env.DISCORD_BUG_WEBHOOK;
   if (env.environmentName === "local" || !hook) {

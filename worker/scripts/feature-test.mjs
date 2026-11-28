@@ -305,6 +305,39 @@ const unsaved = await report({ kind: "feedback", text: "From an unsaved place", 
 check("report from an unsaved place (placeId 0) received", unsaved.status === 201, unsaved.data);
 check("dismiss a report", (await call(u.editor, "POST", `/v1/reports/${unsaved.data.id}/dismiss`)).status === 200);
 check("viewer cannot see inbox (403)", (await call(u.viewer, "GET", `/v1/lists/${listId}/reports`)).status === 403);
+const other = await report({ kind: "feedback", text: "Second player", playerId: 4, playerName: "Other", filtered: true });
+check("another player still gets through", other.status === 201, other.data);
+let flood;
+for (let i = 0; i < 12 && flood?.status !== 401; i++) flood = await report({ kind: "bug", text: `Spam ${i}`, playerId: 77, filtered: true });
+check("one player flooding turns the key off (401)", flood.status === 401 && flood.data?.error?.revoked === true, flood.data);
+check("turned off key refuses everyone", (await report({ kind: "feedback", text: "Hi", playerId: 5, filtered: true })).status === 401);
+const keysAfter = (await call(u.owner, "GET", `/v1/lists/${listId}/game-keys`)).data.keys;
+check("plugin sees the key as turned off", keysAfter.some((k) => k.revokedAt && k.revokedReason === "flood"));
+const ownerNotes = (await call(u.owner, "GET", "/v1/notifications")).data.notifications;
+check("owner gets a notification", ownerNotes.some((n) => n.kind === "gamekey.revoked"));
+const revokedNote = ownerNotes.find((n) => n.kind === "gamekey.revoked");
+const otherUnread = ownerNotes.filter((n) => !n.read && n.id !== revokedNote.id).length;
+check("mark one notification read by id", (await call(u.owner, "POST", "/v1/notifications/read", { ids: [revokedNote.id] })).status === 200);
+const afterRead = (await call(u.owner, "GET", "/v1/notifications")).data;
+check(
+  "only that one went read",
+  afterRead.notifications.find((n) => n.id === revokedNote.id).read === true && afterRead.unread === otherUnread,
+  { unread: afterRead.unread, otherUnread },
+);
+const strangerDelete = await call(u.stranger, "POST", "/v1/notifications/delete", { ids: [revokedNote.id] });
+check("someone else cannot delete my notification", strangerDelete.data.deleted === 0);
+check("delete a fixed alert", (await call(u.owner, "POST", "/v1/notifications/delete", { ids: [revokedNote.id] })).data.deleted === 1);
+check("it's gone from notifications", !(await call(u.owner, "GET", "/v1/notifications")).data.notifications.some((n) => n.id === revokedNote.id));
+check("it's in the trash", (await call(u.owner, "GET", "/v1/trash")).data.notifications.some((n) => n.id === revokedNote.id));
+check("not in anyone else's trash", !(await call(u.stranger, "GET", "/v1/trash")).data.notifications.some((n) => n.id === revokedNote.id));
+check("stranger cannot restore it", (await call(u.stranger, "POST", "/v1/trash/restore", { notifications: [revokedNote.id] })).data.restored === 0);
+check("restore it (undo)", (await call(u.owner, "POST", "/v1/trash/restore", { notifications: [revokedNote.id] })).data.restored === 1);
+check("it's back", (await call(u.owner, "GET", "/v1/notifications")).data.notifications.some((n) => n.id === revokedNote.id));
+await call(u.owner, "POST", "/v1/notifications/delete", { ids: [revokedNote.id] });
+check("delete forever from the trash", (await call(u.owner, "POST", "/v1/trash/delete", { notifications: [revokedNote.id] })).data.deleted === 1);
+check("gone from the trash too", !(await call(u.owner, "GET", "/v1/trash")).data.notifications.some((n) => n.id === revokedNote.id));
+const fresh = await call(u.owner, "POST", `/v1/lists/${listId}/game-keys`, { label: "Rotated" });
+check("can make a new key after one is turned off", fresh.status === 201);
 
 console.log("\nTrash for lists");
 check("owner deletes list into trash", (await call(u.owner, "DELETE", `/v1/lists/${listId}`)).status === 200);

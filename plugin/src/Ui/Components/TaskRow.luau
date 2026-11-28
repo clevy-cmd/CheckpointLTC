@@ -139,6 +139,9 @@ function TaskRow.new(handlers: Handlers, maid: Maid.Maid): any
 	local lastClick = 0
 
 	rowMaid:give(mainHit.MouseEnter:Connect(function()
+		if Overlay.isCovered(mainHit) then
+			return
+		end
 		body.BackgroundTransparency = 0
 		Theme.bind(body, "BackgroundColor3", if row.item and handlers.isSelected(row.item) then "selected" else "hover")
 	end))

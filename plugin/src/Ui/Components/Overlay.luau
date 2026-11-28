@@ -5,6 +5,8 @@ local Kit = require(script.Parent.Parent.Kit)
 local Maid = require(script.Parent.Parent.Parent.Core.Maid)
 local Theme = require(script.Parent.Parent.Theme)
 
+local TextService = game:GetService("TextService")
+
 local Overlay = {}
 
 local layer: Frame? = nil
@@ -17,6 +19,7 @@ local showHints = true
 local hints: { [TextLabel]: boolean } = setmetatable({}, { __mode = "k" }) :: any
 local onHintsChanged: (() -> ())? = nil
 local modalMaid: Maid.Maid? = nil
+local modalRoot: GuiObject? = nil
 local toastCounter = 0
 
 function Overlay.mount(root: GuiObject, plugin: Plugin, maid: Maid.Maid)
@@ -34,6 +37,7 @@ function Overlay.mount(root: GuiObject, plugin: Plugin, maid: Maid.Maid)
 		role = "meta",
 		token = "tooltipText",
 		align = Enum.TextXAlignment.Center,
+		noPeek = true,
 		props = { ZIndex = 141 },
 	})
 	tipText.Parent = tip
@@ -49,6 +53,7 @@ function Overlay.mount(root: GuiObject, plugin: Plugin, maid: Maid.Maid)
 	}, { Kit.list(Enum.FillDirection.Vertical, Enum.HorizontalAlignment.Center, Enum.VerticalAlignment.Bottom, 0.015) })
 	toastStack = stack
 	maid:give(frame)
+	Overlay.enablePeek(tip, tipText, frame)
 end
 
 function Overlay.setPreferences(tooltips: boolean, hintsOn: boolean)
@@ -85,17 +90,71 @@ local function toLayer(position: Vector2, size: Vector2): (UDim2, UDim2)
 		UDim2.fromScale(size.X / total.X, size.Y / total.Y)
 end
 
+function Overlay.enablePeek(tip: Frame, tipText: TextLabel, frame: Frame)
+	local peekToken = 0
+	Kit.peek = function(label: TextLabel, entering: boolean)
+		peekToken += 1
+		if not entering then
+			tip.Visible = false
+			return
+		end
+		if Overlay.isCovered(label) then
+			return
+		end
+		local mine = peekToken
+		task.delay(Config.interaction.tooltipDelay, function()
+			if mine ~= peekToken or not label.Parent or label.TextFits then
+				return
+			end
+			local size = tipText.TextSize
+			local maxWidth = math.max(60, frame.AbsoluteSize.X - 16)
+			local ok, bounds = pcall(
+				TextService.GetTextSize,
+				TextService,
+				label.Text,
+				size,
+				Enum.Font.BuilderSans,
+				Vector2.new(maxWidth * 0.86, 100000)
+			)
+			local textSize = if ok then bounds else Vector2.new(maxWidth, size * 4)
+			local width = math.min(maxWidth, textSize.X / 0.86 + size)
+			local height = (textSize.Y + size) / 0.86
+			local x = math.clamp(
+				label.AbsolutePosition.X,
+				frame.AbsolutePosition.X + 8,
+				math.max(frame.AbsolutePosition.X + 8, frame.AbsolutePosition.X + frame.AbsoluteSize.X - width - 8)
+			)
+			local below = label.AbsolutePosition.Y + label.AbsoluteSize.Y + 4
+			local y = if below + height > frame.AbsolutePosition.Y + frame.AbsoluteSize.Y
+				then math.max(frame.AbsolutePosition.Y + 4, label.AbsolutePosition.Y - height - 4)
+				else below
+			local position, area = toLayer(Vector2.new(x, y), Vector2.new(width, height))
+			tipText.TextWrapped = true
+			tipText.TextXAlignment = Enum.TextXAlignment.Left
+			tipText.Text = label.Text
+			tip.Position = position
+			tip.Size = area
+			tip.Visible = true
+		end)
+	end
+end
+
 function Overlay.tooltip(target: GuiObject, text: string, shortcut: string?, maid: Maid.Maid)
 	local token = 0
 	local full = if shortcut then text .. "   " .. shortcut else text
 	maid:give(target.MouseEnter:Connect(function()
 		token += 1
+		if Overlay.isCovered(target) then
+			return
+		end
 		local mine = token
 		task.delay(Config.interaction.tooltipDelay, function()
 			local tip, label, frame = tooltipFrame, tooltipLabel, layer
 			if mine ~= token or not showTooltips or not tip or not label or not frame or not target.Parent then
 				return
 			end
+			label.TextWrapped = false
+			label.TextXAlignment = Enum.TextXAlignment.Center
 			label.Text = full
 			local width =
 				math.min(math.max(80, #full * label.TextSize * 0.55 + 24), math.max(40, frame.AbsoluteSize.X - 8))
@@ -195,14 +254,20 @@ function Overlay.toast(kind: string, text: string, action: ToastAction?)
 	if #children > 3 then
 		(children[1] :: Frame):Destroy()
 	end
-	task.delay(Config.interaction.toastSeconds + (if action then 3 else 0), dismiss)
+	task.delay(Config.interaction.toastSeconds + (if action then 7 else 0), dismiss)
 end
 
 local function closeModal()
+	modalRoot = nil
 	if modalMaid then
 		modalMaid:destroy()
 		modalMaid = nil
 	end
+end
+
+function Overlay.isCovered(target: Instance): boolean
+	local root = modalRoot
+	return root ~= nil and root.Parent ~= nil and not target:IsDescendantOf(root)
 end
 
 Overlay.closeModal = closeModal
@@ -213,6 +278,7 @@ function Overlay.modalCard(heightScale: number): (Frame, Maid.Maid)
 	modalMaid = maid
 	local dim = Kit.frame({ BackgroundTransparency = 0.45, ZIndex = 110, Parent = layer })
 	Theme.bind(dim, "BackgroundColor3", "overlay")
+	modalRoot = dim
 	local blocker = Kit.hitbox({ ZIndex = 111, Parent = dim })
 	maid:give(blocker.Activated:Connect(closeModal))
 	maid:give(dim)
@@ -225,6 +291,131 @@ function Overlay.modalCard(heightScale: number): (Frame, Maid.Maid)
 	}, { Kit.paddingXY(0.05, 0.04) })
 	Kit.hitbox({ ZIndex = 112, Parent = card })
 	return card, maid
+end
+
+function Overlay.notes(options: { title: string, subtitle: string, bullets: { string } })
+	local card, maid = Overlay.modalCard(0.62)
+	local title = Kit.label({
+		text = options.title,
+		role = "title",
+		props = { Size = UDim2.fromScale(0.84, 0.1), ZIndex = 113 },
+	})
+	title.Parent = card
+	local subtitle = Kit.label({
+		text = options.subtitle,
+		role = "meta",
+		token = "subtext",
+		props = { Position = UDim2.fromScale(0, 0.1), Size = UDim2.fromScale(0.84, 0.07), ZIndex = 113 },
+	})
+	subtitle.Parent = card
+
+	local close = Kit.hitbox({
+		AnchorPoint = Vector2.new(1, 0),
+		Position = UDim2.fromScale(1, 0),
+		Size = UDim2.fromScale(0.1, 0.1),
+		ZIndex = 114,
+		Parent = card,
+	})
+	Kit.square().Parent = close
+	local x = Kit.icon(Config.icons.close, "subtext", {
+		AnchorPoint = Vector2.new(0.5, 0.5),
+		Position = UDim2.fromScale(0.5, 0.5),
+		Size = UDim2.fromScale(0.6, 0.6),
+		ZIndex = 115,
+	})
+	x.Parent = close
+	maid:give(close.Activated:Connect(closeModal))
+
+	local list = Kit.create("ScrollingFrame", {
+		Position = UDim2.fromScale(0, 0.2),
+		Size = UDim2.fromScale(1, 0.8),
+		BackgroundTransparency = 1,
+		BorderSizePixel = 0,
+		ScrollBarThickness = 3,
+		ScrollingDirection = Enum.ScrollingDirection.Y,
+		CanvasSize = UDim2.fromOffset(0, 0),
+		ZIndex = 113,
+		Parent = card,
+	})
+	local rows = {}
+	for index, text in options.bullets do
+		local line: Frame? = nil
+		if index > 1 then
+			local divider = Kit.surface("dim", { ZIndex = 113, Parent = list })
+			divider.BackgroundTransparency = 0.55
+			Kit.create("UIGradient", {
+				Transparency = NumberSequence.new({
+					NumberSequenceKeypoint.new(0, 1),
+					NumberSequenceKeypoint.new(0.5, 0),
+					NumberSequenceKeypoint.new(1, 1),
+				}),
+				Parent = divider,
+			})
+			line = divider
+		end
+		local row = Kit.frame({ ZIndex = 113, Parent = list })
+		local dot = Kit.label({
+			text = "•",
+			role = "body",
+			token = "accent",
+			yAlign = Enum.TextYAlignment.Top,
+			noPeek = true,
+			props = { Size = UDim2.fromScale(0.06, 1), ZIndex = 113 },
+		})
+		dot.Parent = row
+		local body = Kit.label({
+			text = text,
+			role = "body",
+			token = "text",
+			wrap = true,
+			yAlign = Enum.TextYAlignment.Top,
+			props = { Position = UDim2.fromScale(0.06, 0), Size = UDim2.fromScale(0.94, 1), ZIndex = 113 },
+		})
+		body.Parent = row
+		table.insert(rows, { row = row, body = body, text = text, line = line })
+	end
+
+	local function layout()
+		local width = list.AbsoluteSize.X
+		local height = list.AbsoluteSize.Y
+		if width <= 0 or height <= 0 then
+			return
+		end
+		local heights = {}
+		local total = 0
+		for index, entry in rows do
+			local size = entry.body.TextSize
+			local ok, bounds = pcall(
+				TextService.GetTextSize,
+				TextService,
+				entry.text,
+				size,
+				Enum.Font.BuilderSans,
+				Vector2.new(width * 0.94 * 0.86, 100000)
+			)
+			local textHeight = if ok then bounds.Y else size * 3
+			heights[index] = (textHeight + size * 0.3) / 0.9
+			total += heights[index]
+		end
+		local gap = (rows[1] and rows[1].body.TextSize or 16) * 0.9
+		total += gap * math.max(0, #rows - 1)
+		local inner = width - list.ScrollBarThickness
+		list.CanvasSize = UDim2.fromOffset(0, total)
+		local y = 0
+		for index, entry in rows do
+			local line = entry.line
+			if line then
+				line.Position = UDim2.fromOffset(math.floor(inner * 0.1), math.floor(y + gap / 2))
+				line.Size = UDim2.fromOffset(math.floor(inner * 0.8), 1)
+				y += gap
+			end
+			entry.row.Position = UDim2.fromOffset(0, math.floor(y))
+			entry.row.Size = UDim2.fromOffset(inner, math.ceil(heights[index]))
+			y += heights[index]
+		end
+	end
+	maid:give(list:GetPropertyChangedSignal("AbsoluteSize"):Connect(layout))
+	task.defer(layout)
 end
 
 export type ConfirmOptions = {

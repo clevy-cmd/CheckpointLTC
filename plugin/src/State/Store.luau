@@ -7,6 +7,7 @@ export type Phase = "booting" | "signedOut" | "login" | "ready"
 export type View =
 	"list"
 	| "myTasks"
+	| "notifications"
 	| "search"
 	| "trash"
 	| "settings"
@@ -112,6 +113,10 @@ export type State = {
 	activity: { any }?,
 	reports: { any }?,
 	gameKeys: { any }?,
+	freshNotifications: { [number]: boolean },
+	seenDue: { [string]: boolean },
+	notificationTab: string,
+	notificationSelected: { [string]: boolean },
 	newGameKey: string?,
 	sessions: { any }?,
 	todoResults: { any }?,
@@ -119,6 +124,7 @@ export type State = {
 	refreshing: boolean,
 	sidebarOpen: boolean,
 	updateVersion: string?,
+	seenUpdate: string?,
 	lastChangeAt: number,
 }
 
@@ -180,6 +186,10 @@ local state: State = {
 	activity = nil,
 	reports = nil,
 	gameKeys = nil,
+	freshNotifications = {},
+	seenDue = {},
+	notificationTab = "fix",
+	notificationSelected = {},
 	newGameKey = nil,
 	sessions = nil,
 	todoResults = nil,

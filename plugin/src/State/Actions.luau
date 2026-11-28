@@ -350,6 +350,7 @@ end
 
 local function afterSignIn()
 	Store.set({ phase = "ready", needsPurchase = false })
+	Actions.loadSeenDue()
 	Actions.loadPreferences()
 	Actions.loadMe()
 	Actions.refreshHome()
@@ -456,6 +457,17 @@ function Actions.showView(view: Store.View)
 	Store.set({ view = view, sidebarOpen = false })
 	Store.clear("drawerItemId")
 	if view == "myTasks" then
+		Actions.loadMyTasks()
+	elseif view == "notifications" then
+		local counts = Actions.notificationCounts(Store.get())
+		local tab = "mentions"
+		for _, id in { "fix", "due", "mentions", "shared", "updates" } do
+			if counts[id] > 0 then
+				tab = id
+				break
+			end
+		end
+		Store.set({ notificationTab = tab, notificationSelected = {} })
 		Actions.loadMyTasks()
 	elseif view == "trash" then
 		Actions.loadTrash()
@@ -1176,9 +1188,11 @@ function Actions.loadTrash()
 	end, 0)
 end
 
-function Actions.trashSelected(items: { string }, lists: { string }, restore: boolean)
+function Actions.trashSelected(items: { string }, lists: { string }, restore: boolean, notifications: { number }?)
 	Debounce.run("trashBatch", function()
-		local result = if restore then Client.restoreTrash(items, lists) else Client.deleteTrash(items, lists)
+		local result = if restore
+			then Client.restoreTrash(items, lists, notifications)
+			else Client.deleteTrash(items, lists, notifications)
 		if result.ok then
 			local done = if restore then result.data.restored else result.data.deleted
 			local skipped = #(result.data.skipped or {})
@@ -1194,6 +1208,9 @@ function Actions.trashSelected(items: { string }, lists: { string }, restore: bo
 			)
 			Actions.loadTrash()
 			Actions.refreshHome(true)
+			if notifications and #notifications > 0 then
+				Actions.loadNotifications()
+			end
 			local listId = Store.get().listId
 			if listId then
 				Actions.loadDetail(listId, true)
@@ -1220,25 +1237,12 @@ function Actions.loadNotifications()
 	Debounce.run("notifications", function()
 		local result = Client.notifications()
 		if result.ok then
-			local previous = Store.get().notifications
 			Store.set({ notifications = { list = result.data.notifications, unread = result.data.unread } })
 			local ids = {}
 			for _, n in result.data.notifications do
 				table.insert(ids, n.actorId)
 			end
 			Actions.resolveNames(ids)
-			if previous and result.data.unread > previous.unread then
-				local newest = result.data.notifications[1]
-				local prefs = Store.get().prefs
-				if newest then
-					local allowed = (newest.kind == "task.assigned" and prefs.notifyAssigned)
-						or (newest.kind == "comment.mention" and prefs.notifyMentions)
-						or newest.kind == "list.shared"
-					if allowed then
-						Actions.toast("info", Actions.describeNotification(newest))
-					end
-				end
-			end
 			changed()
 		end
 	end, 0)
@@ -1253,8 +1257,241 @@ function Actions.describeNotification(n: any): string
 		return who .. " mentioned you on " .. text
 	elseif n.kind == "list.shared" then
 		return who .. " added you to " .. (n.listTitle or "a list")
+	elseif n.kind == "gamekey.revoked" then
+		return "One player sent far more reports than your game allows, so someone outside your game may have this key. "
+			.. "We turned it off to keep your list safe. Make a new key, update your secret, then delete the old one."
 	end
 	return who .. " changed " .. (n.listTitle or "a list")
+end
+
+function Actions.dueSoon(state: Store.State): { any }
+	local now = Time.nowMs()
+	local out = {}
+	for _, item in state.myTasks or {} do
+		if item.dueAt and not item.done and item.dueAt - now < 86400000 then
+			table.insert(out, item)
+		end
+	end
+	table.sort(out, function(x, y)
+		return x.dueAt < y.dueAt
+	end)
+	return out
+end
+
+function Actions.dueKey(item: any): string
+	return "d:" .. item.id .. ":" .. tostring(item.dueAt)
+end
+
+function Actions.notificationTabOf(kind: string): string
+	if kind == "gamekey.revoked" then
+		return "fix"
+	elseif kind == "list.shared" then
+		return "shared"
+	end
+	return "mentions"
+end
+
+function Actions.notificationCounts(state: Store.State): { [string]: number }
+	local counts = { fix = 0, due = 0, mentions = 0, shared = 0, updates = 0 }
+	if state.updateVersion and state.seenUpdate ~= state.updateVersion then
+		counts.updates = 1
+	end
+	for _, n in if state.notifications then state.notifications.list else {} do
+		if not n.read then
+			local tab = Actions.notificationTabOf(n.kind)
+			counts[tab] += 1
+		end
+	end
+	for _, item in Actions.dueSoon(state) do
+		if not state.seenDue[Actions.dueKey(item)] then
+			counts.due += 1
+		end
+	end
+	return counts
+end
+
+function Actions.notificationCount(state: Store.State): number
+	local total = 0
+	for _, count in Actions.notificationCounts(state) do
+		total += count
+	end
+	return total
+end
+
+function Actions.setNotificationTab(tab: string)
+	Store.set({ notificationTab = tab, notificationSelected = {} })
+	changed()
+end
+
+function Actions.selectNotifications(keys: { string }, selected: boolean)
+	local picked = table.clone(Store.get().notificationSelected)
+	for _, key in keys do
+		picked[key] = if selected then true else nil
+	end
+	Store.set({ notificationSelected = picked })
+	changed()
+end
+
+local function saveSeenDue(seen: { [string]: boolean })
+	local keep = {}
+	for _, item in Actions.dueSoon(Store.get()) do
+		local key = Actions.dueKey(item)
+		if seen[key] then
+			keep[key] = true
+		end
+	end
+	Store.set({ seenDue = keep })
+	Auth.setSetting("seenDue:" .. tostring(Store.get().userId), keep)
+end
+
+function Actions.markNotificationsRead(keys: { string })
+	if Debounce.isBusy("notificationRead") then
+		return
+	end
+	local state = Store.get()
+	local ids = {}
+	local seen = table.clone(state.seenDue)
+	for _, key in keys do
+		local id = tonumber(string.match(key, "^n:(%d+)$"))
+		if id then
+			table.insert(ids, id)
+		elseif string.sub(key, 1, 2) == "d:" then
+			seen[key] = true
+		elseif string.sub(key, 1, 2) == "u:" then
+			local version = string.sub(key, 3)
+			Store.set({ seenUpdate = version })
+			Auth.setSetting("seenUpdate:" .. tostring(state.userId), version)
+		end
+	end
+	saveSeenDue(seen)
+	local picked = table.clone(state.notificationSelected)
+	for _, key in keys do
+		picked[key] = nil
+	end
+	Store.set({ notificationSelected = picked })
+	if #ids > 0 and state.notifications then
+		local marked = {}
+		for _, id in ids do
+			marked[id] = true
+		end
+		local list = {}
+		local unread = 0
+		for _, n in state.notifications.list do
+			local copy = table.clone(n)
+			if marked[copy.id] then
+				copy.read = true
+			end
+			if not copy.read then
+				unread += 1
+			end
+			table.insert(list, copy)
+		end
+		Store.set({ notifications = { list = list, unread = unread } })
+		Debounce.run("notificationRead", function()
+			Client.readNotifications(nil, ids)
+		end, 0)
+	end
+	changed()
+end
+
+function Actions.deleteNotifications(keys: { string })
+	if Debounce.isBusy("notificationTrash") then
+		return
+	end
+	local state = Store.get()
+	local gone = {}
+	local ids = {}
+	for _, key in keys do
+		local id = tonumber(string.match(key, "^n:(%d+)$"))
+		if id then
+			gone[id] = true
+			table.insert(ids, id)
+		end
+	end
+	if #ids == 0 or not state.notifications then
+		return
+	end
+	local list = {}
+	local unread = 0
+	for _, n in state.notifications.list do
+		if gone[n.id] and not (n.kind == "gamekey.revoked" and not n.read) then
+			continue
+		end
+		if not n.read then
+			unread += 1
+		end
+		table.insert(list, n)
+	end
+	local picked = table.clone(state.notificationSelected)
+	for _, key in keys do
+		picked[key] = nil
+	end
+	Store.set({ notifications = { list = list, unread = unread }, notificationSelected = picked })
+	changed()
+	Debounce.run("notificationTrash", function()
+		local result = Client.deleteNotifications(ids)
+		if not result.ok then
+			fail(result)
+			Actions.loadNotifications()
+			return
+		end
+		local count = result.data.deleted or #ids
+		Actions.toast(
+			"info",
+			string.format("Moved %d %s to the trash.", count, if count == 1 then "notification" else "notifications"),
+			{
+				label = "Undo",
+				run = function()
+					Debounce.run("notificationTrash", function()
+						Client.restoreTrash({}, {}, ids)
+						Actions.loadNotifications()
+						if Store.get().view == "trash" then
+							Actions.loadTrash()
+						end
+					end)
+				end,
+			}
+		)
+	end, 0)
+end
+
+function Actions.loadSeenDue()
+	local userId = tostring(Store.get().userId)
+	local saved = Auth.getSetting("seenDue:" .. userId)
+	local update = Auth.getSetting("seenUpdate:" .. userId)
+	Store.set({
+		seenDue = if type(saved) == "table" then saved else {},
+		seenUpdate = if type(update) == "string" then update else nil,
+	})
+end
+
+function Actions.notificationTitle(n: any): string
+	if n.kind == "task.assigned" then
+		return "New task for you"
+	elseif n.kind == "comment.mention" then
+		return "You were mentioned"
+	elseif n.kind == "list.shared" then
+		return "A list was shared with you"
+	elseif n.kind == "gamekey.revoked" then
+		return "Game key " .. (if n.data and n.data.label then n.data.label else "") .. " was turned off"
+	end
+	return "Something changed"
+end
+
+function Actions.openNotification(n: any, key: string?)
+	if key then
+		Actions.markNotificationsRead({ key })
+	end
+	Actions.openList(n.listId)
+	if n.kind == "gamekey.revoked" then
+		task.delay(0.5, function()
+			Actions.showView("inbox")
+		end)
+	elseif n.itemId then
+		task.delay(0.5, function()
+			Actions.openDrawer(n.itemId)
+		end)
+	end
 end
 
 function Actions.readNotifications()
@@ -1271,7 +1508,7 @@ function Actions.readNotifications()
 	Store.set({ notifications = { list = list, unread = 0 } })
 	changed()
 	task.spawn(function()
-		Client.readNotifications(nil)
+		Client.readNotifications(nil, nil)
 	end)
 end
 

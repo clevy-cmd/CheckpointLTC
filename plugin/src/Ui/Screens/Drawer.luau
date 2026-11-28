@@ -8,6 +8,8 @@ local Config = require(script.Parent.Parent.Parent.Config)
 local Controls = require(script.Parent.Parent.Components.Controls)
 local GrowingTextBox = require(script.Parent.Parent.Components.GrowingTextBox)
 local Kit = require(script.Parent.Parent.Kit)
+local Typography = require(script.Parent.Parent.Typography)
+local Measure = require(script.Parent.Parent.Measure)
 local Links = require(script.Parent.Parent.Parent.Studio.Links)
 local Maid = require(script.Parent.Parent.Parent.Core.Maid)
 local Overlay = require(script.Parent.Parent.Components.Overlay)
@@ -101,9 +103,16 @@ function Drawer.new(ctx: any): any
 		onPick: (any) -> ()
 	)
 		local holder = Kit.frame(
-			{ Position = UDim2.fromScale(0.26, 0.1), Size = UDim2.fromScale(0.74, 0.8), ZIndex = 52, Parent = parent },
+			{ Position = UDim2.fromScale(0.22, 0.1), Size = UDim2.fromScale(0.78, 0.8), ZIndex = 52, Parent = parent },
 			{ Kit.row(0.015) }
 		)
+		local room = 0.98 - 0.015 * (#values - 1)
+		local needs = {}
+		local totalNeed = 0
+		for index, entry in values do
+			needs[index] = Measure.width(entry.text, "hint") + Typography.size("hint") * 0.8
+			totalNeed += needs[index]
+		end
 		for index, entry in values do
 			local chip = Controls.chip(
 				entry.text,
@@ -113,7 +122,7 @@ function Drawer.new(ctx: any): any
 				end,
 				contentMaid,
 				{
-					Size = UDim2.fromScale(math.min(0.3, (0.98 - 0.015 * (#values - 1)) / #values), 1),
+					Size = UDim2.fromScale(math.min(0.3, room * needs[index] / totalNeed), 1),
 					LayoutOrder = index,
 					ZIndex = 52,
 				}

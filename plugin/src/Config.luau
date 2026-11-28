@@ -7,7 +7,7 @@ local flavor: { [string]: any } = if flavorModule and flavorModule:IsA("ModuleSc
 
 local Config = {}
 
-Config.version = "1.0.0"
+Config.version = "1.1.0"
 Config.isTestBuild = flavor.isTestBuild == true
 Config.productName = flavor.productName or "CheckpointLTC"
 Config.toolbarName = flavor.toolbarName or "LTCLevTec"
@@ -176,33 +176,15 @@ Config.rows = {
 }
 
 Config.whatsNew = {
-	version = "1.0.0",
+	version = "1.1.0",
 	items = {
-		{
-			title = "The full guide",
-			body = "Press Download Guide at the bottom of the sidebar for every button, setting and limit. Your version shows under it and turns orange when an update is out.",
-			target = "sidebar",
-		},
-		{
-			title = "Search and the command bar",
-			body = "Search finds tasks in every list again. Press / with the mouse over the window to jump to any list, task or action.",
-			target = "search",
-		},
-		{
-			title = "Add a person",
-			body = "People now has one Add a person button. Pick whether new people join as editors or viewers in Settings, Preferences.",
-			target = "settings",
-		},
-		{
-			title = "Player reports and exports",
-			body = "Player bug reports work from playtests and unsaved places too. Exports show due dates in your own time, and importing brings them back.",
-			target = "more",
-		},
-		{
-			title = "Fewer false alarms",
-			body = "The someone changed your list popup only shows when it really was someone else. Task and list actions live in the ••• menus.",
-			target = "composer",
-		},
+		"A real Notifications page. Press the bell for tabs: Needs fixing, Due dates, Tasks, Shared and Updates.",
+		"The toolbar icon gets a red dot whenever something needs you, even with the window closed.",
+		"Tick notifications to mark them read or delete them. Deleted ones go to the Trash, and you can undo or restore them.",
+		"Due and overdue tasks show up in Notifications instead of popping up.",
+		"Game keys are safer. Keep yours in your game's Secrets, and a key that gets flooded with reports is turned off for you.",
+		"Players can send one report an hour across every server.",
+		"Text that doesn't fit ends in ..., hover it to read the whole thing.",
 	},
 }
 

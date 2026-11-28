@@ -21,7 +21,7 @@ import { undoLast } from "./routes/undo";
 import { listActivity } from "./activity";
 import { endCurrentSession, endSession, listSessions } from "./sessions";
 import { lookupUsers } from "./users";
-import { listNotifications, readNotifications } from "./notifications";
+import { deleteNotifications, listNotifications, readNotifications } from "./notifications";
 import { cleanup } from "./cleanup";
 import { shareCodeAlphabet } from "./config";
 import { isPaid } from "./oauth";
@@ -35,7 +35,7 @@ interface Route {
   pattern: RegExp;
   auth: boolean;
   handler: Authed | Open;
-  limiter?: "poll" | "none";
+  limiter?: "poll" | "none" | "bulk";
   skipIpLimit?: boolean;
 }
 
@@ -73,13 +73,14 @@ const routes: Route[] = [
   { method: "DELETE", pattern: at(`/v1/sessions/${id}`), auth: true, handler: endSession },
   { method: "GET", pattern: at("/v1/users"), auth: true, handler: lookupUsers },
   { method: "GET", pattern: at("/v1/notifications"), auth: true, handler: listNotifications },
-  { method: "POST", pattern: at("/v1/notifications/read"), auth: true, handler: readNotifications },
+  { method: "POST", pattern: at("/v1/notifications/read"), auth: true, handler: readNotifications, limiter: "bulk" },
+  { method: "POST", pattern: at("/v1/notifications/delete"), auth: true, handler: deleteNotifications, limiter: "bulk" },
   { method: "GET", pattern: at("/v1/tasks/mine"), auth: true, handler: items.myTasks },
   { method: "GET", pattern: at("/v1/search"), auth: true, handler: items.search },
   { method: "GET", pattern: at("/v1/trash"), auth: true, handler: lists.trash },
-  { method: "POST", pattern: at("/v1/trash/restore"), auth: true, handler: trashRoutes.restoreSelected },
-  { method: "POST", pattern: at("/v1/trash/delete"), auth: true, handler: trashRoutes.deleteSelected },
-  { method: "POST", pattern: at("/v1/trash/empty"), auth: true, handler: trashRoutes.emptyTrash },
+  { method: "POST", pattern: at("/v1/trash/restore"), auth: true, handler: trashRoutes.restoreSelected, limiter: "bulk" },
+  { method: "POST", pattern: at("/v1/trash/delete"), auth: true, handler: trashRoutes.deleteSelected, limiter: "bulk" },
+  { method: "POST", pattern: at("/v1/trash/empty"), auth: true, handler: trashRoutes.emptyTrash, limiter: "bulk" },
   { method: "GET", pattern: at("/v1/templates"), auth: true, handler: lists.listTemplates },
 
   { method: "POST", pattern: at("/v1/uploads"), auth: true, handler: uploads.startUpload },
@@ -158,7 +159,7 @@ async function dispatch(request: Request, env: Env): Promise<Response> {
 
   const pluginVersion = request.headers.get("x-plugin-version");
   if (pluginVersion && route.handler !== meta && versionBelow(pluginVersion, env.minPluginVersion)) {
-    throw new ApiError("upgrade_required", "This version of CheckpointLTC is too old. Update it in Plugins, Manage Plugins, then reopen Studio.");
+    throw new ApiError("upgrade_required", "This version of CheckpointLTC is too old. Update it in Plugins, Manage Plugins. It should be good to go, if not reopen Studio.");
   }
 
   const ip = request.headers.get("cf-connecting-ip") ?? "unknown";
@@ -171,6 +172,7 @@ async function dispatch(request: Request, env: Env): Promise<Response> {
   }
   const caller = await authenticate(request, env);
   await enforceRateLimit(env.apiLimiter, String(caller.userId));
+  if (route.limiter === "bulk") await enforceRateLimit(env.bulkLimiter, String(caller.userId));
   return (route.handler as Authed)(request, env, caller, ...params);
 }
 

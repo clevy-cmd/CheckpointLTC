@@ -399,7 +399,7 @@ export async function restoreList(_request: Request, env: Env, caller: Caller, l
 
 export async function trash(_request: Request, env: Env, caller: Caller): Promise<Response> {
   const since = Date.now() - limits.trashMs;
-  const [lists, items] = await env.DB.batch<Record<string, unknown>>([
+  const [lists, items, notes] = await env.DB.batch<Record<string, unknown>>([
     env.DB.prepare(
       "SELECT id, title, item_count, deleted_at FROM lists WHERE owner_id = ? AND deleted_at IS NOT NULL AND deleted_at > ? ORDER BY deleted_at DESC",
     ).bind(caller.userId, since),
@@ -409,6 +409,12 @@ export async function trash(_request: Request, env: Env, caller: Caller): Promis
           AND (l.owner_id = ?1 OR EXISTS (SELECT 1 FROM members m WHERE m.list_id = l.id AND m.user_id = ?1 AND m.role IN ('admin', 'editor')))
         ORDER BY i.deleted_at DESC LIMIT 200`,
     ).bind(caller.userId, since),
+    env.DB.prepare(
+      `SELECT n.id, n.kind, n.data, n.actor_id, n.created_at, n.deleted_at, l.title AS list_title
+         FROM notifications n JOIN lists l ON l.id = n.list_id
+        WHERE n.user_id = ? AND n.deleted_at IS NOT NULL AND n.created_at > ?
+        ORDER BY n.deleted_at DESC LIMIT 100`,
+    ).bind(caller.userId, Date.now() - limits.notificationMaxAgeMs),
   ]);
   return json({
     lists: lists.results.map((r) => ({
@@ -425,6 +431,17 @@ export async function trash(_request: Request, env: Env, caller: Caller): Promis
       listTitle: r.list_title,
       deletedAt: r.deleted_at,
       restorableUntil: (r.deleted_at as number) + limits.trashMs,
+    })),
+    notifications: notes.results.map((r) => ({
+      id: r.id,
+      kind: r.kind,
+      data: r.data ? JSON.parse(r.data as string) : null,
+      actorId: r.actor_id,
+      listTitle: r.list_title,
+      createdAt: r.created_at,
+      deletedAt: r.deleted_at,
+      read: true,
+      restorableUntil: (r.created_at as number) + limits.notificationMaxAgeMs,
     })),
   });
 }

@@ -63,7 +63,9 @@ function Stack.lock(self: Stack)
 	local y = gap
 	for _, entry in self.entries do
 		if entry.child.Visible then
-			local ratio = if type(entry.ratio) == "function" then entry.ratio(designWidth) else entry.ratio
+			local ratio = if type(entry.ratio) == "function"
+				then (entry.ratio :: any)(designWidth, width)
+				else entry.ratio
 			local height = designWidth / math.max(0.1, ratio :: number)
 			entry.child.Position = UDim2.fromOffset(0, y)
 			entry.child.Size = UDim2.fromOffset(width, height)

@@ -41,10 +41,13 @@ export const limits = {
   videoFrameEverySeconds: 2,
   videoMaxFrames: 30,
   gameReportMaxLength: 500,
-  gameReportCooldownMs: 60 * 1000,
+  gameReportCooldownMs: 60 * 60 * 1000,
   gameReportsPerHour: 120,
+  gameReportsWaiting: 300,
   gameKeysPerList: 5,
+  gameAttemptsKeptMs: 60 * 60 * 1000,
   notificationsMax: 100,
+  notificationMaxAgeMs: 30 * 24 * 60 * 60 * 1000,
 } as const;
 
 export const labels = ["Scripting", "UI", "VFX", "Bug"] as const;

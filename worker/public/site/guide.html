@@ -545,7 +545,7 @@
           <ul class="ticks">
             <li><b>Each card</b> shows the comment and where it lives, like <kbd>SprintBoost line 13</kbd>. Press <b>Open</b> to jump there first.</li>
             <li><b>Tap a card</b> to untick it. Everything starts ticked.</li>
-            <li><b>Remind me</b> sets a due date on every task you add: No reminder, Tomorrow, In 3 days or Next week.</li>
+            <li><b>Remind me</b> sets a due date on every task you add: None, Tomorrow, In 3 days or Next week.</li>
             <li><b>Add the ticked ones as tasks</b> adds them and takes you back to the list.</li>
           </ul>
           <p class="note">It looks at every Script, LocalScript and ModuleScript in Workspace, ReplicatedStorage, ReplicatedFirst, ServerScriptService, ServerStorage, StarterGui, StarterPack, StarterPlayer, Lighting, SoundService and Teams. Up to 200 TODOs per scan, each up to 200 characters. Unsaved changes in the editor count.</p>
@@ -603,16 +603,18 @@
           <ol class="steps-mini">
             <li>Open the list, then ••• and <b>In game reports inbox</b>.</li>
             <li>Press <b>Make a game key</b> and name it, for example <kbd>My obby</kbd>. Owners and admins only, up to 5 keys per list.</li>
-            <li>The key is shown <b>once</b>. Press <b>Insert</b>, or <b>Copy</b> to keep it somewhere safe.</li>
-            <li>Insert adds a <b>CheckpointLTC</b> folder to ServerScriptService with two scripts, <b>CheckpointLTCReports</b> and <b>StartReports</b>, with the key already filled in. Studio asks once if CheckpointLTC can add scripts. Press Allow, then Insert again.</li>
+            <li>Press <b>Insert</b>. The key goes straight into StartReports, so you never have to copy it by hand.</li>
+            <li>Insert adds a <b>CheckpointLTC</b> folder to ServerScriptService with two scripts, <b>CheckpointLTCReports</b> and <b>StartReports</b>, with the key filled into StartReports. Studio asks once if CheckpointLTC can add scripts. Press Allow, then Insert again.</li>
             <li>In Game Settings, Security, turn on <b>Allow HTTP Requests</b> and publish.</li>
+            <li><b>Best:</b> move the key into your game's Secrets. In the Creator Dashboard open your game, then <b>Secrets</b>, <b>Create Secret</b>. Name it <kbd>CheckpointLTC</kbd>, paste the key, set the domain to <kbd>checkpointltc.ltclevtec.com</kbd>, then clear the key out of StartReports. For Studio playtests add the same secret under File, Experience Settings, Security, <b>Local Secrets</b>.</li>
             <li>Call the <code>CheckpointLTCReport</code> RemoteFunction from your own report button.</li>
           </ol>
           <h4>Safe by default</h4>
           <ul class="ticks">
             <li><b>Filtered by Roblox</b> on your server before it's sent. The server refuses anything that wasn't filtered.</li>
-            <li><b>Up to 500 characters.</b> One report per player per minute, 120 per game per hour.</li>
-            <li><b>The key stays on the server,</b> in ServerScriptService where players can't see it. Revoke a key any time.</li>
+            <li><b>Up to 500 characters.</b> One report per player per hour across every server, 120 per game per hour.</li>
+            <li><b>Flood protection.</b> If one player floods reports, the key is treated as stolen and turned off. You get a notification, then make a new key and update your secret.</li>
+            <li><b>The key stays on the server,</b> in Secrets or StartReports, where players can't see it. Revoke a key any time.</li>
           </ul>
         </section>
 
@@ -628,9 +630,10 @@
             <tr><th>Message back</th><th>Why</th></tr>
             <tr><td>Thanks, it was sent to the developers.</td><td>It worked.</td></tr>
             <tr><td>Type something first.</td><td>The box was empty.</td></tr>
-            <tr><td>Wait a minute before sending another one.</td><td>Same player, under a minute ago.</td></tr>
+            <tr><td>You can send one report per hour.</td><td>Same player, under an hour ago, on any server.</td></tr>
+            <tr><td>Reports are off right now.</td><td>The key was revoked or turned off. Make a new one.</td></tr>
             <tr><td>Could not check that text. Try again.</td><td>Roblox's text filter didn't answer.</td></tr>
-            <tr><td>Could not send it right now.</td><td>HTTP is off, the key was revoked, or the game hit 120 this hour.</td></tr>
+            <tr><td>Could not send it right now.</td><td>HTTP is off, or the game hit 120 this hour.</td></tr>
           </table></div>
         </section>
 
@@ -775,10 +778,10 @@
             <tr><td>Compact mode</td><td><b>Off</b>. Rows shrink to one line unless a label or due date is set.</td></tr>
             <tr><td>Hide done tasks</td><td><b>Off</b>. Same as the Hide done chip.</td></tr>
             <tr><td>Confirm before deleting a task</td><td><b>On</b></td></tr>
-            <tr><td>Text: Sizing</td><td><b>Fixed</b>, or Grows with window</td></tr>
+            <tr><td>Text: Sizing</td><td><b>Fixed</b>, or Auto (grows with the window)</td></tr>
             <tr><td>Titles, Body text, Small text</td><td>S, <b>M</b>, L, XL, each one on its own</td></tr>
             <tr><td>Notify me about</td><td>Tasks given to me, Mentions in comments, Changes to my lists. All <b>on</b>.</td></tr>
-            <tr><td>Accent color</td><td><b>LTCLevTec</b>, Blue, Red, Green, Purple, Orange</td></tr>
+            <tr><td>Accent color</td><td><b>Default</b> (LTCLevTec blue), Blue, Red, Green, Purple, Orange</td></tr>
           </table></div>
         </section>
 

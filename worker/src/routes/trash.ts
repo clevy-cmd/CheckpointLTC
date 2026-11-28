@@ -4,6 +4,7 @@ import { bumpRevision, roleRank, resolveAccess } from "../access";
 import { limits } from "../config";
 import * as v from "../validate";
 import { recordActivity } from "../activity";
+import { eraseNotifications, notificationIds, restoreNotifications } from "../notifications";
 
 const maxBatch = 200;
 
@@ -91,12 +92,16 @@ async function deleteAll(env: Env, caller: Caller, itemIds: string[], listIds: s
 
 export async function restoreSelected(request: Request, env: Env, caller: Caller): Promise<Response> {
   const body = await readBody(request);
-  return json(await restoreAll(env, caller, ids(body.items, "items"), ids(body.lists, "lists")));
+  const result = await restoreAll(env, caller, ids(body.items, "items"), ids(body.lists, "lists"));
+  result.restored += await restoreNotifications(env, caller.userId, notificationIds(body.notifications));
+  return json(result);
 }
 
 export async function deleteSelected(request: Request, env: Env, caller: Caller): Promise<Response> {
   const body = await readBody(request);
-  return json(await deleteAll(env, caller, ids(body.items, "items"), ids(body.lists, "lists")));
+  const result = await deleteAll(env, caller, ids(body.items, "items"), ids(body.lists, "lists"));
+  result.deleted += await eraseNotifications(env, caller.userId, notificationIds(body.notifications));
+  return json(result);
 }
 
 export async function emptyTrash(_request: Request, env: Env, caller: Caller): Promise<Response> {
@@ -109,5 +114,7 @@ export async function emptyTrash(_request: Request, env: Env, caller: Caller): P
         LIMIT ?2`,
     ).bind(caller.userId, maxBatch),
   ]);
-  return json(await deleteAll(env, caller, items.results.map((r) => r.id), lists.results.map((r) => r.id)));
+  const result = await deleteAll(env, caller, items.results.map((r) => r.id), lists.results.map((r) => r.id));
+  result.deleted += await eraseNotifications(env, caller.userId, "all");
+  return json(result);
 }
