@@ -5,13 +5,13 @@
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>CheckpointLTC guide · Every button, menu and setting</title>
-<meta name="description" content="The complete CheckpointLTC guide for Roblox Studio. Every button, menu, setting and limit in version 1.1.0, with real screenshots and a worked TODO example. Read it here or download the PDF.">
+<meta name="description" content="The complete CheckpointLTC guide for Roblox Studio. Every button, menu, setting and limit in version 1.1.1, with real screenshots and a worked TODO example. Read it here or download the PDF.">
 <link rel="canonical" href="https://checkpointltc.ltclevtec.com/guide">
 <meta name="theme-color" content="#060c18">
 <meta property="og:type" content="article">
 <meta property="og:site_name" content="CheckpointLTC">
 <meta property="og:title" content="The complete CheckpointLTC guide">
-<meta property="og:description" content="Every button, menu, setting and limit in CheckpointLTC 1.1.0, with real screenshots and a worked example. Read it in your browser or download the 50 page PDF.">
+<meta property="og:description" content="Every button, menu, setting and limit in CheckpointLTC 1.1.1, with real screenshots and a worked example. Read it in your browser or download the 57 page PDF.">
 <meta property="og:url" content="https://checkpointltc.ltclevtec.com/guide">
 <meta property="og:image" content="https://checkpointltc.ltclevtec.com/site/og-guide.jpg">
 <meta property="og:image:width" content="1200">
@@ -19,7 +19,7 @@
 <meta property="og:image:alt" content="The complete CheckpointLTC guide">
 <meta name="twitter:card" content="summary_large_image">
 <meta name="twitter:title" content="The complete CheckpointLTC guide">
-<meta name="twitter:description" content="Every button, menu, setting and limit in CheckpointLTC 1.1.0.">
+<meta name="twitter:description" content="Every button, menu, setting and limit in CheckpointLTC 1.1.1.">
 <meta name="twitter:image" content="https://checkpointltc.ltclevtec.com/site/og-guide.jpg">
 <link rel="icon" type="image/png" href="/site/icon.png">
 <link rel="preload" href="/site/fonts/bricolage.woff2" as="font" type="font/woff2" crossorigin>
@@ -47,14 +47,14 @@
   <section class="doc guide">
     <div class="guide-hero">
       <div>
-        <p class="kicker">Plugin version 1.1.0 · November 2026</p>
+        <p class="kicker">Plugin version 1.1.1 · November 2026</p>
         <h1>The complete <span class="scribble">guide.<svg viewBox="0 0 400 24" preserveAspectRatio="none" aria-hidden="true"><path d="M3 14 C 70 6, 140 19, 210 12 S 330 7, 397 12"></path></svg></span></h1>
         <p class="lede">Every button, menu, setting and limit in CheckpointLTC, with real screenshots from Studio and a worked example you can follow along with in your own place.</p>
         <div class="actions">
           <a class="button primary" href="/guide.pdf" download="CheckpointLTC Guide.pdf">Download the PDF</a>
           <a class="button" href="/guide.pdf" target="_blank" rel="noopener">Open it in a new tab</a>
         </div>
-        <p class="fine">50 pages · Same content as this page · Free to save and share</p>
+        <p class="fine">57 pages · Same content as this page · Free to save and share</p>
       </div>
       <figure class="shot hero-shot"><img src="/site/shots/list.webp" alt="The CheckpointLTC list view with the Game launch checklist" width="925" height="694" fetchpriority="high"></figure>
     </div>
@@ -84,7 +84,9 @@
           <a href="#list-view">The list view</a>
           <a href="#task-row">Reading a task row</a>
           <a href="#add-edit">Add and edit tasks</a>
-          <a href="#drawer">The task drawer</a>
+          <a href="#drawer">The task panel</a>
+          <a href="#assign">Give a task to people</a>
+          <a href="#split">Split a task</a>
           <a href="#due-dates">Due dates</a>
           <a href="#comments">Notes, comments and mentions</a>
           <a href="#task-menu">The task menu</a>
@@ -196,7 +198,7 @@
             </div>
           </div>
           <p>Each list row shows its name, a done count like <kbd>2/12</kbd>, and a blue badge counting changes other people made since you last opened it. Everything else, like Duplicate, Archive and Delete, lives in that list's ••• menu.</p>
-          <p>At the bottom of the sidebar, <b>Download Guide</b> gives you the link to this guide, and the small text under it is your plugin version, like <kbd>v1.1.0</kbd>. When a newer version is out it turns orange and says so. Click it to open the Updates tab.</p>
+          <p>At the bottom of the sidebar, <b>Download Guide</b> gives you the link to this guide, and the small text under it is your plugin version, like <kbd>v1.1.1</kbd>. When a newer version is out it turns orange and says so. Click it to open the Updates tab.</p>
           <p><b>Text that doesn't fit</b> ends in …, like a long list name in the sidebar. Hover it and the whole thing shows.</p>
         </section>
 
@@ -204,7 +206,7 @@
           <h3>How syncing works</h3>
           <p>Lists live on the CheckpointLTC server, not inside your place. They follow you to every place and every computer you log in on.</p>
           <ul class="ticks">
-            <li><b>Your changes show right away.</b> The plugin updates the screen first and saves in the background. A task that's still saving looks slightly faded.</li>
+            <li><b>Your changes show right away.</b> The plugin updates the screen first and saves in the background. A task that's still saving looks slightly faded. Task counts in the list header and sidebar update right away too.</li>
             <li><b>If a save fails,</b> the change rolls back and a red toast explains why.</li>
             <li><b>Other people's changes</b> come in on the refresh timer: every 30 seconds by default, or 10 seconds, 1 minute or 2 minutes in Settings.</li>
             <li><b>It slows down when you do.</b> After 3 minutes with no clicks in Studio, refreshes happen 4 times less often. With the window closed, 8 times less often. Opening the window refreshes straight away.</li>
@@ -212,7 +214,8 @@
             <li><b>It remembers your last list</b> and opens it the next time you log in.</li>
           </ul>
           <h4>Toasts</h4>
-          <p>Small messages at the bottom of the window are called toasts. Blue means info, green means done, yellow is a warning and red is an error. Some carry a button, like <b>Undo</b> after a delete. They close by themselves after 5 seconds, ones with a button after 12. Toasts are only for things you just did. Notifications never pop up, they wait on the Notifications page.</p>
+          <p>Small messages just above the add task box are called toasts. Blue means info, green means done, yellow is a warning and red is an error. Some carry a button, like <b>Undo</b> after a delete. They close by themselves after 5 seconds, ones with a button after 12. Toasts are only for things you just did. Notifications never pop up, they wait on the Notifications page.</p>
+          <p>Toasts, the task panel and text boxes that grew over other things catch your clicks and hovers, so nothing behind them gets clicked by mistake.</p>
           <figure class="fig"><img src="/site/shots/list-created.webp" alt="A toast saying List created" loading="lazy" decoding="async" width="925" height="94"></figure>
         </section>
 
@@ -252,7 +255,7 @@
                 <tr><td>Chips</td><td>All, Scripting, UI, VFX, Bug. Pick one to only show tasks with that label. Pick it again to clear.</td></tr>
                 <tr><td>Hide done</td><td>Hides checked tasks. Saved to your settings.</td></tr>
                 <tr><td>Sections</td><td>Headers like <kbd>GAMEPLAY 3</kbd> group tasks and count them.</td></tr>
-                <tr><td>Bottom</td><td>The new task box and the ＋ button.</td></tr>
+                <tr><td>Bottom</td><td>The new task box, its blue arrow, and the ＋ button.</td></tr>
               </table></div>
             </div>
           </div>
@@ -261,30 +264,31 @@
 
         <section class="topic" id="task-row">
           <h3>Reading a task row</h3>
-          <figure class="fig"><img src="/site/shots/filter.webp" alt="The Scripting filter on" loading="lazy" decoding="async" width="925" height="694"><figcaption>The Scripting chip is on, so only Scripting tasks show.</figcaption></figure>
+          <figure class="fig"><img src="/site/shots/list.webp" alt="Task rows with wrapped text, chips and stacked avatars" loading="lazy" decoding="async" width="925" height="694"><figcaption>The third task wraps to three lines and has three people on it.</figcaption></figure>
+          <p>Each row shows the whole task, with a thin line between tasks so you can tell where one ends. Chips are sized to fit their text.</p>
           <div class="table-wrap"><table class="keys">
             <tr><td>⠿ drag handle</td><td>Hold and drag to reorder. Only shows if you can edit.</td></tr>
-            <tr><td>☐ box</td><td>Check it off or uncheck it. Editors can, and so can the person the task is assigned to.</td></tr>
-            <tr><td>Text</td><td>Up to two lines. Use Show full text in the task menu to see all of it.</td></tr>
+            <tr><td>☐ box</td><td>Check it off or uncheck it. Editors can, and so can everyone the task is assigned to.</td></tr>
+            <tr><td>Text</td><td>The full task text, up to 5 lines. Anything longer ends in …, so use Show full text in the task menu to see all of it.</td></tr>
             <tr><td>Label chip</td><td>Scripting is blue, UI is purple, VFX is orange, Bug is red.</td></tr>
             <tr><td>Priority</td><td><kbd>!!! High</kbd>, <kbd>!! Medium</kbd> or <kbd>! Low</kbd>. Nothing shows for None.</td></tr>
             <tr><td>Due text</td><td>Red when overdue, yellow for today and tomorrow, grey after that.</td></tr>
             <tr><td>💬 1</td><td>How many comments the task has.</td></tr>
             <tr><td>🔗</td><td>The task is linked to something in Studio.</td></tr>
             <tr><td>● Name</td><td>A teammate has this task open right now.</td></tr>
-            <tr><td>Avatar</td><td>The person the task is assigned to.</td></tr>
+            <tr><td>Avatars</td><td>The people the task is assigned to. Up to 3 show, then <kbd>+2</kbd> and so on for the rest.</td></tr>
             <tr><td>•••</td><td>The task menu.</td></tr>
           </table></div>
         </section>
 
         <section class="topic" id="add-edit">
           <h3>Add and edit tasks</h3>
-          <figure class="fig"><img src="/site/shots/composer.webp" alt="The growing task box with a long task" loading="lazy" decoding="async" width="925" height="694"><figcaption>A long task. The box grows upward so the line you're typing stays in view.</figcaption></figure>
+          <figure class="fig"><img src="/site/shots/composer.webp" alt="The add task box with the blue arrow next to it" loading="lazy" decoding="async" width="925" height="694"><figcaption>The blue arrow next to the box adds the task, same as Enter.</figcaption></figure>
           <div class="cols">
             <div>
               <h4>Adding</h4>
               <ul class="ticks">
-                <li><b>Type and press Enter.</b> The task goes to the bottom and the box stays ready for the next one.</li>
+                <li><b>Type and press Enter,</b> or the blue arrow. The task goes to the bottom and the box stays ready for the next one.</li>
                 <li><b>Filters carry over.</b> With the UI chip on, new tasks get the UI label.</li>
                 <li><b>The ＋ button</b> adds a task linked to whatever you have selected in the Explorer.</li>
                 <li><b>Up to 240 characters</b> per task and 500 tasks per list.</li>
@@ -293,31 +297,75 @@
             <div>
               <h4>Editing</h4>
               <ul class="ticks">
-                <li><b>Double click the text</b> to edit it right in the row. Enter saves.</li>
-                <li><b>Single click</b> opens the task drawer with every field.</li>
+                <li><b>Double click a task</b> to edit it right in the list. Enter or the ✓ next to the box saves.</li>
+                <li><b>Single click</b> opens the task panel with every field, a moment later so a double click can get in first.</li>
                 <li><b>The box grows to 6 lines,</b> then scrolls. A counter like <kbd>228 / 240</kbd> shows past 80 percent.</li>
+                <li><b>Saving tells you.</b> You get "Task updated." or, if nothing changed, "No changes to save."</li>
               </ul>
             </div>
           </div>
+          <p>Every typing box has a button next to it now. The blue arrow sends, next to Add a task and the comment box. The ✓ saves, next to the task text, notes and double click editing. They do the same as Enter. In notes Enter starts a new line, so use the ✓ or click away.</p>
         </section>
 
         <section class="topic" id="drawer">
-          <h3>The task drawer</h3>
-          <p>Click a task and its details slide in from the right. Every change saves on its own. Press <kbd>Esc</kbd> or ✕ to close it.</p>
-          <figure class="fig"><img src="/site/shots/drawer.webp" alt="The task drawer" loading="lazy" decoding="async" width="925" height="694"></figure>
+          <h3>The task panel</h3>
+          <p>Click a task and its panel slides in from the right, with the whole task text at the top. Every pick saves on its own. Press <kbd>Esc</kbd> or ✕ to close it.</p>
+          <figure class="fig"><img src="/site/shots/drawer.webp" alt="The task panel with the whole task text and a save button" loading="lazy" decoding="async" width="925" height="694"><figcaption>The whole task at the top, with the ✓ to save it. Three people are on this one.</figcaption></figure>
           <div class="table-wrap"><table class="keys">
-            <tr><td>Text box</td><td>Edit the task. Saves when you click away.</td></tr>
+            <tr><td>Text box</td><td>The whole task. Enter, the ✓ or clicking away saves it, and you get "Task updated."</td></tr>
+            <tr><td>Collapse text</td><td>In the top bar. Shrinks the text to 2 lines so the details move up. It turns into Show all text to bring it back.</td></tr>
             <tr><td>Mark done</td><td>Turns into "Done ✓" once checked. Next to it: who changed the task last and when.</td></tr>
             <tr><td>Priority</td><td>None, Low, Medium or High.</td></tr>
             <tr><td>Label</td><td>None, Scripting, UI, VFX or Bug.</td></tr>
             <tr><td>Due date</td><td>None, Today, Tomorrow, Next week or Pick.</td></tr>
             <tr><td>Section</td><td>No section, any section already on the list, or New section (up to 40 characters).</td></tr>
-            <tr><td>Assigned to</td><td>Nobody, the owner, or anyone on the list. The task shows up in their My tasks.</td></tr>
+            <tr><td>Assigned to</td><td>Who the task is for. Opens a menu where you pick one or more people. See <a href="#assign">Give a task to people</a>.</td></tr>
             <tr><td>Studio link</td><td>Link my selection, or Go to and Unlink once it's linked.</td></tr>
-            <tr><td>Notes</td><td>Up to 2000 characters, several lines.</td></tr>
-            <tr><td>Comments</td><td>Everyone's comments, newest at the bottom, with a box to write your own.</td></tr>
+            <tr><td>Notes</td><td>Up to 2000 characters, several lines. The box grows down and pushes everything below it down instead of covering it. The ✓ or clicking away saves, and you get "Notes saved."</td></tr>
+            <tr><td>Comments</td><td>Everyone's comments, newest at the bottom, with a box and a blue arrow to send your own.</td></tr>
+            <tr><td>Split task</td><td>Turns one long task into a few. See <a href="#split">Split a task</a>.</td></tr>
             <tr><td>Delete task</td><td>Moves it to the trash for 30 days.</td></tr>
           </table></div>
+          <div class="twoshot">
+            <figure class="fig"><img src="/site/shots/collapse.webp" alt="The task panel after Collapse text" loading="lazy" decoding="async" width="925" height="694"><figcaption>After Collapse text. The text is 2 lines and the details moved up.</figcaption></figure>
+            <figure class="fig"><img src="/site/shots/drawer-bottom.webp" alt="The bottom of the task panel" loading="lazy" decoding="async" width="925" height="694"><figcaption>The bottom: notes, the comment box, Split task and Delete task.</figcaption></figure>
+          </div>
+          <p>If you press ✓ and nothing changed, it says "No changes to save." The panel also keeps your scroll spot when it refreshes, so a teammate's change won't throw you back to the top.</p>
+        </section>
+
+        <section class="topic" id="assign">
+          <h3>Give a task to people</h3>
+          <figure class="fig"><img src="/site/shots/assign.webp" alt="The Assigned to menu with a check next to each person on the task" loading="lazy" decoding="async" width="1150" height="720"><figcaption>Everyone with a ✓ is on the task.</figcaption></figure>
+          <ul class="ticks">
+            <li><b>Press Assigned to</b> in the task panel. The menu lists the owner and everyone on the list.</li>
+            <li><b>Pick someone to add them,</b> and pick them again to take them off. Up to 10 people per task.</li>
+            <li><b>Nobody</b> at the top takes everyone off.</li>
+            <li><b>Everyone on a task</b> sees it in their My tasks, and can check it off and comment on it.</li>
+            <li><b>Rows show up to 3 avatars,</b> then <kbd>+2</kbd> and so on for the rest.</li>
+            <li><b>Assign to me</b> in the task menu adds you. Once you're on it, it says <b>Take me off this task</b>.</li>
+          </ul>
+          <h4>Auto assign</h4>
+          <p>Owners and admins can pick people that every new task on a list goes to. Handy when one person handles everything that comes in.</p>
+          <ul class="ticks">
+            <li><b>Set it</b> from the list ••• menu, <b>Auto assign new tasks</b>, or on the People page under Auto assign. The menu says <b>(on)</b> while it's set.</li>
+            <li><b>Only people already on the list</b> can be picked, up to 10.</li>
+            <li><b>You can still change it</b> on each task.</li>
+            <li><b>Nobody, turn auto assign off</b> at the top of the menu turns it off.</li>
+            <li><b>Viewers</b> don't see this setting.</li>
+          </ul>
+        </section>
+
+        <section class="topic" id="split">
+          <h3>Split a task</h3>
+          <p>One long task that's really three jobs? Split it. Press <b>Split task</b> at the bottom of the task panel, or pick it in the task's ••• menu. Anyone who can edit the list can do it.</p>
+          <figure class="fig"><img src="/site/shots/split.webp" alt="The Split task window with one task per line" loading="lazy" decoding="async" width="925" height="694"><figcaption>It already split the task at ", then". Change the lines however you want.</figcaption></figure>
+          <ul class="ticks">
+            <li><b>One task per line.</b> The first line stays as this task. The rest go right below it, in the same section.</li>
+            <li><b>The new tasks keep</b> the priority, label, due date and people. Notes and the Studio link stay on the first one only.</li>
+            <li><b>It splits for you first,</b> at the end of each sentence and at words like ", then". Fix up the lines before you press Split.</li>
+            <li><b>Up to 10 tasks</b> at once, each up to 240 characters.</li>
+            <li><b>Undo</b> on the toast, or the undo button in the list header, puts it back together.</li>
+          </ul>
         </section>
 
         <section class="topic" id="due-dates">
@@ -346,9 +394,9 @@
             <div>
               <h4>Comments</h4>
               <ul class="ticks">
-                <li><b>Who can comment:</b> owners, admins, editors, and the person the task is assigned to.</li>
-                <li><b>Enter sends.</b> Up to 1000 characters each and 200 per task.</li>
-                <li><b>Delete</b> with the × on a comment. Yours always, and owners and admins can delete anyone's.</li>
+                <li><b>Who can comment:</b> owners, admins, editors, and everyone the task is assigned to.</li>
+                <li><b>Enter or the blue arrow sends.</b> Up to 1000 characters each and 200 per task.</li>
+                <li><b>Delete</b> with the × on a comment. Yours always, and owners and admins can delete anyone's. It goes right away and you get "Comment deleted."</li>
               </ul>
             </div>
             <div>
@@ -369,13 +417,14 @@
           <p>Press ••• on the right of any task. What you see depends on your role.</p>
           <figure class="fig"><img src="/site/shots/menu-task.webp" alt="The task menu" loading="lazy" decoding="async" width="1150" height="720"></figure>
           <div class="table-wrap"><table class="keys">
-            <tr><td>Open details</td><td>Opens the drawer.</td></tr>
-            <tr><td>Mark done or Mark not done</td><td>Editors, and the person it's assigned to.</td></tr>
+            <tr><td>Open details</td><td>Opens the task panel.</td></tr>
+            <tr><td>Mark done or Mark not done</td><td>Editors, and everyone it's assigned to.</td></tr>
             <tr><td>Go to SprintBoost line 1</td><td>Only on linked tasks. Jumps to the linked part or script.</td></tr>
-            <tr><td>Show full text or Collapse text</td><td>Shows every line of a long task, or back to two.</td></tr>
-            <tr><td>Edit text</td><td>Opens the drawer to edit. Editors only, like everything below.</td></tr>
-            <tr><td>Priority: High to None</td><td>Sets priority without opening the drawer.</td></tr>
-            <tr><td>Assign to me</td><td>Puts the task in your My tasks.</td></tr>
+            <tr><td>Show full text or Collapse text</td><td>Shows every line of a task longer than 5 lines, or back to 5.</td></tr>
+            <tr><td>Edit text</td><td>Opens the task panel to edit. Editors only, like everything below.</td></tr>
+            <tr><td>Priority: High to None</td><td>Sets priority without opening the panel.</td></tr>
+            <tr><td>Assign to me or Take me off this task</td><td>Adds you to the people on the task, or takes you off. Anyone else on it stays.</td></tr>
+            <tr><td>Split task</td><td>Turns it into a few tasks. See <a href="#split">Split a task</a>.</td></tr>
             <tr><td>Link to my selection</td><td>Links it to what you have selected in the Explorer.</td></tr>
             <tr><td>Delete task</td><td>Moves it to the trash.</td></tr>
           </table></div>
@@ -392,7 +441,8 @@
             <tr><th>You did</th><th>Undo does</th></tr>
             <tr><td>Added a task</td><td>The task goes to the trash</td></tr>
             <tr><td>Deleted a task</td><td>The task comes back</td></tr>
-            <tr><td>Edited a task</td><td>Text, priority, due date, label, section, notes, assignee and link go back</td></tr>
+            <tr><td>Edited a task</td><td>Text, priority, due date, label, section, notes, people and link go back</td></tr>
+            <tr><td>Split a task</td><td>The parts go back together into one task</td></tr>
             <tr><td>Checked or unchecked</td><td>Flips it back</td></tr>
             <tr><td>Moved a task</td><td>Goes back to where it was</td></tr>
             <tr><td>Renamed the list</td><td>The old name comes back</td></tr>
@@ -426,19 +476,20 @@
 
         <section class="topic" id="list-menu">
           <h3>The list menu</h3>
-          <p>Press ••• in the list header. This is the owner's menu, shown over board view.</p>
-          <figure class="fig"><img src="/site/shots/menu-list.webp" alt="The list menu" loading="lazy" decoding="async" width="1150" height="694"></figure>
+          <p>Press ••• in the list header. This is the owner's menu, with auto assign on.</p>
+          <figure class="fig"><img src="/site/shots/menu-list.webp" alt="The list menu" loading="lazy" decoding="async" width="1150" height="720"></figure>
           <div class="table-wrap"><table class="keys matrix">
             <tr><th>Item</th><th>Owner</th><th>Admin</th><th>Editor</th><th>Viewer</th></tr>
             <tr><td>Rename list</td><td class="ok">yes</td><td class="ok">yes</td><td class="no">no</td><td class="no">no</td></tr>
             <tr><td>Pin to or Unpin from this game</td><td class="ok">yes</td><td class="ok">yes</td><td class="no">no</td><td class="no">no</td></tr>
+            <tr><td>Auto assign new tasks</td><td class="ok">yes</td><td class="ok">yes</td><td class="no">no</td><td class="no">no</td></tr>
             <tr><td>Duplicate list</td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes</td></tr>
             <tr><td>Export as Markdown or JSON</td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes</td></tr>
             <tr><td>Activity log, reports inbox, TODO scan</td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes</td><td class="no">no</td></tr>
             <tr><td>Archive or Unarchive, Delete list</td><td class="ok">yes</td><td class="no">no</td><td class="no">no</td><td class="no">no</td></tr>
             <tr><td>Leave this list</td><td class="no">no</td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes</td></tr>
           </table></div>
-          <p>Duplicate makes a copy you own. Archive freezes a list so nobody can change it until you unarchive it, and moves it to the Archived section. Lists you opened by code also get <b>Remove from my sidebar</b>.</p>
+          <p>Auto assign new tasks picks people that every new task on the list goes to, see <a href="#assign">Auto assign</a>. Duplicate makes a copy you own. Archive freezes a list so nobody can change it until you unarchive it, and moves it to the Archived section. Lists you opened by code also get <b>Remove from my sidebar</b>.</p>
         </section>
 
         <section class="topic" id="command-bar">
@@ -480,7 +531,7 @@
           <p>A link connects a task to a part, model, folder or script in your place. Clicking it later selects that thing, and for scripts opens the editor at the right line.</p>
           <h4>Three ways to make one</h4>
           <ol class="steps-mini">
-            <li><b>From the drawer.</b> Select something in the Explorer, open a task, press <b>Link my selection</b>.</li>
+            <li><b>From the task panel.</b> Select something in the Explorer, open a task, press <b>Link my selection</b>.</li>
             <li><b>From the task menu.</b> Select something, then ••• and <b>Link to my selection</b>.</li>
             <li><b>Make a new linked task.</b> Select something and press ＋ next to the new task box. You get a task like <kbd>Work on SprintBoost</kbd>, and scripts get the Scripting label.</li>
           </ol>
@@ -563,7 +614,7 @@
           <h3>The result</h3>
           <div class="twoshot">
             <figure class="fig"><img src="/site/shots/todo-list.webp" alt="The new task at the bottom of the list in a TODO section" loading="lazy" decoding="async" width="646" height="694"></figure>
-            <figure class="fig"><img src="/site/shots/todo-drawer.webp" alt="The drawer for the new TODO task" loading="lazy" decoding="async" width="925" height="694"></figure>
+            <figure class="fig"><img src="/site/shots/todo-drawer.webp" alt="The task panel for the new TODO task" loading="lazy" decoding="async" width="925" height="694"></figure>
           </div>
           <p>Every task from a scan gets the same treatment automatically:</p>
           <div class="table-wrap"><table class="keys even">
@@ -578,7 +629,7 @@
         <section class="topic" id="jump-back">
           <p class="kicker">Worked example · Done</p>
           <h3>Jump back to the line</h3>
-          <p>Press <b>Go to SprintBoost line 13</b> in the drawer or the task menu. Studio opens the script with the cursor on line 13 and selects SprintBoost in the Explorer.</p>
+          <p>Press <b>Go to SprintBoost line 13</b> in the task panel or the task menu. Studio opens the script with the cursor on line 13 and selects SprintBoost in the Explorer.</p>
           <div class="twoshot wide-left">
             <figure class="fig"><img src="/site/shots/jump-editor.webp" alt="The editor opened on line 13" loading="lazy" decoding="async" width="680" height="300"><figcaption>The script opens with line 13 highlighted.</figcaption></figure>
             <figure class="fig"><img src="/site/shots/jump-explorer.webp" alt="SprintBoost selected in the Explorer" loading="lazy" decoding="async" width="355" height="400"><figcaption>SprintBoost is selected in the Explorer.</figcaption></figure>
@@ -598,7 +649,7 @@
           <h4>See who's around</h4>
           <ul class="ticks">
             <li><b>Avatars in the list header</b> show who else has this list open. Faded ones are in your Team Create session but not on the list right now.</li>
-            <li><b>● Name on a task</b> means that person has the task's drawer open.</li>
+            <li><b>● Name on a task</b> means that person has the task's panel open.</li>
             <li><b>It updates every minute,</b> and someone drops off two minutes after they close the list or Studio.</li>
           </ul>
           <aside class="tip"><b>Good habit for teams:</b> pin your main list to the game, give everyone edit rights, and turn on Changes to my lists in Settings. Then the toolbar icon tells you when someone moved something, even with the window closed.</aside>
@@ -685,12 +736,13 @@
 
         <section class="topic" id="people">
           <h3>People and sharing</h3>
-          <figure class="fig"><img src="/site/shots/people.webp" alt="The People page" loading="lazy" decoding="async" width="925" height="694"></figure>
+          <figure class="fig"><img src="/site/shots/people.webp" alt="The People page with the Auto assign section" loading="lazy" decoding="async" width="925" height="694"><figcaption>New tasks on this list go to builderman.</figcaption></figure>
           <ul class="ticks">
             <li><b>Share code.</b> Anyone with the 8 letter code can open the list and view it. Codes skip letters that look alike, like 0 and O, or 1, I and L.</li>
             <li><b>New code</b> stops the old one working and removes everyone who joined with it, right away. People added by name keep access.</li>
             <li><b>Add a person</b> by Roblox username or UserId. They join as your default role, editor unless you changed it in Settings. Owners also get <b>Add an admin</b>.</li>
             <li><b>Assign the list</b> puts it under that person's Assigned to me, view only. That's different from assigning a single task.</li>
+            <li><b>Auto assign</b> picks people that every new task on this list goes to. Owners and admins only. See <a href="#assign">Auto assign</a>.</li>
             <li><b>Role and Remove</b> appear on each person, so you can change someone later. Admins can't change other admins.</li>
           </ul>
         </section>
@@ -706,11 +758,11 @@
             <tr><td>Comment</td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes</td><td>own tasks</td><td>own tasks</td></tr>
             <tr><td>See people and the share code</td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes</td><td class="no">no</td><td class="no">no</td></tr>
             <tr><td>Add and remove people, new code</td><td class="ok">yes</td><td class="ok">yes</td><td class="no">no</td><td class="no">no</td><td class="no">no</td></tr>
-            <tr><td>Rename, pin, game keys</td><td class="ok">yes</td><td class="ok">yes</td><td class="no">no</td><td class="no">no</td><td class="no">no</td></tr>
+            <tr><td>Rename, pin, auto assign, game keys</td><td class="ok">yes</td><td class="ok">yes</td><td class="no">no</td><td class="no">no</td><td class="no">no</td></tr>
             <tr><td>Add admins, archive, delete</td><td class="ok">yes</td><td class="no">no</td><td class="no">no</td><td class="no">no</td><td class="no">no</td></tr>
             <tr><td>Leave the list</td><td class="no">no</td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes</td><td class="ok">yes</td></tr>
           </table></div>
-          <p>"Own tasks" means a task assigned to you. A list you can't see acts like it doesn't exist, so nobody can go looking for list ids. <b>Leave this list</b> in the list menu removes your access, and the owner can add you back.</p>
+          <p>"Own tasks" means a task you're one of the people assigned to. A list you can't see acts like it doesn't exist, so nobody can go looking for list ids. <b>Leave this list</b> in the list menu removes your access, and the owner can add you back.</p>
         </section>
 
         <section class="topic" id="my-tasks">
@@ -725,7 +777,7 @@
               <ul class="ticks">
                 <li><b>Every task assigned to you,</b> across every list, up to 300.</li>
                 <li><b>Not done first,</b> then soonest due, then highest priority.</li>
-                <li><b>Click one</b> to open its list with the drawer showing.</li>
+                <li><b>Click one</b> to open its list with the task panel showing.</li>
               </ul>
               <h4>Search</h4>
               <ul class="ticks">
@@ -827,7 +879,7 @@
           <h3>Activity log</h3>
           <p>List menu, <b>Activity log</b>. Every change, who made it and when, newest first. Owners see all of it, editors see the latest 50. It keeps up to 500 events for 90 days.</p>
           <figure class="fig"><img src="/site/shots/activity.webp" alt="The activity log" loading="lazy" decoding="async" width="925" height="694"></figure>
-          <p class="note">It records lists being made, imported, renamed, archived and pinned, new share codes, tasks being added, edited, moved, checked off, deleted, restored and commented on, people being added, removed or given a new role, list assignments, approved player reports and undos.</p>
+          <p class="note">It records lists being made, imported, renamed, archived and pinned, new share codes, tasks being added, edited, moved, split, checked off, deleted, restored and commented on, auto assign changes, people being added, removed or given a new role, list assignments, approved player reports and undos.</p>
         </section>
 
         <section class="topic" id="export">
@@ -891,7 +943,7 @@
           </table></div>
           <div class="twoshot">
             <figure class="fig"><img src="/site/shots/tour1.webp" alt="The first step of the tour" loading="lazy" decoding="async" width="925" height="694"><figcaption>The 4 step tour runs on your first login.</figcaption></figure>
-            <figure class="fig"><img src="/site/shots/whatsnew.webp" alt="What's new for 1.1.0" loading="lazy" decoding="async" width="617" height="645"><figcaption>What's new for 1.1.0, one card listing the changes. Close it with ✕.</figcaption></figure>
+            <figure class="fig"><img src="/site/shots/whatsnew.webp" alt="What's new for 1.1.1" loading="lazy" decoding="async" width="925" height="694"><figcaption>Updated to 1.1.1, one card listing the changes. Close it with ✕.</figcaption></figure>
           </div>
         </section>
 
@@ -907,6 +959,7 @@
             <tr><td>Notes</td><td>2000 characters</td><td>Comment</td><td>1000 characters</td></tr>
             <tr><td>Comments per task</td><td>200</td><td>Section name</td><td>40 characters</td></tr>
             <tr><td>Trash</td><td>30 days</td><td>Signed in devices</td><td>10</td></tr>
+            <tr><td>People per task</td><td>10</td><td>Split a task into</td><td>10 tasks</td></tr>
             <tr><td>Game keys per list</td><td>5</td><td>Player report</td><td>500 characters</td></tr>
           </table></div>
         </section>
@@ -953,6 +1006,9 @@
           <div class="table-wrap"><table class="keys">
             <tr><th>Message</th><th>What to do</th></tr>
             <tr><td>Someone else changed this task first. I loaded their version.</td><td>Read their change, then make yours again.</td></tr>
+            <tr><td>No changes to save.</td><td>The text or notes are the same as before. Nothing to do.</td></tr>
+            <tr><td>Put at least two lines in to split the task.</td><td>Put each new task on its own line.</td></tr>
+            <tr><td>Add that person to the list before auto assigning them.</td><td>Add them on the People page first.</td></tr>
             <tr><td>Your sign in expired.</td><td>Log in with Roblox again.</td></tr>
             <tr><td>Tasks can be up to 240 characters.</td><td>Shorten it, and move the detail into notes.</td></tr>
             <tr><td>I couldn't read that date.</td><td>Use <kbd>2026 12 24</kbd>, <kbd>20261224</kbd> or <kbd>12/24/2026</kbd>.</td></tr>

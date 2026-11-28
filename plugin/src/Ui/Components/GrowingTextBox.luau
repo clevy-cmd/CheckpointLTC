@@ -40,6 +40,7 @@ export type GrowingTextBox = typeof(setmetatable(
 		input: TextBox,
 		counter: TextLabel,
 		actionButton: Frame?,
+		actionFace: Frame?,
 		options: Options,
 		lines: number,
 		floating: boolean,
@@ -107,6 +108,7 @@ function GrowingTextBox.new(options: Options, maid: Maid.Maid): GrowingTextBox
 		input = input,
 		counter = counter,
 		actionButton = nil :: Frame?,
+		actionFace = nil :: Frame?,
 		options = options,
 		lines = 1,
 		floating = false,
@@ -149,6 +151,7 @@ function GrowingTextBox.new(options: Options, maid: Maid.Maid): GrowingTextBox
 		end))
 		Overlay.tooltip(hit, action.tooltip, action.shortcut, maid)
 		self.actionButton = holder
+		self.actionFace = face
 	end
 
 	maid:give(input:GetPropertyChangedSignal("Text"):Connect(function()
@@ -260,9 +263,11 @@ function GrowingTextBox.fitHeight(self: GrowingTextBox, slotWidth: number, colla
 	local inner = slotWidth * share * 0.94 * 0.9
 	local lines = self:lineCount(inner)
 	local cap = math.min(self.options.maxLines or Config.interaction.maxFillLines, collapsedLines or math.huge)
-	local shown = math.clamp(lines, 1, cap)
 	local lineHeight = self:lineHeight()
-	return shown * lineHeight / 0.9 / 0.9 + lineHeight * 0.4
+	if lines > cap then
+		return cap * lineHeight / 0.9 + lineHeight * 0.1
+	end
+	return math.max(1, lines) * lineHeight / 0.9 / 0.9 + lineHeight * 0.4
 end
 
 function GrowingTextBox.setFloating(self: GrowingTextBox, floating: boolean)
@@ -293,13 +298,28 @@ function GrowingTextBox.measure(self: GrowingTextBox)
 		local inner = self.scroller.AbsoluteSize.Y * 0.9
 		local fits = math.max(1, math.floor(inner / lineHeight + 0.05))
 		self.box.Size = UDim2.fromScale(self.box.Size.X.Scale, 1)
+		local padding = self.input:FindFirstChildOfClass("UIPadding")
 		if lines > fits then
-			local contentHeight = lines * lineHeight / 0.9 + lineHeight
+			local contentHeight = lines * lineHeight + lineHeight * 0.5
 			self.scroller.CanvasSize = UDim2.fromOffset(0, contentHeight)
 			self.input.Size = UDim2.new(1, 0, 0, contentHeight)
+			if padding then
+				padding.PaddingTop = UDim.new(0, 0)
+				padding.PaddingBottom = UDim.new(0, 0)
+			end
 		else
 			self.scroller.CanvasSize = UDim2.fromScale(0, 0)
 			self.input.Size = UDim2.fromScale(1, 1)
+			if padding then
+				padding.PaddingTop = UDim.new(0.05, 0)
+				padding.PaddingBottom = UDim.new(0.05, 0)
+			end
+		end
+		local face = self.actionFace
+		if face then
+			face.AnchorPoint = Vector2.new(1, 0)
+			face.Position = UDim2.fromScale(1, 0)
+			face.Size = UDim2.fromScale(1, math.min(1, lineHeight * 2.3 / slotHeight))
 		end
 	else
 		local maxLines = Config.interaction.maxInputLines
